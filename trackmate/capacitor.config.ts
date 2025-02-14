@@ -1,9 +1,9 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'trackmate',
-  webDir: 'dist'
+  appId: 'com.trackmate.test',
+  appName: 'TrackMate',
+  webDir: 'build'
 };
 
 export default config;

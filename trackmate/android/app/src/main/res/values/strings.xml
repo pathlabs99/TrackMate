@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TrackMate</string>
+    <string name="title_activity_main">TrackMate</string>
+    <string name="package_name">com.trackmate.test</string>
+    <string name="custom_url_scheme">com.trackmate.test</string>
+</resources>
