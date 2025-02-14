@@ -1,0 +1,7 @@
+{
+  "name": "trackmate",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
