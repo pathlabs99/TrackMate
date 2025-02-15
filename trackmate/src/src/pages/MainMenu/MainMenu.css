@@ -1,0 +1,13 @@
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  height: 100%;
+  justify-content: center;
+}
+
+ion-button {
+  height: 60px;
+  --border-radius: 10px;
+} 
