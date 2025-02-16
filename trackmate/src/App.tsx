@@ -1,3 +1,4 @@
+import React from 'react';
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
@@ -10,10 +11,12 @@ import {
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { ellipse, square, helpCircle } from "ionicons/icons";
+import { qrCode, documentText, warning, helpCircle, menu } from "ionicons/icons";
 import Tab1 from "./pages/Tab1";
 import Tab2 from "./pages/Tab2";
-import FAQ from "./pages/FAQ/FAQ"; // FAQ
+import Tab3 from "./pages/Tab3";
+import FAQ from "./pages/FAQ/FAQ";
+import MainMenu from "./pages/MainMenu/MainMenu";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -52,25 +55,42 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
+          <Route exact path="/menu">
+            <MainMenu />
+          </Route>
           <Route exact path="/tab1">
             <Tab1 />
           </Route>
           <Route exact path="/tab2">
             <Tab2 />
           </Route>
+          <Route exact path="/tab3">
+            <Tab3 />
+          </Route>
           <Route exact path="/faq">
             <FAQ />
+          </Route>
+          <Route exact path="/">
+            <Redirect to="/menu" />
           </Route>
         </IonRouterOutlet>
 
         <IonTabBar slot="bottom">
+          <IonTabButton tab="menu" href="/menu">
+            <IonIcon aria-hidden="true" icon={menu} />
+            <IonLabel>Menu</IonLabel>
+          </IonTabButton>
           <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon aria-hidden="true" icon={square} />
-            <IonLabel>Tab 1</IonLabel>
+            <IonIcon aria-hidden="true" icon={qrCode} />
+            <IonLabel>QR Code</IonLabel>
           </IonTabButton>
           <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
+            <IonIcon aria-hidden="true" icon={documentText} />
+            <IonLabel>Survey</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="tab3" href="/tab3">
+            <IonIcon aria-hidden="true" icon={warning} />
+            <IonLabel>Issues</IonLabel>
           </IonTabButton>
           <IonTabButton tab="faq" href="/faq">
             <IonIcon aria-hidden="true" icon={helpCircle} />
