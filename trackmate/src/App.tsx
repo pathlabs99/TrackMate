@@ -17,6 +17,15 @@ import Tab2 from "./pages/Tab2";
 import Tab3 from "./pages/Tab3";
 import FAQ from "./pages/FAQ/FAQ";
 import MainMenu from "./pages/MainMenu/MainMenu";
+import QR1 from "./pages/QR/QR1";
+import QR2 from "./pages/QR/QR2";
+import QR3 from "./pages/QR/QR3";
+import QR4 from "./pages/QR/QR4";
+import QR5 from "./pages/QR/QR5";
+import QR6 from "./pages/QR/QR6";
+import QR7 from "./pages/QR/QR7";
+import QR8 from "./pages/QR/QR8";
+import QR9 from "./pages/QR/QR9";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -34,15 +43,6 @@ import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
-/* import '@ionic/react/css/palettes/dark.class.css'; */
 import "@ionic/react/css/palettes/dark.system.css";
 
 /* Theme variables */
@@ -69,6 +69,34 @@ const App: React.FC = () => (
           </Route>
           <Route exact path="/faq">
             <FAQ />
+          </Route>
+          {/* Removed Info1 Route */}
+          <Route exact path="/qr1">
+            <QR1 />
+          </Route>
+          <Route exact path="/qr2">
+            <QR2 />
+          </Route>
+          <Route exact path="/qr3">
+            <QR3 />
+          </Route>
+          <Route exact path="/qr4">
+            <QR4 />
+          </Route>
+          <Route exact path="/qr5">
+            <QR5 />
+          </Route>
+          <Route exact path="/qr6">
+            <QR6 />
+          </Route>
+          <Route exact path="/qr7">
+            <QR7 />
+          </Route>
+          <Route exact path="/qr8">
+            <QR8 />
+          </Route>
+          <Route exact path="/qr9">
+            <QR9 />
           </Route>
           <Route exact path="/">
             <Redirect to="/menu" />
