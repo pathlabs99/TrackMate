@@ -28,8 +28,25 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import './Tab2.css';
 
+/*
+ * Survey Submission Form - Component for TrackMate that provides
+ * a survey interface for users to share their experiences
+ * on the Bibbulmun Track. Collects user information, trip details,
+ * and feedback on various aspects of their visit.
+ *
+ * @author: abdullah
+ * @date: 22/02/25
+ * 
+ * 
+* TODO:
+ * - Add input validation and error handling
+ * - Implement survey submission to backend service
+ * - Fix issue allowing multiple radio buttons to be selected in the survey form
+ * - Make text fields visible and input-enabled in the survey form
+ */
 const Tab2: React.FC = (): React.JSX.Element => {
   const [formData, setFormData] = useState({
+    // State to manage form data
     lastVisitDate: '',
     heardOfFoundation: '',
     promptedToWalk: [],
@@ -82,10 +99,11 @@ const Tab2: React.FC = (): React.JSX.Element => {
     otherTravelGroup: '',
     travelGroup: '',
     childrenUnder4Count: '',
-	  adultCount: '',
-	  children5to17Count: ''
+    adultCount: '',
+    children5to17Count: ''
   });
 
+  // Function to handle input changes and update form data
   const handleInputChange = (event: any, p0?: string) => {
     const { name, value } = event.target;
     setFormData({
@@ -101,11 +119,13 @@ const Tab2: React.FC = (): React.JSX.Element => {
     }
   };
 
+  // Function to handle form submission
   const handleSubmit = (event: any) => {
     event.preventDefault();
     console.log(formData);
   };
 
+  // Reference to the Swiper component
   const swiperRef = useRef<any>(null);
 
   function handleCheckboxChange(arg0: string): void {
