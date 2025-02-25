@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -12,48 +11,48 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Tab1.css';
 
 const Tab1: React.FC = () => {
   const router = useIonRouter();
   const [showPermissionError, setShowPermissionError] = useState<boolean>(false);
   const [showInvalidQRError, setShowInvalidQRError] = useState<boolean>(false);
+  const [isScanning, setIsScanning] = useState(false);
 
-  // Handle hardware back button
   useEffect(() => {
     const handleBackButton = (ev: any) => {
-      ev.detail.register(10, () => {
-        cleanupScanner();
+      ev.detail.register(10, async () => {
+        await cleanupScanner();
         router.push('/menu', 'back');
       });
     };
-
     document.addEventListener('ionBackButton', handleBackButton);
-
-    return () => {
-      document.removeEventListener('ionBackButton', handleBackButton);
-    };
+    return () => document.removeEventListener('ionBackButton', handleBackButton);
   }, [router]);
 
-  // Start scanning when view enters
   useIonViewDidEnter(() => {
-    startScan();
+    if (!isScanning) {
+      startScan();
+    }
   });
 
-  // Cleanup when view will leave
   useIonViewWillLeave(() => {
     cleanupScanner();
   });
 
-  // Additional cleanup when view has left
   useIonViewDidLeave(() => {
     cleanupScanner();
   });
 
   const cleanupScanner = async () => {
     try {
-      document.querySelector('body')?.classList.remove('scanner-active');
+      setIsScanning(false);
+      const frame = document.querySelector('.scanner-frame');
+      if (frame) {
+        frame.remove();
+      }
+      document.body.classList.remove('scanner-active');
       await BarcodeScanner.showBackground();
       await BarcodeScanner.stopScan();
     } catch (error) {
@@ -67,7 +66,6 @@ const Tab1: React.FC = () => {
     
     if (validQRCodes.includes(qrCode)) {
       await cleanupScanner();
-      // Use replace to prevent navigation stack issues
       router.push(`/${qrCode}`, 'root', 'replace');
     } else {
       await cleanupScanner();
@@ -76,26 +74,36 @@ const Tab1: React.FC = () => {
   };
 
   const startScan = async () => {
-    try {
-      // Ensure cleanup before starting
-      await cleanupScanner();
+    if (isScanning) return;
 
-      // Check camera permission
-      const status = await BarcodeScanner.checkPermission({ force: true });
+    try {
+      setIsScanning(true);
       
+      const status = await BarcodeScanner.checkPermission({ force: true });
       if (!status.granted) {
         setShowPermissionError(true);
+        setIsScanning(false);
         return;
       }
 
-      // Prepare scanner
+      // Create frame with corners
+      const frame = document.createElement('div');
+      frame.className = 'scanner-frame';
+      
+      // Add corners
+      const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+      corners.forEach(position => {
+        const corner = document.createElement('div');
+        corner.className = `corner corner-${position}`;
+        frame.appendChild(corner);
+      });
+      
+      document.body.appendChild(frame);
+
       await BarcodeScanner.prepare();
-
-      // Make background of WebView transparent
+      document.body.classList.add('scanner-active');
       await BarcodeScanner.hideBackground();
-      document.querySelector('body')?.classList.add('scanner-active');
 
-      // Start scanning with optimized settings
       const result = await BarcodeScanner.startScan({
         targetedFormats: ['QR_CODE'],
         scanMode: 'SINGLE',
@@ -103,11 +111,10 @@ const Tab1: React.FC = () => {
         detectorSize: 1.0,
         detectorAspectRatio: 1.0,
       });
-      
+
       if (result.hasContent) {
         await handleQRNavigation(result.content);
       } else {
-        // If no content, cleanup and return to menu
         await cleanupScanner();
         router.push('/menu', 'back');
       }
@@ -148,32 +155,18 @@ const Tab1: React.FC = () => {
           header={'Camera Permission Required'}
           message={'Please enable camera access in your device settings to use the QR scanner.'}
           buttons={[
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              handler: handleCancel
-            },
-            {
-              text: 'Open Settings',
-              handler: openDeviceSettings
-            }
+            { text: 'Cancel', role: 'cancel', handler: handleCancel },
+            { text: 'Open Settings', handler: openDeviceSettings },
           ]}
         />
-
         <IonAlert
           isOpen={showInvalidQRError}
           onDidDismiss={handleCancel}
           header={'Invalid QR Code'}
           message={'The scanned QR code is not valid for this application. Please scan a valid QR code.'}
           buttons={[
-            {
-              text: 'Cancel',
-              handler: handleCancel
-            },
-            {
-              text: 'Try Again',
-              handler: handleRetry
-            }
+            { text: 'Cancel', handler: handleCancel },
+            { text: 'Try Again', handler: handleRetry },
           ]}
         />
       </IonContent>
@@ -181,4 +174,4 @@ const Tab1: React.FC = () => {
   );
 };
 
-export default Tab1; 
+export default Tab1;
