@@ -53,46 +53,59 @@ interface IssueFormData {
 }
 
 // Use relative path instead of full URL
-const API_URL = 'https://1bb7-2-49-133-227.ngrok-free.app';
+const API_URL = "https://1bb7-2-49-133-227.ngrok-free.app";
 
 const IssueReportForm: React.FC = () => {
   const [formData, setFormData] = useState<IssueFormData>({
-    name: '',
-    email: '',
-    telephone: '',
-    dateObserved: '',
-    location: '',
-    comments: '',
+    name: "",
+    email: "",
+    telephone: "",
+    dateObserved: "",
+    location: "",
+    comments: "",
   });
 
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const convertToCSV = (data: IssueFormData): string => {
-    const headers = ['Name', 'Email', 'Telephone', 'Date Observed', 'Location', 'Comments'];
+    const headers = [
+      "Name",
+      "Email",
+      "Telephone",
+      "Date Observed",
+      "Location",
+      "Comments",
+    ];
     const values = [
       data.name,
       data.email,
       data.telephone,
       data.dateObserved,
       data.location,
-      data.comments
+      data.comments,
     ];
-    return `${headers.join(',')}\n${values.join(',')}`;
+    return `${headers.join(",")}\n${values.join(",")}`;
   };
 
   const handleSubmit = async () => {
     // Validation
-    if (!formData.name || !formData.email || !formData.dateObserved || !formData.location || !formData.comments) {
-      setToastMessage('Please fill in all required fields');
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.dateObserved ||
+      !formData.location ||
+      !formData.comments
+    ) {
+      setToastMessage("Please fill in all required fields");
       setShowToast(true);
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setToastMessage('Please enter a valid email address');
+      setToastMessage("Please enter a valid email address");
       setShowToast(true);
       return;
     }
@@ -101,15 +114,17 @@ const IssueReportForm: React.FC = () => {
 
     try {
       const csvData = convertToCSV(formData);
-      const fileName = `issue_report_${new Date().toISOString().split('T')[0]}.csv`;
+      const fileName = `issue_report_${
+        new Date().toISOString().split("T")[0]
+      }.csv`;
 
-      console.log('Attempting to submit report to:', `${API_URL}/send-report`);
-      
+      console.log("Attempting to submit report to:", `${API_URL}/send-report`);
+
       const response = await fetch(`${API_URL}/send-report`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
           csvData,
@@ -117,25 +132,27 @@ const IssueReportForm: React.FC = () => {
         }),
       });
 
-      console.log('Response status:', response.status);
+      console.log("Response status:", response.status);
       const responseData = await response.text();
-      console.log('Response data:', responseData);
+      console.log("Response data:", responseData);
 
       if (response.ok) {
-        setToastMessage('Report submitted successfully');
+        setToastMessage("Report submitted successfully");
         setFormData({
-          name: '',
-          email: '',
-          telephone: '',
-          dateObserved: '',
-          location: '',
-          comments: '',
+          name: "",
+          email: "",
+          telephone: "",
+          dateObserved: "",
+          location: "",
+          comments: "",
         });
       } else {
-        throw new Error(`Failed to submit report: ${response.status} ${responseData}`);
+        throw new Error(
+          `Failed to submit report: ${response.status} ${responseData}`
+        );
       }
     } catch (error) {
-      console.error('Submit error:', error);
+      console.error("Submit error:", error);
       setToastMessage(`Failed to submit report: ${error.message}`);
     } finally {
       setLoading(false);
@@ -146,21 +163,23 @@ const IssueReportForm: React.FC = () => {
   const testConnection = async () => {
     try {
       setLoading(true);
-      console.log('Testing connection to:', `${API_URL}/test`);
-      
+      console.log("Testing connection to:", `${API_URL}/test`);
+
       const response = await fetch(`${API_URL}/test`, {
         headers: {
-          'Accept': 'application/json',
-        }
+          Accept: "application/json",
+        },
       });
-      
+
       const responseData = await response.text();
-      console.log('Test response status:', response.status);
-      console.log('Test response data:', responseData);
-      
-      alert(`Connection test result:\nStatus: ${response.status}\nResponse: ${responseData}\nAPI URL: ${API_URL}`);
+      console.log("Test response status:", response.status);
+      console.log("Test response data:", responseData);
+
+      alert(
+        `Connection test result:\nStatus: ${response.status}\nResponse: ${responseData}\nAPI URL: ${API_URL}`
+      );
     } catch (error) {
-      console.error('Connection test error:', error);
+      console.error("Connection test error:", error);
       alert(`Connection test failed:\n${error.message}\nAPI URL: ${API_URL}`);
     } finally {
       setLoading(false);
@@ -168,9 +187,9 @@ const IssueReportForm: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof IssueFormData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -197,7 +216,9 @@ const IssueReportForm: React.FC = () => {
                 </IonLabel>
                 <IonInput
                   value={formData.name}
-                  onIonChange={e => handleInputChange('name', e.detail.value || '')}
+                  onIonChange={(e) =>
+                    handleInputChange("name", e.detail.value || "")
+                  }
                   placeholder="Your full name"
                   required={true}
                 />
@@ -210,7 +231,9 @@ const IssueReportForm: React.FC = () => {
                 <IonInput
                   type="email"
                   value={formData.email}
-                  onIonChange={e => handleInputChange('email', e.detail.value || '')}
+                  onIonChange={(e) =>
+                    handleInputChange("email", e.detail.value || "")
+                  }
                   placeholder="Your email address"
                   required={true}
                 />
@@ -221,7 +244,9 @@ const IssueReportForm: React.FC = () => {
                 <IonInput
                   type="tel"
                   value={formData.telephone}
-                  onIonChange={e => handleInputChange('telephone', e.detail.value || '')}
+                  onIonChange={(e) =>
+                    handleInputChange("telephone", e.detail.value || "")
+                  }
                   placeholder="Your phone number"
                 />
               </IonItem>
@@ -232,7 +257,9 @@ const IssueReportForm: React.FC = () => {
                 </IonLabel>
                 <IonInput
                   value={formData.dateObserved}
-                  onIonChange={e => handleInputChange('dateObserved', e.detail.value || '')}
+                  onIonChange={(e) =>
+                    handleInputChange("dateObserved", e.detail.value || "")
+                  }
                   placeholder="DD/MM/YYYY"
                   required={true}
                 />
@@ -244,7 +271,9 @@ const IssueReportForm: React.FC = () => {
                 </IonLabel>
                 <IonTextarea
                   value={formData.location}
-                  onIonChange={e => handleInputChange('location', e.detail.value || '')}
+                  onIonChange={(e) =>
+                    handleInputChange("location", e.detail.value || "")
+                  }
                   placeholder="Describe the location"
                   required={true}
                 />
@@ -256,7 +285,9 @@ const IssueReportForm: React.FC = () => {
                 </IonLabel>
                 <IonTextarea
                   value={formData.comments}
-                  onIonChange={e => handleInputChange('comments', e.detail.value || '')}
+                  onIonChange={(e) =>
+                    handleInputChange("comments", e.detail.value || "")
+                  }
                   placeholder="Describe the issue"
                   required={true}
                 />
@@ -267,9 +298,9 @@ const IssueReportForm: React.FC = () => {
               <IonButton expand="block" onClick={handleSubmit}>
                 Submit Report
               </IonButton>
-              <IonButton 
-                expand="block" 
-                color="secondary" 
+              <IonButton
+                expand="block"
+                color="secondary"
                 onClick={testConnection}
                 className="ion-margin-top"
               >
@@ -287,10 +318,7 @@ const IssueReportForm: React.FC = () => {
           position="bottom"
         />
 
-        <IonLoading
-          isOpen={loading}
-          message="Please wait..."
-        />
+        <IonLoading isOpen={loading} message="Please wait..." />
       </IonContent>
     </IonPage>
   );
