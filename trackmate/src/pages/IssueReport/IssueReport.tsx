@@ -23,15 +23,22 @@ import {
  * on the track . Collects user information, issue location,
  * date, and problem details.
  *
- * @author: Marwa
- * @date: 21/02/25
+ * @authors:
+ * - Marwa (initial implementation, 21/02/25)
+ * - Wael (email submission functionality, 03/03/25)
  *
- * TODO:
- * - Add form validation and error handling
- * - Implement form submission to backend service
- * - Add loading state indicator during submission
- * - Add success/error notifications after submission
+ * Features implemented:
+ * - Basic form validation for required fields
+ * - Email validation
+ * - CSV conversion of form data
+ * - Basic API integration for email submission
+ * - Loading indicator and toast notifications
+ *
+ * TO-DO:
+ * - Error handling and retry logic
  * - Implement geolocation to auto-fill coordinates
+ * - Add file upload for photos of issues // not sure if needed
+ * - Add offline support with local storage
  */
 const IssueReportForm: React.FC = () => {
   return (
