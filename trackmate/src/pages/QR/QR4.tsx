@@ -21,6 +21,7 @@ const QR4: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Ballingup</strong></h1>
         <h2>Location 4 Details</h2>
         <p><strong>Overview:</strong> Ballingup marks a significant transitional section on the Bibbulmun Track, where the lush jarrah, marri, and yarri forests give way to the majestic karri forest – the second tallest flowering tree in the world. This section also signifies the halfway point for end-to-end walkers, offering breathtaking views and rich biodiversity.</p>
         <p><strong>Landmarks:</strong></p>

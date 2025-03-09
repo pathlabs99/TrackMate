@@ -21,6 +21,7 @@ const QR6: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Pemberton</strong></h1>
         <h2>Location 6 Details</h2>
         <p><strong>Overview:</strong> Pemberton is a small town surrounded by karri forests known for its breathtaking landscapes. The journey from Pemberton to Northcliffe offers pleasant forest walks, historical landmarks, and diverse vegetation, making it ideal for a short multi-day hike.</p>
         <p><strong>Landmarks:</strong></p>

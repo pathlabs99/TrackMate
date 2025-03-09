@@ -21,6 +21,7 @@ const QR2: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Dwellingup</strong></h1>
         <h2>Location 2 Details</h2>
         <p><strong>Overview:</strong> The Murray River Valley trail offers a diverse walking experience, combining tranquil pools, steep hills, and remnants of old railway formations. Walkers can enjoy both scenic beauty and historical significance along the path.</p>
         <p><strong>Landmarks:</strong> Old railway formations, Murray River rapids, tranquil pools, and campsites along the trail.</p>

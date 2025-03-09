@@ -21,6 +21,7 @@ const QR3: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Collie</strong></h1>
         <h2>Location 3 Details</h2>
         <p><strong>Overview:</strong> Collie is a vibrant town where walkers can take a break before heading south. The trail passes through scenic landscapes, including the Collie River, Mungalup Dam, and Wellington Forest. Walkers experience a mix of natural beauty and historical landmarks.</p>
         <p><strong>Landmarks:</strong></p>

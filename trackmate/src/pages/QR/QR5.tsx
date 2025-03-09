@@ -21,6 +21,7 @@ const QR5: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Donelly River</strong></h1>
         <h2>Location 5 Details</h2>
         <p><strong>Overview:</strong> The Donnelly River winds through the lush valley, offering scenic beauty and a peaceful environment. The Bibbulmun Track follows the river, featuring some of the most challenging hills along the trail. The area is known for its swimming holes, granite boulders, and towering karri forests, making it a popular spot for both hikers and nature lovers.</p>
         <p><strong>Landmarks:</strong></p>

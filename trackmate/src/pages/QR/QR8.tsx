@@ -21,6 +21,7 @@ const QR8: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Walpole</strong></h1>
         <h2>Location 8 Details</h2>
         <p><strong>Overview:</strong> The Walpole section of the Bibbulmun Track offers a diverse mix of forest and coastal landscapes. Walkers can explore the towering karri and tingle forests before transitioning to the rugged southern coastline.</p>
         <p><strong>Landmarks:</strong></p>

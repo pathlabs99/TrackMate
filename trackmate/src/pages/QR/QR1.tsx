@@ -21,6 +21,7 @@ const QR1: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>The Darling Range</strong></h1>
         <h2>Location 1 Details</h2>
         <p><strong>Overview:</strong> Kalamunda is the starting point of the Bibbulmun Track, known for its rich indigenous history and early European timber settlements.</p>
         <p><strong>Landmarks:</strong> Mundaring Weir, Beelu National Park.</p>

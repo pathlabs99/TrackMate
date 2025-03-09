@@ -21,6 +21,7 @@ const QR7: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Northcliffe</strong></h1>
         <h2>Location 7 Details</h2>
         <p><strong>Overview:</strong> Northcliffe marks the transition between karri forests and coastal shrublands, offering one of the most diverse sections of the Track. The journey from Northcliffe to Walpole is the second longest stretch without resupply points, crossing through remote and often waterlogged terrain like the Pingerup Plains and D’Entrecasteaux National Park.</p>
         <p><strong>Landmarks:</strong></p>

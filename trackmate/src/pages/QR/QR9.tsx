@@ -21,6 +21,7 @@ const QR9: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <h1><strong>Denmark</strong></h1>
         <h2>Location 9 Details</h2>
         <p><strong>Overview:</strong> The section from Denmark to Albany is a scenic coastal walk with beautiful beaches, stunning views of the Southern Ocean, and access to sheltered swimming spots. Walkers cross the Wilson and Torbay Inlets, with many options for crossing depending on the season. The path also features boardwalks near cliffs and passes through the West Cape Howe National Park and several historic settlements.</p>
         <p><strong>Landmarks:</strong></p>
