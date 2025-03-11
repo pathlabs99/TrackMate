@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   IonContent,
   IonHeader,
@@ -15,6 +15,8 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonToast,
+  IonLoading,
 } from "@ionic/react";
 
 /*
@@ -33,7 +35,138 @@ import {
  * - Add success/error notifications after submission
  * - Implement geolocation to auto-fill coordinates
  */
+
+interface IssueFormData {
+  name: string;
+  email: string;
+  telephone: string;
+  dateObserved: string;
+  location: string;
+  comments: string;
+}
+
+// Use relative path instead of full URL
+const API_URL = 'https://trackmate-server-0uvc.onrender.com';
+
 const IssueReportForm: React.FC = () => {
+  const [formData, setFormData] = useState<IssueFormData>({
+    name: '',
+    email: '',
+    telephone: '',
+    dateObserved: '',
+    location: '',
+    comments: '',
+  });
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const convertToCSV = (data: IssueFormData): string => {
+    const headers = ['Name', 'Email', 'Telephone', 'Date Observed', 'Location', 'Comments'];
+    const values = [
+      data.name,
+      data.email,
+      data.telephone,
+      data.dateObserved,
+      data.location,
+      data.comments
+    ];
+    return `${headers.join(',')}\n${values.join(',')}`;
+  };
+
+  const handleSubmit = async () => {
+    // Validation
+    if (!formData.name || !formData.email || !formData.dateObserved || !formData.location || !formData.comments) {
+      setToastMessage('Please fill in all required fields');
+      setShowToast(true);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setToastMessage('Please enter a valid email address');
+      setShowToast(true);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const csvData = convertToCSV(formData);
+      const fileName = `issue_report_${new Date().toISOString().split('T')[0]}.csv`;
+
+      console.log('Attempting to submit report to:', `${API_URL}/send-report`);
+      
+      const response = await fetch(`${API_URL}/send-report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          csvData,
+          fileName,
+        }),
+      });
+
+      console.log('Response status:', response.status);
+      const responseData = await response.text();
+      console.log('Response data:', responseData);
+
+      if (response.ok) {
+        setToastMessage('Report submitted successfully');
+        setFormData({
+          name: '',
+          email: '',
+          telephone: '',
+          dateObserved: '',
+          location: '',
+          comments: '',
+        });
+      } else {
+        throw new Error(`Failed to submit report: ${response.status} ${responseData}`);
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      setToastMessage(`Failed to submit report: ${error.message}`);
+    } finally {
+      setLoading(false);
+      setShowToast(true);
+    }
+  };
+
+  const testConnection = async () => {
+    try {
+      setLoading(true);
+      console.log('Testing connection to:', `${API_URL}/test`);
+      
+      const response = await fetch(`${API_URL}/test`, {
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+      
+      const responseData = await response.text();
+      console.log('Test response status:', response.status);
+      console.log('Test response data:', responseData);
+      
+      alert(`Connection test result:\nStatus: ${response.status}\nResponse: ${responseData}\nAPI URL: ${API_URL}`);
+    } catch (error) {
+      console.error('Connection test error:', error);
+      alert(`Connection test failed:\n${error.message}\nAPI URL: ${API_URL}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof IssueFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -51,74 +184,106 @@ const IssueReportForm: React.FC = () => {
           </IonCardHeader>
           <IonCardContent>
             <IonList>
-              {/* Name field */}
               <IonItem>
                 <IonLabel position="stacked">
                   Name <span style={{ color: "#eb445a" }}>*</span>
                 </IonLabel>
-                <IonInput placeholder="Your full name" required={true} />
+                <IonInput
+                  value={formData.name}
+                  onIonChange={e => handleInputChange('name', e.detail.value || '')}
+                  placeholder="Your full name"
+                  required={true}
+                />
               </IonItem>
 
-              {/* Email field */}
               <IonItem>
                 <IonLabel position="stacked">
                   Email <span style={{ color: "#eb445a" }}>*</span>
                 </IonLabel>
                 <IonInput
                   type="email"
+                  value={formData.email}
+                  onIonChange={e => handleInputChange('email', e.detail.value || '')}
                   placeholder="Your email address"
                   required={true}
                 />
               </IonItem>
 
-              {/* Telephone field */}
               <IonItem>
                 <IonLabel position="stacked">Telephone</IonLabel>
-                <IonInput type="tel" placeholder="Phone number" />
+                <IonInput
+                  type="tel"
+                  value={formData.telephone}
+                  onIonChange={e => handleInputChange('telephone', e.detail.value || '')}
+                  placeholder="Your phone number"
+                />
               </IonItem>
 
-              {/* Date Observed field */}
               <IonItem>
                 <IonLabel position="stacked">
-                  When was the problem observed?{" "}
-                  <span style={{ color: "#eb445a" }}>*</span>
+                  Date Observed <span style={{ color: "#eb445a" }}>*</span>
                 </IonLabel>
-                <IonInput placeholder="DD/MM/YYYY" />
-              </IonItem>
-
-              {/* Location field */}
-              <IonItem>
-                <IonLabel position="stacked">
-                  Where was the problem?{" "}
-                  <span style={{ color: "#eb445a" }}>*</span>
-                </IonLabel>
-                <IonTextarea
-                  placeholder="Give GPS coordinates, Guidebook Track Note or accurate distance from landmark (e.g campsite or vehicle access point)"
-                  rows={3}
+                <IonInput
+                  value={formData.dateObserved}
+                  onIonChange={e => handleInputChange('dateObserved', e.detail.value || '')}
+                  placeholder="DD/MM/YYYY"
                   required={true}
                 />
               </IonItem>
 
-              {/* Comments field */}
+              <IonItem>
+                <IonLabel position="stacked">
+                  Location <span style={{ color: "#eb445a" }}>*</span>
+                </IonLabel>
+                <IonTextarea
+                  value={formData.location}
+                  onIonChange={e => handleInputChange('location', e.detail.value || '')}
+                  placeholder="Describe the location"
+                  required={true}
+                />
+              </IonItem>
+
               <IonItem>
                 <IonLabel position="stacked">
                   Comments <span style={{ color: "#eb445a" }}>*</span>
                 </IonLabel>
                 <IonTextarea
-                  placeholder="Describe the issue in detail"
-                  rows={6}
+                  value={formData.comments}
+                  onIonChange={e => handleInputChange('comments', e.detail.value || '')}
+                  placeholder="Describe the issue"
                   required={true}
                 />
               </IonItem>
             </IonList>
 
             <div className="ion-padding-top">
-              <IonButton expand="block" type="submit">
+              <IonButton expand="block" onClick={handleSubmit}>
                 Submit Report
+              </IonButton>
+              <IonButton 
+                expand="block" 
+                color="secondary" 
+                onClick={testConnection}
+                className="ion-margin-top"
+              >
+                Test Connection
               </IonButton>
             </div>
           </IonCardContent>
         </IonCard>
+
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={3000}
+          position="bottom"
+        />
+
+        <IonLoading
+          isOpen={loading}
+          message="Please wait..."
+        />
       </IonContent>
     </IonPage>
   );
