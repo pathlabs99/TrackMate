@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
@@ -27,6 +27,9 @@ import QR7 from "./pages/QR/QR7";
 import QR8 from "./pages/QR/QR8";
 import QR9 from "./pages/QR/QR9";
 
+// Import Capacitor plugins
+import { StatusBar, Style } from '@capacitor/status-bar';
+
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
@@ -44,6 +47,22 @@ import "./theme/variables.css";
 setupIonicReact();
 
 const App: React.FC = () => {
+  useEffect(() => {
+    const setupStatusBar = async () => {
+      try {
+        // Configure status bar
+        await StatusBar.setOverlaysWebView({ overlay: false });
+        await StatusBar.setStyle({ style: Style.Light });
+        await StatusBar.setBackgroundColor({ color: '#ffffff' });
+      } catch (err) {
+        console.log('Status bar setup error:', err);
+      }
+    };
+    
+    // Initialize status bar settings
+    setupStatusBar();
+  }, []);
+
   return (
     <IonApp>
       <IonReactRouter>
