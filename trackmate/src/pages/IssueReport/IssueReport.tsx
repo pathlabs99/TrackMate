@@ -1,80 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonItem,
   IonLabel,
   IonInput,
   IonTextarea,
   IonButton,
-  IonList,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
+  IonIcon,
+  IonChip,
   IonToast,
   IonLoading,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonIcon,
+  IonDatetime,
   IonActionSheet,
-  IonChip,
-  IonSelect,
-  IonSelectOption,
-  isPlatform,
+  IonText,
 } from "@ionic/react";
 import {
   camera,
+  location,
+  cloudUpload,
   image,
   trash,
-  location,
-  locationOutline,
-  cloudUpload,
   wifi,
-  wifiOutline,
   cloudOfflineOutline,
+  arrowForward,
+  calendar,
 } from "ionicons/icons";
-import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
-import { Geolocation } from "@capacitor/geolocation";
-import { Network } from "@capacitor/network";
-import localforage from "localforage";
+import "./IssueReport.css";
 
-interface IssueFormData {
-  name: string;
-  email: string;
-  telephone: string;
-  dateObserved: string;
-  location: string;
-  issueType: string;
-  urgency: string;
-  comments: string;
-}
+// Import models and services from your existing structure
+import {
+  defaultFormData,
+  IssueFormData,
+  Coordinates,
+} from "./Models/IssueReport";
+import { ValidationErrors } from "./Utils/Validation";
+import { Geolocation } from "./Services/Geolocation";
+import { Camera } from "./Services/Camera";
+import { Network } from "./Services/Network";
+import { Storage } from "./Services/Storage";
+import { Report } from "./Services/Report";
+import { CameraSource } from "@capacitor/camera";
+import { BackgroundSync } from "./Services/BackgroundSync";
 
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-  accuracy: number;
-}
-
-// Server URL
-const API_URL = "https://trackmate-server-0uvc.onrender.com";
-
-const IssueReportForm: React.FC = () => {
-  const [formData, setFormData] = useState<IssueFormData>({
-    name: "",
-    email: "",
-    telephone: "",
-    dateObserved: new Date().toISOString().split("T")[0], // Today's date as default
-    location: "",
-    issueType: "",
-    urgency: "medium", // Default urgency
-    comments: "",
-  });
-
+const IssueReport: React.FC = () => {
+  // State management
+  const [formData, setFormData] = useState<IssueFormData>(defaultFormData);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastColor, setToastColor] = useState("success");
@@ -83,105 +54,95 @@ const IssueReportForm: React.FC = () => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
-  const [validationErrors, setValidationErrors] = useState<{
-    [key: string]: string;
-  }>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {}
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // Check network status on mount
+  // Load initial data and set up listeners
   useEffect(() => {
-    const checkNetworkStatus = async () => {
-      const status = await Network.getStatus();
-      setIsOnline(status.connected);
-    };
+    async function initialize() {
+      try {
+        console.log("Initializing IssueReport component");
+        
+        // Initialize BackgroundSync service
+        await BackgroundSync.initialize();
 
-    checkNetworkStatus();
+        // Check network status
+        const networkStatus = await Network.getNetworkStatus();
+        setIsOnline(networkStatus);
 
-    // Listen for network status changes
-    const networkListener = Network.addListener(
-      "networkStatusChange",
-      (status) => {
-        // Update online status
-        setIsOnline(status.connected);
+        // Listen for network changes
+        Network.addNetworkListener((connected) => {
+          console.log("Network status changed:", connected ? "online" : "offline");
+          setIsOnline(connected);
+          
+          // If we're coming online, trigger sync directly
+          if (connected) {
+            BackgroundSync.syncPendingReports().then(count => {
+              if (count > 0) {
+                setToastColor("success");
+                setToastMessage(`${count} pending report(s) synced successfully`);
+                setShowToast(true);
+              }
+            });
+          }
+        });
 
-        // If we're back online, try to sync any saved reports
-        if (status.connected) {
-          syncPendingReports();
+        // Load stored draft form data
+        const storedData = await Storage.loadFormDraft();
+        if (storedData) {
+          setFormData(storedData);
         }
+
+        // Show pending reports status and attempt to sync
+        checkPendingReports();
+        
+        console.log("IssueReport component initialized");
+      } catch (error) {
+        console.error("Initialization error:", error);
       }
-    );
+    }
 
-    // Check for stored form data in localStorage
-    const loadStoredFormData = async () => {
-      const storedData = await localforage.getItem<IssueFormData>(
-        "draft-report"
-      );
-      if (storedData) {
-        setFormData(storedData);
-      }
-    };
-
-    loadStoredFormData();
-
+    initialize();
+    
+    // Cleanup when component unmounts
     return () => {
-      networkListener.remove();
+      console.log("IssueReport component unmounting");
     };
   }, []);
 
-  // Save form data to localStorage when it changes
-  useEffect(() => {
-    const saveFormData = async () => {
-      await localforage.setItem("draft-report", formData);
-    };
-
-    saveFormData();
-  }, [formData]);
-
-  // Generate a report ID
-  const generateReportId = () => {
-    const now = new Date();
-
-    // Format date as YYYYMMDD
-    const datePart =
-      now.getFullYear().toString() +
-      (now.getMonth() + 1).toString().padStart(2, "0") +
-      now.getDate().toString().padStart(2, "0");
-
-    // Format time as HHMMSS
-    const timePart =
-      now.getHours().toString().padStart(2, "0") +
-      now.getMinutes().toString().padStart(2, "0") +
-      now.getSeconds().toString().padStart(2, "0");
-
-    // Add a random 4-digit number for uniqueness
-    const randomPart = Math.floor(1000 + Math.random() * 9000).toString();
-
-    return `BTF-${datePart}-${timePart}-${randomPart}`;
-  };
-
-  const syncPendingReports = async () => {
+  // Check for pending reports and show status
+  const checkPendingReports = async () => {
     try {
-      const pendingReports =
-        (await localforage.getItem<any[]>("pending-reports")) || [];
-
-      if (pendingReports.length === 0) return;
-
-      setLoading(true);
-      let syncedCount = 0;
-
-      for (const report of pendingReports) {
-        try {
-          await submitReportToServer(report.data);
-          syncedCount++;
-
-          // Remove this report from pending list
-          const updatedPendingReports = pendingReports.filter(
-            (r) => r.data.reportId !== report.data.reportId
-          );
-          await localforage.setItem("pending-reports", updatedPendingReports);
-        } catch (error) {
-          console.error("Error syncing report:", error);
+      const pendingReports = await BackgroundSync.getPendingReports();
+      console.log(`Found ${pendingReports.length} pending reports during check`);
+      
+      if (pendingReports.length > 0) {
+        setToastColor("warning");
+        setToastMessage(`${pendingReports.length} report(s) pending sync`);
+        setShowToast(true);
+        
+        // Trigger sync attempt
+        if (isOnline) {
+          BackgroundSync.syncPendingReports();
         }
       }
+    } catch (error) {
+      console.error("Error checking pending reports:", error);
+    }
+  };
+
+  // Save form data to local storage when it changes
+  useEffect(() => {
+    Storage.saveFormDraft(formData);
+  }, [formData]);
+
+  // Sync pending reports when online
+  const syncPendingReports = async () => {
+    try {
+      setLoading(true);
+      const syncedCount = await BackgroundSync.syncPendingReports();
 
       if (syncedCount > 0) {
         setToastColor("success");
@@ -189,157 +150,34 @@ const IssueReportForm: React.FC = () => {
         setShowToast(true);
       }
     } catch (error) {
-      console.error("Error during sync:", error);
+      console.error("Sync error:", error);
+      setToastColor("danger");
+      setToastMessage("Error syncing reports. Please try again later.");
+      setShowToast(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const validateForm = (): boolean => {
-    const errors: { [key: string]: string } = {};
-
-    if (!formData.name) {
-      errors.name = "Name is required";
-    }
-
-    if (!formData.email) {
-      errors.email = "Email is required";
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        errors.email = "Please enter a valid email address";
-      }
-    }
-
-    if (!formData.dateObserved) {
-      errors.dateObserved = "Date is required";
-    } else {
-      // Check if date is within the last 4 weeks
-      const selectedDate = new Date(formData.dateObserved);
-      const fourWeeksAgo = new Date();
-      fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28); // 4 weeks = 28 days
-
-      if (selectedDate < fourWeeksAgo) {
-        errors.dateObserved = "Date must be within the last 4 weeks";
-      }
-
-      // Also check that the date is not in the future
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Set to start of day
-
-      if (selectedDate > today) {
-        errors.dateObserved = "Date cannot be in the future";
-      }
-    }
-
-    if (!formData.location && !coordinates) {
-      errors.location =
-        "Location information is required (either description or GPS coordinates)";
-    }
-
-    if (!formData.comments) {
-      errors.comments = "Issue description is required";
-    }
-
-    setValidationErrors(errors);
-
-    return Object.keys(errors).length === 0;
-  };
-
-  const submitReportToServer = async (reportData: any) => {
-    const response = await fetch(`${API_URL}/send-report`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(reportData),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Server error: ${response.status} - ${errorText}`);
-    }
-
-    return await response.json();
-  };
-
-  const handleSubmit = async () => {
-    // Reset validation errors
-    setValidationErrors({});
-
-    // Validate form
-    if (!validateForm()) {
-      setToastColor("danger");
-      setToastMessage("Please correct the errors in the form");
-      setShowToast(true);
-      return;
-    }
-
-    setLoading(true);
-
+  // Add function to clear stored reports
+  const clearStoredReports = async () => {
     try {
-      // Generate report ID
-      const reportId = generateReportId();
-
-      // Create the JSON data object
-      const reportData = {
-        reportId,
-        ...formData,
-        coordinates,
-        photo,
-        submissionDate: new Date().toISOString(),
-      };
-
-      if (isOnline) {
-        // Send report to server
-        await submitReportToServer(reportData);
-
-        setToastColor("success");
-        setToastMessage("Report submitted successfully");
-
-        // Clear form on successful submission
-        setFormData({
-          name: "",
-          email: "",
-          telephone: "",
-          dateObserved: new Date().toISOString().split("T")[0],
-          location: "",
-          issueType: "",
-          urgency: "medium",
-          comments: "",
-        });
-        setPhoto(null);
-        setCoordinates(null);
-
-        // Clear draft
-        await localforage.removeItem("draft-report");
-      } else {
-        // Store report for later submission
-        const pendingReports =
-          (await localforage.getItem<any[]>("pending-reports")) || [];
-        pendingReports.push({
-          data: reportData,
-          timestamp: new Date().toISOString(),
-        });
-
-        await localforage.setItem("pending-reports", pendingReports);
-
-        setToastColor("warning");
-        setToastMessage(
-          "You're offline. Report saved and will be sent automatically when you're back online."
-        );
-      }
+      setLoading(true);
+      await BackgroundSync.clearAllPendingReports();
+      setToastColor("success");
+      setToastMessage("All stored reports cleared");
+      setShowToast(true);
     } catch (error) {
-      console.error("Submit error:", error);
+      console.error("Error clearing reports:", error);
       setToastColor("danger");
-      setToastMessage(`Failed to submit report: ${error.message}`);
+      setToastMessage("Error clearing stored reports");
+      setShowToast(true);
     } finally {
       setLoading(false);
-      setShowToast(true);
     }
   };
 
+  // Handle form input changes
   const handleInputChange = (field: keyof IssueFormData, value: string) => {
     // Clear validation error when field is edited
     if (validationErrors[field]) {
@@ -354,35 +192,28 @@ const IssueReportForm: React.FC = () => {
     }));
   };
 
-  const getCurrentLocation = async () => {
+  // Handle issue type selection
+  const handleIssueTypeSelect = (type: string) => {
+    handleInputChange("issueType", type);
+  };
+
+  // Handle urgency selection
+  const handleUrgencySelect = (level: string) => {
+    handleInputChange("urgency", level);
+  };
+
+  // Handle date selection
+  const handleDateChange = (value: string) => {
+    handleInputChange("dateObserved", value);
+    setShowDatePicker(false);
+  };
+
+  // Handle location capture
+  const captureLocation = async () => {
     try {
       setLoading(true);
-
-      // Request permissions
-      const permissionStatus = await Geolocation.checkPermissions();
-
-      if (permissionStatus.location !== "granted") {
-        const request = await Geolocation.requestPermissions();
-        if (request.location !== "granted") {
-          throw new Error("Location permission denied");
-        }
-      }
-
-      // Get current position
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-
-      setCoordinates({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy,
-      });
-
-      setToastColor("success");
-      setToastMessage("Location captured successfully");
-      setShowToast(true);
+      const position = await Geolocation.getCurrentLocation();
+      setCoordinates(position);
 
       // Clear location validation error if it exists
       if (validationErrors.location) {
@@ -390,211 +221,153 @@ const IssueReportForm: React.FC = () => {
         delete updatedErrors.location;
         setValidationErrors(updatedErrors);
       }
-    } catch (error) {
+
+      setToastColor("success");
+      setToastMessage("GPS location captured successfully!");
+      setShowToast(true);
+    } catch (error: unknown) {
       console.error("Error getting location:", error);
       setToastColor("danger");
-      setToastMessage(`Could not get location: ${error.message}`);
+
+      // Handle the unknown error safely
+      let errorMessage = "Unknown error";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMessage = String(error.message);
+      }
+
+      setToastMessage(`Could not get location: ${errorMessage}`);
       setShowToast(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const takePicture = async (sourceType: CameraSource) => {
+  // Handle photo capture
+  const handleTakePhoto = async (sourceType: CameraSource) => {
     try {
-      // For web browsers, use a different approach
-      if (!isPlatform("capacitor")) {
-        // If we're in a browser and using the camera
-        if (sourceType === CameraSource.Camera) {
-          // Create a file input element
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*";
-          input.capture = "environment"; // Use the back camera if available
-
-          // Create a promise to wait for user input
-          const filePromise = new Promise<File | null>((resolve) => {
-            input.onchange = (event) => {
-              const files = (event.target as HTMLInputElement).files;
-              if (files && files.length > 0) {
-                resolve(files[0]);
-              } else {
-                resolve(null);
-              }
-            };
-
-            // If the user cancels, resolve with null
-            input.onclick = () => {
-              const cancelCheck = setTimeout(() => {
-                if (input.files?.length === 0 || !input.files) {
-                  resolve(null);
-                }
-              }, 1000);
-
-              input.onchange = (event) => {
-                clearTimeout(cancelCheck);
-                const files = (event.target as HTMLInputElement).files;
-                if (files && files.length > 0) {
-                  resolve(files[0]);
-                } else {
-                  resolve(null);
-                }
-              };
-            };
-          });
-
-          // Trigger the file selection
-          input.click();
-
-          // Wait for user to select a file
-          const file = await filePromise;
-          if (!file) {
-            return; // User canceled
-          }
-
-          // Read the file as a data URL
-          const reader = new FileReader();
-          const dataUrlPromise = new Promise<string>((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result as string);
-            };
-          });
-
-          reader.readAsDataURL(file);
-          const dataUrl = await dataUrlPromise;
-
-          setPhoto(dataUrl);
-        } else {
-          // For gallery on web, use a regular file picker
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*";
-
-          // Create a promise to wait for user input
-          const filePromise = new Promise<File | null>((resolve) => {
-            input.onchange = (event) => {
-              const files = (event.target as HTMLInputElement).files;
-              if (files && files.length > 0) {
-                resolve(files[0]);
-              } else {
-                resolve(null);
-              }
-            };
-          });
-
-          // Trigger the file selection
-          input.click();
-
-          // Wait for user to select a file
-          const file = await filePromise;
-          if (!file) {
-            return; // User canceled
-          }
-
-          // Read the file as a data URL
-          const reader = new FileReader();
-          const dataUrlPromise = new Promise<string>((resolve) => {
-            reader.onload = () => {
-              resolve(reader.result as string);
-            };
-          });
-
-          reader.readAsDataURL(file);
-          const dataUrl = await dataUrlPromise;
-
-          setPhoto(dataUrl);
-        }
-      } else {
-        // Mobile device approach using Capacitor
-        try {
-          // Request camera permissions
-          if (sourceType === CameraSource.Camera) {
-            const permissionStatus = await Camera.checkPermissions();
-            if (permissionStatus.camera !== "granted") {
-              const request = await Camera.requestPermissions();
-              if (request.camera !== "granted") {
-                throw new Error("Camera permission denied");
-              }
-            }
-          }
-
-          // For photo gallery
-          if (sourceType === CameraSource.Photos) {
-            const permissionStatus = await Camera.checkPermissions();
-            if (permissionStatus.photos !== "granted") {
-              const request = await Camera.requestPermissions();
-              if (request.photos !== "granted") {
-                throw new Error("Photos permission denied");
-              }
-            }
-          }
-
-          // Get the photo
-          const image = await Camera.getPhoto({
-            quality: 70,
-            allowEditing: false,
-            resultType: CameraResultType.DataUrl,
-            source: sourceType,
-          });
-
-          setPhoto(image.dataUrl || null);
-        } catch (error) {
-          console.error("Capacitor camera error:", error);
-          throw error; // Re-throw to be caught by the outer catch
-        }
-      }
-    } catch (error) {
-      console.error("Error taking picture:", error);
+      const image = await Camera.takePicture(sourceType);
+      setPhoto(image);
+    } catch (error: unknown) {
+      console.error("Error taking photo:", error);
       setToastColor("danger");
-      setToastMessage(`Could not capture image: ${error.message}`);
+
+      // Handle the unknown error safely
+      let errorMessage = "Unknown error";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMessage = String(error.message);
+      }
+
+      setToastMessage(`Could not capture image: ${errorMessage}`);
       setShowToast(true);
     }
   };
 
+  // Update the handleSubmit function
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Make sure all required fields have values
+      const completeFormData = {
+        ...formData,
+        // Ensure required fields have values
+        name: formData.name || "",
+        email: formData.email || "",
+        issueType: formData.issueType || "",
+        urgency: formData.urgency || "medium",
+        comments: formData.comments || "",
+        dateObserved: formData.dateObserved || new Date().toISOString().split("T")[0],
+      };
+
+      const result = await Report.submitReport(
+        completeFormData,
+        coordinates,
+        photo,
+        isOnline
+      );
+
+      setToastColor(result.color);
+      setToastMessage(result.message);
+      setShowToast(true);
+
+      if (result.success) {
+        // Reset form after successful submission or storage
+        setFormData(defaultFormData);
+        setPhoto(null);
+        setCoordinates(null);
+      } else {
+        // If there were validation errors, update the state
+        const validationErrors = Report.validateForm(formData, coordinates);
+        setValidationErrors(validationErrors);
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      setToastColor("danger");
+      setToastMessage("Error submitting report. Please try again.");
+      setShowToast(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>Track Issue Report</IonTitle>
-          {/* Network status indicator */}
-          <div slot="end" className="ion-padding-end">
-            {isOnline ? (
-              <IonChip color="success" outline={true}>
-                <IonIcon icon={isOnline ? "wifi" : "wifi-outline"} />
-                <IonLabel>Online</IonLabel>
-              </IonChip>
-            ) : (
-              <IonChip color="warning" outline={true}>
-                <IonIcon icon="cloud-offline-outline" />
-                <IonLabel>Offline</IonLabel>
-              </IonChip>
-            )}
-          </div>
-        </IonToolbar>
-      </IonHeader>
+    <IonPage className="gradient-background">
       <IonContent className="ion-padding">
+        {/* Add clear stored reports button when offline */}
         {!isOnline && (
-          <IonChip color="warning" className="ion-margin-bottom">
-            <IonIcon icon="cloud-offline-outline" />
-            <IonLabel>
-              You're offline. Report will be saved locally and sent when online.
-            </IonLabel>
-          </IonChip>
+          <IonButton
+            expand="block"
+            color="medium"
+            onClick={clearStoredReports}
+            className="ion-margin-bottom"
+          >
+            Clear Stored Reports
+          </IonButton>
         )}
 
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>Report an Issue</IonCardTitle>
-            <p style={{ marginTop: "10px", fontSize: "14px" }}>
-              <span style={{ color: "#eb445a" }}>*</span> Required fields
+        {/* Banner for offline mode */}
+        {!isOnline && (
+          <div className="network-status network-status-offline">
+            <IonIcon icon={cloudOfflineOutline} />
+            <span className="ion-padding-start">
+              You're offline. Report will be saved locally and sent when online.
+            </span>
+          </div>
+        )}
+
+        <div className="issue-card-container">
+          <div className="form-container">
+            <h2 className="form-title">Report an Issue</h2>
+            <p className="form-subtitle">
+              Your reports help us keep the Bibbulmun Track in great condition.
+              Please note: in case of an emergency, always contact local
+              authorities or emergency services immediately.
             </p>
-          </IonCardHeader>
-          <IonCardContent>
-            <IonList>
-              {/* Personal Information */}
-              <IonItem>
-                <IonLabel position="stacked">
-                  Name <span style={{ color: "#eb445a" }}>*</span>
+
+            <form onSubmit={handleSubmit}>
+              <IonItem className="form-item">
+                <IonLabel position="stacked" className="field-label">
+                  Name <span className="required">*</span>
                 </IonLabel>
                 <IonInput
                   value={formData.name}
@@ -602,21 +375,18 @@ const IssueReportForm: React.FC = () => {
                     handleInputChange("name", e.detail.value || "")
                   }
                   placeholder="Your full name"
-                  className={validationErrors.name ? "ion-invalid" : ""}
+                  className="input-field"
                 />
                 {validationErrors.name && (
-                  <div
-                    className="ion-padding-start"
-                    style={{ color: "#eb445a", fontSize: "0.8rem" }}
-                  >
+                  <div className="validation-error">
                     {validationErrors.name}
                   </div>
                 )}
               </IonItem>
 
-              <IonItem>
-                <IonLabel position="stacked">
-                  Email <span style={{ color: "#eb445a" }}>*</span>
+              <IonItem className="form-item">
+                <IonLabel position="stacked" className="field-label">
+                  Email <span className="required">*</span>
                 </IonLabel>
                 <IonInput
                   type="email"
@@ -624,202 +394,180 @@ const IssueReportForm: React.FC = () => {
                   onIonChange={(e) =>
                     handleInputChange("email", e.detail.value || "")
                   }
-                  placeholder="Your email address"
-                  className={validationErrors.email ? "ion-invalid" : ""}
+                  placeholder="your@example.com"
+                  className="input-field"
                 />
                 {validationErrors.email && (
-                  <div
-                    className="ion-padding-start"
-                    style={{ color: "#eb445a", fontSize: "0.8rem" }}
-                  >
+                  <div className="validation-error">
                     {validationErrors.email}
                   </div>
                 )}
               </IonItem>
 
-              <IonItem>
-                <IonLabel position="stacked">Telephone</IonLabel>
+              <IonItem className="form-item">
+                <IonLabel position="stacked" className="field-label">
+                  Telephone <span className="optional">(optional)</span>
+                </IonLabel>
                 <IonInput
                   type="tel"
                   value={formData.telephone}
                   onIonChange={(e) =>
                     handleInputChange("telephone", e.detail.value || "")
                   }
-                  placeholder="Your phone number (optional)"
+                  placeholder="Your phone number"
+                  className="input-field"
                 />
               </IonItem>
 
-              {/* Date observed - with 4 weeks validation */}
-              <IonItem>
-                <IonLabel position="stacked">
-                  Date Observed <span style={{ color: "#eb445a" }}>*</span>
+              <IonItem className="form-item">
+                <IonLabel position="stacked" className="field-label">
+                  Date Observed <span className="required">*</span>
                 </IonLabel>
-                <IonInput
-                  type="date"
-                  value={formData.dateObserved}
-                  onIonChange={(e) =>
-                    handleInputChange("dateObserved", e.detail.value || "")
-                  }
-                  className={validationErrors.dateObserved ? "ion-invalid" : ""}
-                  max={new Date().toISOString().split("T")[0]} // Disallow future dates
-                />
-                {validationErrors.dateObserved && (
+
+                <div className="date-input">
                   <div
-                    className="ion-padding-start"
-                    style={{ color: "#eb445a", fontSize: "0.8rem" }}
+                    className="date-display"
+                    onClick={() => setShowDatePicker(true)}
                   >
+                    {formatDate(formData.dateObserved)}
+                  </div>
+                  <IonButton
+                    fill="clear"
+                    onClick={() => setShowDatePicker(true)}
+                  >
+                    <IonIcon icon={calendar} />
+                  </IonButton>
+                </div>
+
+                {showDatePicker && (
+                  <IonDatetime
+                    presentation="date"
+                    value={formData.dateObserved}
+                    onIonChange={(e) => handleDateChange(e.detail.value || "")}
+                    max={new Date().toISOString()}
+                    onIonCancel={() => setShowDatePicker(false)}
+                    showDefaultButtons={true}
+                  />
+                )}
+
+                {validationErrors.dateObserved && (
+                  <div className="validation-error">
                     {validationErrors.dateObserved}
                   </div>
                 )}
-                <div
-                  className="ion-padding-start"
-                  style={{ fontSize: "0.8rem", color: "#666" }}
-                >
+                <IonText className="date-note">
                   Note: Date must be within the last 4 weeks
-                </div>
+                </IonText>
               </IonItem>
 
-              {/* Issue Type */}
-              <IonItem>
-                <IonLabel position="stacked">Issue Type</IonLabel>
-                <IonSelect
-                  value={formData.issueType}
-                  placeholder="Select issue type"
-                  onIonChange={(e) =>
-                    handleInputChange("issueType", e.detail.value)
-                  }
-                >
-                  <IonSelectOption value="Fallen Tree">
-                    Fallen Tree
-                  </IonSelectOption>
-                  <IonSelectOption value="Damaged Trail/Erosion">
-                    Damaged Trail/Erosion
-                  </IonSelectOption>
-                  <IonSelectOption value="Damaged/Missing Sign">
-                    Damaged/Missing Sign
-                  </IonSelectOption>
-                  <IonSelectOption value="Damaged Shelter/Facility">
-                    Damaged Shelter/Facility
-                  </IonSelectOption>
-                  <IonSelectOption value="Water Source Issue">
-                    Water Source Issue
-                  </IonSelectOption>
-                  <IonSelectOption value="Wildlife Concern">
-                    Wildlife Concern
-                  </IonSelectOption>
-                  <IonSelectOption value="Overgrown Vegetation">
-                    Overgrown Vegetation
-                  </IonSelectOption>
-                  <IonSelectOption value="Other">Other</IonSelectOption>
-                </IonSelect>
-              </IonItem>
-
-              {/* Urgency Selection using buttons */}
-              <IonItem lines="none">
-                <IonLabel position="stacked">Urgency Level</IonLabel>
-              </IonItem>
-              <IonGrid>
-                <IonRow>
-                  <IonCol>
-                    <IonButton
-                      expand="block"
-                      fill={formData.urgency === "low" ? "solid" : "outline"}
-                      color="success"
-                      onClick={() => handleInputChange("urgency", "low")}
-                    >
-                      Low
-                    </IonButton>
-                  </IonCol>
-                  <IonCol>
-                    <IonButton
-                      expand="block"
-                      fill={formData.urgency === "medium" ? "solid" : "outline"}
-                      color="warning"
-                      onClick={() => handleInputChange("urgency", "medium")}
-                    >
-                      Medium
-                    </IonButton>
-                  </IonCol>
-                  <IonCol>
-                    <IonButton
-                      expand="block"
-                      fill={formData.urgency === "high" ? "solid" : "outline"}
-                      color="danger"
-                      onClick={() => handleInputChange("urgency", "high")}
-                    >
-                      High
-                    </IonButton>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-
-              {/* Location with GPS button */}
-              <IonItem
-                className={validationErrors.location ? "ion-invalid" : ""}
-              >
-                <IonLabel position="stacked">
-                  Location <span style={{ color: "#eb445a" }}>*</span>
+              <div className="form-section">
+                <IonLabel className="field-label chips-label">
+                  Issue Type <span className="required">*</span>
                 </IonLabel>
+                <div className="chip-container">
+                  {[
+                    "Fallen Tree",
+                    "Damaged Trail/Erosion",
+                    "Damaged/Missing Sign",
+                    "Damaged Shelter/Facility",
+                    "Water Source Issue",
+                    "Wildlife Concern",
+                    "Overgrown Vegetation",
+                    "Other",
+                  ].map((type) => (
+                    <IonChip
+                      key={type}
+                      className={`issue-chip ${
+                        formData.issueType === type ? "selected-chip" : ""
+                      }`}
+                      onClick={() => handleIssueTypeSelect(type)}
+                    >
+                      {type}
+                    </IonChip>
+                  ))}
+                </div>
+              </div>
 
-                <IonGrid>
-                  <IonRow>
-                    <IonCol size="8">
-                      {coordinates ? (
-                        <IonChip color="success">
-                          <IonIcon icon={locationOutline} />
-                          <IonLabel>GPS coordinates captured</IonLabel>
-                        </IonChip>
-                      ) : (
-                        <p>Please capture your GPS coordinates</p>
-                      )}
-                    </IonCol>
-                    <IonCol size="4">
-                      <IonButton onClick={getCurrentLocation} expand="block">
-                        <IonIcon slot="start" icon={location} />
-                        GPS
-                      </IonButton>
-                    </IonCol>
-                  </IonRow>
-                </IonGrid>
+              <div className="form-section">
+                <IonLabel className="field-label">
+                  Urgency Level <span className="required">*</span>
+                </IonLabel>
+                <div className="urgency-container">
+                  <IonChip
+                    className={`urgency-chip low ${
+                      formData.urgency === "low" ? "selected-chip" : ""
+                    }`}
+                    onClick={() => handleUrgencySelect("low")}
+                  >
+                    Low
+                  </IonChip>
+                  <IonChip
+                    className={`urgency-chip medium ${
+                      formData.urgency === "medium" ? "selected-chip" : ""
+                    }`}
+                    onClick={() => handleUrgencySelect("medium")}
+                  >
+                    Medium
+                  </IonChip>
+                  <IonChip
+                    className={`urgency-chip high ${
+                      formData.urgency === "high" ? "selected-chip" : ""
+                    }`}
+                    onClick={() => handleUrgencySelect("high")}
+                  >
+                    High
+                  </IonChip>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <IonLabel className="field-label">
+                  Location <span className="required">*</span>
+                </IonLabel>
+                <IonButton
+                  className="location-button"
+                  onClick={captureLocation}
+                >
+                  <IonIcon slot="start" icon={location} />
+                  Capture GPS Location
+                </IonButton>
 
                 {coordinates && (
-                  <div style={{ padding: "10px 0", fontSize: "0.9rem" }}>
-                    <p style={{ margin: 0, color: "#2dd36f" }}>
-                      <strong>Lat:</strong> {coordinates.latitude.toFixed(6)},
-                      <strong> Long:</strong> {coordinates.longitude.toFixed(6)}
-                      <br />
-                      <small>
-                        Accuracy: ±{Math.round(coordinates.accuracy)}m
-                      </small>
-                    </p>
+                  <div className="coordinates-display">
+                    <strong>Latitude:</strong> {coordinates.latitude.toFixed(6)}
+                    <br />
+                    <strong>Longitude:</strong>{" "}
+                    {coordinates.longitude.toFixed(6)}
+                    <br />
+                    <strong>Accuracy:</strong> ±
+                    {Math.round(coordinates.accuracy)} meters
                   </div>
                 )}
 
-                <p style={{ marginTop: "10px", fontSize: "0.9rem" }}>
-                  Optionally, you can describe the location:
-                </p>
-                <IonTextarea
-                  value={formData.location}
-                  onIonChange={(e) =>
-                    handleInputChange("location", e.detail.value || "")
-                  }
-                  placeholder="Example: 2km north of Helena shelter"
-                />
+                <IonItem className="form-item no-padding">
+                  <IonLabel position="stacked" className="description-label">
+                    Optionally describe in detail:
+                  </IonLabel>
+                  <IonTextarea
+                    value={formData.location}
+                    onIonChange={(e) =>
+                      handleInputChange("location", e.detail.value || "")
+                    }
+                    placeholder="Additional location details (e.g., 2km north of Helena shelter)"
+                    className="input-field textarea-field"
+                    rows={2}
+                  />
+                  {validationErrors.location && (
+                    <div className="validation-error">
+                      {validationErrors.location}
+                    </div>
+                  )}
+                </IonItem>
+              </div>
 
-                {validationErrors.location && (
-                  <div
-                    className="ion-padding-start"
-                    style={{ color: "#eb445a", fontSize: "0.8rem" }}
-                  >
-                    {validationErrors.location}
-                  </div>
-                )}
-              </IonItem>
-
-              {/* Issue Description */}
-              <IonItem>
-                <IonLabel position="stacked">
-                  Issue Description <span style={{ color: "#eb445a" }}>*</span>
+              <IonItem className="form-item">
+                <IonLabel position="stacked" className="field-label">
+                  Issue Description <span className="required">*</span>
                 </IonLabel>
                 <IonTextarea
                   value={formData.comments}
@@ -827,26 +575,22 @@ const IssueReportForm: React.FC = () => {
                     handleInputChange("comments", e.detail.value || "")
                   }
                   placeholder="Please describe the issue in detail"
-                  rows={4}
-                  className={validationErrors.comments ? "ion-invalid" : ""}
+                  className="input-field textarea-field"
+                  rows={3}
                 />
                 {validationErrors.comments && (
-                  <div
-                    className="ion-padding-start"
-                    style={{ color: "#eb445a", fontSize: "0.8rem" }}
-                  >
+                  <div className="validation-error">
                     {validationErrors.comments}
                   </div>
                 )}
               </IonItem>
 
-              {/* Photo Section */}
-              <IonItem lines="none">
-                <IonLabel position="stacked">Photo (Optional)</IonLabel>
+              <div className="form-section">
+                <IonLabel className="field-label">
+                  Photo <span className="optional">(optional)</span>
+                </IonLabel>
                 <IonButton
-                  expand="block"
-                  color="medium"
-                  className="ion-margin-top"
+                  className="photo-button"
                   onClick={() => setShowActionSheet(true)}
                 >
                   <IonIcon slot="start" icon={camera} />
@@ -854,18 +598,8 @@ const IssueReportForm: React.FC = () => {
                 </IonButton>
 
                 {photo && (
-                  <div className="ion-margin-top">
-                    <img
-                      src={photo}
-                      alt="Issue"
-                      style={{
-                        maxWidth: "100%",
-                        maxHeight: "200px",
-                        display: "block",
-                        margin: "0 auto",
-                        borderRadius: "8px",
-                      }}
-                    />
+                  <div className="photo-container">
+                    <img src={photo} alt="Issue" className="issue-photo" />
                     <IonButton
                       expand="block"
                       color="danger"
@@ -878,25 +612,37 @@ const IssueReportForm: React.FC = () => {
                     </IonButton>
                   </div>
                 )}
-              </IonItem>
-            </IonList>
+              </div>
 
-            <div className="ion-padding-vertical">
-              <IonButton expand="block" onClick={handleSubmit} color="primary">
-                <IonIcon slot="start" icon={cloudUpload} />
-                Submit Report
-              </IonButton>
-              <IonButton
-                expand="block"
-                color="secondary"
-                onClick={testConnection}
-                className="ion-margin-top"
-              >
-                Test Connection
-              </IonButton>
-            </div>
-          </IonCardContent>
-        </IonCard>
+              <div className="form-action">
+                <IonButton
+                  expand="block"
+                  type="submit"
+                  className="submit-button"
+                >
+                  <span>Submit Report</span>
+                  <IonIcon slot="end" icon={arrowForward} />
+                </IonButton>
+              </div>
+
+              <div className="network-indicator">
+                {isOnline ? (
+                  <div className="online-status">
+                    <IonIcon icon={wifi} />
+                    <span>Online - Report will be submitted immediately</span>
+                  </div>
+                ) : (
+                  <div className="offline-status">
+                    <IonIcon icon={cloudOfflineOutline} />
+                    <span>
+                      Offline - Report will be saved and synced when online
+                    </span>
+                  </div>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
 
         {/* Action sheet for camera options */}
         <IonActionSheet
@@ -907,14 +653,14 @@ const IssueReportForm: React.FC = () => {
               text: "Take Photo",
               icon: camera,
               handler: () => {
-                takePicture(CameraSource.Camera);
+                handleTakePhoto(CameraSource.Camera);
               },
             },
             {
               text: "Choose from Gallery",
               icon: image,
               handler: () => {
-                takePicture(CameraSource.Photos);
+                handleTakePhoto(CameraSource.Photos);
               },
             },
             {
@@ -939,4 +685,4 @@ const IssueReportForm: React.FC = () => {
   );
 };
 
-export default IssueReportForm;
+export default IssueReport;

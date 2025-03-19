@@ -1,42 +1,127 @@
-/* For information on how to create your own theme, please see:
-http://ionicframework.com/docs/theming/ */
+/* TrackMate Consolidated CSS */
 
+/* ========== ROOT VARIABLES ========== */
 :root {
-  /* Safe area insets for modern iOS and Android devices */
-  --ion-safe-area-top: env(safe-area-inset-top);
-  --ion-safe-area-bottom: env(safe-area-inset-bottom);
-  --ion-safe-area-left: env(safe-area-inset-left);
-  --ion-safe-area-right: env(safe-area-inset-right);
+  /* Brand Colors */
+  --ion-color-trackmate: #FFA725;
+  --ion-color-trackmate-rgb: 255,167,37;
+  --ion-color-trackmate-contrast: #000000;
+  --ion-color-trackmate-contrast-rgb: 0,0,0;
+  --ion-color-trackmate-shade: #e09321;
+  --ion-color-trackmate-tint: #ffb03b;
+  
+  /* Secondary Colors */
+  --ion-color-secondary: #6A9C89;
+  --ion-color-secondary-light: #C1D8C3;
+  
+  /* Typography */
+  --ion-font-family: 'Montserrat', sans-serif;
+  --ion-font-size-base: 16px;
+  --ion-font-size-small: 14px;
+  --ion-font-size-large: 18px;
 }
 
-/* Apply safe area padding to headers */
-ion-header, ion-toolbar {
-  padding-top: var(--ion-safe-area-top);
+/* Color class for trackmate color */
+.ion-color-trackmate {
+  --ion-color-base: var(--ion-color-trackmate);
+  --ion-color-base-rgb: var(--ion-color-trackmate-rgb);
+  --ion-color-contrast: var(--ion-color-trackmate-contrast);
+  --ion-color-contrast-rgb: var(--ion-color-trackmate-contrast-rgb);
+  --ion-color-shade: var(--ion-color-trackmate-shade);
+  --ion-color-tint: var(--ion-color-trackmate-tint);
 }
 
-/* Ensure content respects safe areas */
+/* ========== GLOBAL STYLES ========== */
+
+/* Content area */
 ion-content {
-  --padding-top: var(--ion-safe-area-top);
-  --padding-bottom: var(--ion-safe-area-bottom);
+  --padding-bottom: 60px; /* Prevent tab bar overlap */
 }
 
-/* Ensure footer respects safe area bottom */
-ion-footer {
-  padding-bottom: var(--ion-safe-area-bottom);
+/* Input fields */
+ion-input {
+  --padding-start: 10px; 
+  --placeholder-color: #888;
+  --placeholder-opacity: 0.8;
+  --placeholder-font-style: italic;
+  --color: #333;
 }
 
-/* For iOS devices with notches - fallback for older iOS */
-@supports (padding-top: constant(safe-area-inset-top)) {
-  ion-header, ion-toolbar {
-    padding-top: constant(safe-area-inset-top);
-  }
-  
-  ion-content {
-    --padding-top: constant(safe-area-inset-top);
-    --padding-bottom: constant(safe-area-inset-bottom);
-  }
-  
-  ion-footer {
-    padding-bottom: constant(safe-area-inset-bottom);
-  }
+/* Issue Report form */
+.issue-report-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-field {
+  margin-bottom: 16px;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+}
+
+.required-mark {
+  color: #eb445a;
+  margin-left: 4px;
+}
+
+
+/* ========== HEADER STYLES ========== */
+
+/* Orange header bar */
+.orange-header {
+  --background: #FFA725 !important;
+  --color: white !important;
+  font-weight: bold !important;
+  font-size: 18px !important;
+}
+
+/* ========== PLATFORM-SPECIFIC STYLES ========== */
+
+/* iOS-specific styles */
+.ios .custom-tab-bar {
+  height: 70px; /* Taller for iOS */
+}
+
+.ios .qr-tab-button {
+  width: 65px !important;
+  height: 65px !important;
+}
+
+/* Android-specific styles */
+.md .custom-tab-bar {
+  height: 60px; /* Shorter for Android */
+}
+
+.md .qr-tab-button {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+/* ========== ISSUE TYPE STYLES ========== */
+
+.issue-type-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.issue-type-chip {
+  --background: white;
+  --color: #666;
+  --border-color: #ddd;
+  padding: 4px 12px;
+  margin: 4px 0;
+  transition: all 0.15s ease;
+}
+
+/* Minimal Tab Bar Styling */
+ion-tab-button {
+  --color: #8c8c8c;
+  --color-selected: #FFA725;
+}
+
+ion-tab-button.tab-selected ion-icon {
+  color: #FFA725;
 }

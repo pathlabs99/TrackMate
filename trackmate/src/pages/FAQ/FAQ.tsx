@@ -1,12 +1,6 @@
 /*
  * FAQ Component - Displays frequently asked questions about the TrackMate app
- * Organizes questions into categories and uses Ionic accordion for expandable Q&A
- *
- * @author: Marwa
- * @date: February 21, 2025
- *
- * Uses ionic accordion to display the questions and answers
- * https://ionicframework.com/docs/api/accordion
+ * Using the same styling as the Issue Report form
  */
 
 import React from "react";
@@ -17,15 +11,10 @@ import {
   IonLabel,
   IonContent,
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
 } from "@ionic/react";
+import "./FAQ.css";
 
-function FAQ() {
+const FAQ: React.FC = () => {
   /* FAQ data organized by category */
   const faqCategories = [
     {
@@ -132,54 +121,50 @@ function FAQ() {
     },
   ];
 
-  return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>Frequently Asked Questions</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        {/* Page title */}
-        <h1 className="ion-padding-start ion-padding-top">
-          TrackMate App – Frequently Asked Questions (FAQ)
-        </h1>
+  // Add this ref for the accordion group
+  const accordionGroup = React.useRef<HTMLIonAccordionGroupElement>(null);
 
-        {/* Render each category with its corresponding questions */}
-        {faqCategories.map((category, categoryIndex) => (
-          <div key={categoryIndex} className="ion-margin-bottom">
-            {/* Category title */}
-            <IonCard>
-              <IonCardHeader>
-                <IonCardTitle>{category.title}</IonCardTitle>
-              </IonCardHeader>
+  return (
+    <IonPage className="gradient-background">
+      <IonContent className="ion-padding" scrollY={true}>
+        <div className="faq-container">
+          <h2 className="faq-title">Frequently Asked Questions</h2>
+          <p className="faq-subtitle">
+            Find answers to common questions about the TrackMate app and its
+            features
+          </p>
+
+          {/* Render each category with its corresponding questions */}
+          {faqCategories.map((category, categoryIndex) => (
+            <div 
+              key={categoryIndex} 
+              className="faq-category"
+              style={{ animationDelay: `${categoryIndex * 0.1}s` }}
+            >
+              <h3 className="category-title">{category.title}</h3>
 
               {/* Questions for this category */}
-              <IonAccordionGroup>
+              <IonAccordionGroup ref={accordionGroup}>
                 {category.items.map((item, itemIndex) => (
                   <IonAccordion
                     key={itemIndex}
                     value={`${categoryIndex}-${itemIndex}`}
                   >
-                    <IonItem slot="header" color="light">
+                    <IonItem slot="header">
                       <IonLabel>{item.question}</IonLabel>
                     </IonItem>
-                    <div
-                      className="ion-padding"
-                      slot="content"
-                      style={{ whiteSpace: "pre-line" }}
-                    >
+                    <div slot="content" style={{ whiteSpace: "pre-line" }}>
                       {item.answer}
                     </div>
                   </IonAccordion>
                 ))}
               </IonAccordionGroup>
-            </IonCard>
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </IonContent>
     </IonPage>
   );
-}
+};
 
 export default FAQ;

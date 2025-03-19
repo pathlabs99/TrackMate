@@ -1,0 +1,314 @@
+/* Survey.css - Modern styling for TrackMate Survey component */
+
+/* Base styles */
+.survey-page {
+    --track-orange: #FFA725;
+    --track-cream: #FFF5E4;
+    --track-light-green: #C1D8C3;
+    --track-teal: #6A9C89;
+    --track-dark: #333333;
+    --track-medium: #666666;
+    --track-light: #F7F7F7;
+    --track-error: #eb445a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  
+  /* Survey wrapper */
+  .survey-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  
+  /* Card styling */
+  ion-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin: 16px;
+    overflow: hidden;
+  }
+  
+  ion-card-header {
+    background-color: var(--track-cream);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 16px;
+  }
+  
+  ion-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--track-teal);
+  }
+  
+  ion-card-content {
+    padding: 16px;
+  }
+  
+  /* Question styling */
+  .question-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--track-dark);
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+  
+  .helper-text {
+    font-size: 0.85rem;
+    color: var(--track-medium);
+    margin-top: 8px;
+    margin-bottom: 16px;
+  }
+  
+  /* Required marker */
+  .required-mark {
+    color: var(--track-error);
+    font-weight: bold;
+  }
+  
+  /* Form controls */
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --background: transparent;
+    margin-bottom: 12px;
+  }
+  
+  ion-label {
+    color: var(--track-dark);
+    font-weight: 500;
+  }
+  
+  /* Input/select fields */
+  ion-input, ion-textarea, ion-select {
+    --background: #f8f9fa;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --border-radius: 8px;
+    --placeholder-color: #999;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    --highlight-color-focused: var(--track-teal);
+  }
+  
+  /* Radio buttons */
+  ion-radio {
+    --color: var(--track-medium);
+    --color-checked: var(--track-teal);
+    margin-right: 8px;
+  }
+  
+  ion-radio::part(container) {
+    border-radius: 50%;
+    border: 2px solid var(--track-medium);
+  }
+  
+  ion-radio.radio-checked::part(container) {
+    border-color: var(--track-teal);
+  }
+  
+  /* Radio container item */
+  ion-item.radio-item {
+    --padding-start: 8px;
+    --inner-padding-end: 8px;
+    --min-height: 48px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background-color: var(--track-light);
+  }
+  
+  /* Checkbox styling */
+  ion-checkbox {
+    --size: 20px;
+    --checkbox-background-checked: var(--track-teal);
+    --border-color: var(--track-medium);
+    --border-color-checked: var(--track-teal);
+    --checkmark-color: white;
+    margin-right: 8px;
+  }
+  
+  /* Error message */
+  .error-message {
+    color: var(--track-error);
+    font-size: 0.8rem;
+    margin-top: 4px;
+    margin-left: 4px;
+  }
+  
+  /* Navigation buttons */
+  .navigation-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  
+  .prev-button {
+    --background: transparent;
+    --color: var(--track-medium);
+    --border-style: solid;
+    --border-width: 1px;
+    --border-color: var(--track-medium);
+    --border-radius: 8px;
+    --box-shadow: none;
+    flex: 1;
+  }
+  
+  .next-button {
+    --background: var(--track-orange);
+    --color: white;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 8px rgba(255, 167, 37, 0.25);
+    flex: 1;
+  }
+  
+  /* Progress bar */
+  .progress-container {
+    padding: 8px 16px;
+    margin-bottom: 8px;
+  }
+  
+  .progress-bar {
+    height: 4px;
+    background-color: #f0f0f0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background-color: var(--track-orange);
+    transition: width 0.3s ease;
+  }
+  
+  /* Swiper container */
+  swiper-container {
+    width: 100%;
+    height: 100%;
+  }
+  
+  swiper-slide {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  /* Welcome and completion screens */
+  .welcome-screen, 
+  .completion-screen {
+    text-align: center;
+    padding: 24px;
+  }
+  
+  .welcome-title, 
+  .completion-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--track-teal);
+    margin-bottom: 16px;
+  }
+  
+  .welcome-text, 
+  .completion-text {
+    font-size: 16px;
+    color: var(--track-medium);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  
+  .start-button, 
+  .submit-button {
+    --background: var(--track-orange);
+    --color: white;
+    --border-radius: 8px;
+    --padding-start: 24px;
+    --padding-end: 24px;
+    --box-shadow: 0 4px 8px rgba(255, 167, 37, 0.25);
+    margin-top: 16px;
+  }
+  
+  /* Table for agreement questions */
+  .agreement-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  
+  .agreement-table th,
+  .agreement-table td {
+    padding: 8px 4px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .agreement-table th {
+    font-weight: 600;
+    color: var(--track-teal);
+  }
+  
+  .agreement-table tr:nth-child(even) {
+    background-color: var(--track-cream);
+  }
+  
+  .radio-cell {
+    text-align: center;
+  }
+  
+  /* Toast notifications */
+  .success-toast {
+    --background: var(--track-teal);
+    --color: white;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(106, 156, 137, 0.3);
+  }
+  
+  /* Loading indicator */
+  ion-loading {
+    --background: rgba(0, 0, 0, 0.7);
+    --spinner-color: var(--track-orange);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    ion-card {
+      margin: 8px;
+    }
+    
+    ion-card-header,
+    ion-card-content {
+      padding: 12px;
+    }
+    
+    .question-text {
+      font-size: 1rem;
+    }
+    
+    .agreement-table {
+      font-size: 0.8rem;
+    }
+    
+    .agreement-table th,
+    .agreement-table td {
+      padding: 6px 2px;
+    }
+  }
+  
+  /* Grid layouts for form elements */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  /* Two column layout for desktop */
+  @media (min-width: 768px) {
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+  }

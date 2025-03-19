@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   IonContent,
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -86,7 +83,6 @@ const MainMenu: React.FC = () => {
   const getUserLocation = async () => {
     try {
       setLoading(true);
-      setLocationError(null);
       
       // Request permissions first
       const permissionStatus = await Geolocation.requestPermissions();
@@ -101,12 +97,12 @@ const MainMenu: React.FC = () => {
         setUserLocation(`${latitude},${longitude}`);
         fetchWeather(`${latitude},${longitude}`);
       } else {
-        setLocationError('Location permission denied. Using default location.');
+        // Silently fall back to Perth
         fetchWeather(DEFAULT_CITY);
       }
     } catch (error) {
       console.error('Geolocation error:', error);
-      setLocationError('Unable to get your location. Using default location.');
+      // Silently fall back to Perth
       fetchWeather(DEFAULT_CITY);
     } finally {
       setLoading(false);
@@ -116,7 +112,6 @@ const MainMenu: React.FC = () => {
   const fetchWeather = async (location: string) => {
     try {
       setLoading(true);
-      setError(null);
 
       const url = `${WEATHER_API_BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(location)}&aqi=no`;
       
@@ -133,12 +128,21 @@ const MainMenu: React.FC = () => {
           windSpeed: Math.round(data.current.wind_kph)
         });
       } else {
-        throw new Error(data.error?.message || 'Failed to fetch weather data');
+        // If the first attempt fails, try Perth
+        if (location !== DEFAULT_CITY) {
+          fetchWeather(DEFAULT_CITY);
+        } else {
+          setWeather(null);
+        }
       }
     } catch (err) {
       console.error('Weather fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch weather data');
-      setWeather(null);
+      // If the first attempt fails, try Perth
+      if (location !== DEFAULT_CITY) {
+        fetchWeather(DEFAULT_CITY);
+      } else {
+        setWeather(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -169,22 +173,26 @@ const MainMenu: React.FC = () => {
     {
       title: "Track Sections",
       icon: trailSignOutline,
-      description: "8 unique sections spanning 1000km",
+      description: "9 unique sections spanning 1000km",
+      isNew: false
     },
     {
       title: "Flora & Fauna",
       icon: leafOutline,
       description: "Diverse ecosystem information",
+      isNew: false
     },
     {
       title: "Navigation",
       icon: compassOutline,
       description: "Track markers and waypoints",
+      isNew: false
     },
     {
       title: "Community",
       icon: peopleOutline,
       description: "Join the hiking community",
+      isNew: false
     }
   ];
 
@@ -201,116 +209,82 @@ const MainMenu: React.FC = () => {
   };
 
   return (
-    <IonPage className="main-menu-page">
-      <IonHeader className="ion-no-border">
-        <IonToolbar color="primary">
-          <IonImg 
-            src="logo.png" 
-            alt="TrackMate"
-            slot="start"
-            className="header-logo"
-          />
-          <IonTitle size="small" slot="end">TrackMate</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
-      <IonContent>
-        {/* Welcome Animation */}
-        <div className={`welcome-animation ${animationComplete ? 'complete' : ''}`}>
+    <IonPage className="main-menu-page gradient-background">
+      <IonContent fullscreen>
+        {/* Welcome Text */}
+        <div className="welcome-animation">
           <div className="welcome-text">
-            <span>W</span>
-            <span>e</span>
-            <span>l</span>
-            <span>c</span>
-            <span>o</span>
-            <span>m</span>
-            <span>e</span>
-            <span>&nbsp;</span>
-            <span>T</span>
-            <span>o</span>
-            <span>&nbsp;</span>
-            <span>T</span>
-            <span>r</span>
-            <span>a</span>
-            <span>c</span>
-            <span>k</span>
-            <span>M</span>
-            <span>a</span>
-            <span>t</span>
-            <span>e</span>
+            Hello, TrackMate
           </div>
         </div>
 
-        {/* Compact Weather Widget */}
+        {/* Weather Widget */}
         <div className="compact-weather-widget">
           <IonCard>
-            <IonCardContent>
-              {loading ? (
-                <div className="weather-skeleton-compact">
-                  <IonSkeletonText animated style={{ width: '40%', height: '16px' }} />
-                  <IonSkeletonText animated style={{ width: '30%', height: '14px' }} />
-                </div>
-              ) : weather ? (
-                <div className="weather-content-compact">
-                  <div className="weather-icon-compact">
-                    <img src={weather.icon} alt={weather.condition} />
+            {loading ? (
+              <div className="weather-skeleton-compact">
+                <IonSkeletonText animated style={{ width: '40%', height: '24px' }} />
+                <IonSkeletonText animated style={{ width: '30%', height: '20px' }} />
+              </div>
+            ) : weather ? (
+              <div className="weather-content-compact">
+                <div className="weather-info-compact">
+                  <div className="temperature-compact">{weather.temp}°C</div>
+                  <div className="condition-compact">{weather.condition}</div>
+                  <div className="location-compact">
+                    <IonIcon icon={locationOutline} /> {weather.location}
                   </div>
-                  <div className="weather-info-compact">
-                    <div className="temperature-compact">{weather.temp}°C</div>
-                    <div className="condition-compact">{weather.condition}</div>
-                    <div className="location-compact">
-                      <IonIcon icon={locationOutline} size="small" className="location-icon" /> {weather.location}
-                    </div>
+                </div>
+                <div className="weather-icon-compact">
+                  <img src={weather.icon} alt={weather.condition} />
+                </div>
+              </div>
+            ) : (
+              <div className="weather-content-compact">
+                <div className="weather-info-compact">
+                  <div className="temperature-compact">--°C</div>
+                  <div className="condition-compact">
+                    Weather Unavailable
+                    <IonButton 
+                      fill="clear" 
+                      size="small" 
+                      onClick={handleRefreshWeather}
+                      style={{ padding: '0 4px', margin: '0 0 0 8px' }}
+                    >
+                      <IonIcon 
+                        icon={refreshOutline} 
+                        style={{ 
+                          fontSize: '16px', 
+                          color: 'var(--main-menu-secondary-text)'
+                        }} 
+                      />
+                    </IonButton>
                   </div>
-                  <IonButton 
-                    fill="clear"
-                    size="small"
-                    onClick={handleRefreshWeather}
-                    className="weather-refresh-compact"
-                  >
-                    <IonIcon icon={refreshOutline} />
-                  </IonButton>
+                  <div className="location-compact">
+                    <IonIcon icon={locationOutline} /> Updating...
+                  </div>
                 </div>
-              ) : (
-                <div className="weather-error-compact">
-                  <p>Weather unavailable</p>
-                  <IonButton 
-                    fill="clear"
-                    size="small"
-                    onClick={handleRefreshWeather}
-                  >
-                    Retry
-                  </IonButton>
-                </div>
-              )}
-            </IonCardContent>
+              </div>
+            )}
           </IonCard>
         </div>
 
-        {/* Track Information Section */}
+        {/* Track Information Cards */}
         <div className="track-info">
-          <IonText color="dark">
-            <h2 className="section-title">Track Information</h2>
-          </IonText>
-          <IonGrid>
-            <IonRow>
-              {quickInfo.map((info, index) => (
-                <IonCol size="6" key={index}>
-                  <IonCard className="info-card" button>
-                    <IonCardContent className="info-content">
-                      <IonIcon 
-                        icon={info.icon} 
-                        color="medium" 
-                        className="info-icon"
-                      />
-                      <h4>{info.title}</h4>
-                      <p>{info.description}</p>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-              ))}
-            </IonRow>
-          </IonGrid>
+          {quickInfo.map((info, index) => (
+            <IonCard className="info-card" key={index} button>
+              <div className="info-content">
+                <IonIcon icon={info.icon} className="info-icon" />
+                <div>
+                  <h4>
+                    {info.title}
+                    {info.isNew && <span className="new-tag">New</span>}
+                  </h4>
+                  <p>{info.description}</p>
+                </div>
+              </div>
+            </IonCard>
+          ))}
         </div>
 
         {/* About and Developers Section */}

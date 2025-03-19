@@ -1,147 +1,73 @@
-/* MainMenu.css with scoped colors */
+/* MainMenu.css with updated modern styling */
 .main-menu-page {
-  /* Color Variables for MainMenu only */
-  --main-menu-orange: #FFA725;
-  --main-menu-cream: #FFF5E4;
+  /* Updated color palette for modern look */
+  --main-menu-primary: #6B4EFF;
+  --main-menu-light-bg: #F8F9FE;
+  --main-menu-card-bg: #FFFFFF;
+  --main-menu-text: #1A1B1E;
+  --main-menu-secondary-text: #71727A;
+  --main-menu-accent: #FF84B7;
+  --main-menu-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
   --main-menu-light-green: #C1D8C3;
   --main-menu-teal: #6A9C89;
-  --main-menu-dark: #333333;
-  --main-menu-medium: #666666;
-  --main-menu-light: #F7F7F7;
 }
 
-/* Welcome Animation */
+/* Linear gradient background for the entire page */
+.gradient-background {
+  background-image: linear-gradient(135deg, #6A9C89 0%, #FFF5E4 100%);
+  min-height: 100vh;
+}
+
+/* Modern Welcome Text */
 .main-menu-page .welcome-animation {
-  margin: 16px 0;
-  text-align: center;
+  margin: 24px 0 32px;
+  text-align: left;
   overflow: hidden;
-  height: 60px;
+  height: 40px;
 }
 
 .main-menu-page .welcome-text {
   display: flex;
-  justify-content: center;
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--main-menu-teal);
+  align-items: center;
+  gap: 8px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--main-menu-text);
 }
 
-.main-menu-page .welcome-text span {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.05s forwards;
-}
-
-/* Generate the delay for each letter */
-.main-menu-page .welcome-text span:nth-child(1) { animation-delay: 0.1s; }
-.main-menu-page .welcome-text span:nth-child(2) { animation-delay: 0.15s; }
-.main-menu-page .welcome-text span:nth-child(3) { animation-delay: 0.2s; }
-.main-menu-page .welcome-text span:nth-child(4) { animation-delay: 0.25s; }
-.main-menu-page .welcome-text span:nth-child(5) { animation-delay: 0.3s; }
-.main-menu-page .welcome-text span:nth-child(6) { animation-delay: 0.35s; }
-.main-menu-page .welcome-text span:nth-child(7) { animation-delay: 0.4s; }
-.main-menu-page .welcome-text span:nth-child(8) { animation-delay: 0.45s; }
-.main-menu-page .welcome-text span:nth-child(9) { animation-delay: 0.5s; }
-.main-menu-page .welcome-text span:nth-child(10) { animation-delay: 0.55s; }
-.main-menu-page .welcome-text span:nth-child(11) { animation-delay: 0.6s; }
-.main-menu-page .welcome-text span:nth-child(12) { animation-delay: 0.65s; }
-.main-menu-page .welcome-text span:nth-child(13) { animation-delay: 0.7s; }
-.main-menu-page .welcome-text span:nth-child(14) { animation-delay: 0.75s; }
-.main-menu-page .welcome-text span:nth-child(15) { animation-delay: 0.8s; }
-.main-menu-page .welcome-text span:nth-child(16) { animation-delay: 0.85s; }
-.main-menu-page .welcome-text span:nth-child(17) { animation-delay: 0.9s; }
-.main-menu-page .welcome-text span:nth-child(18) { animation-delay: 0.95s; }
-.main-menu-page .welcome-text span:nth-child(19) { animation-delay: 1s; }
-.main-menu-page .welcome-text span:nth-child(20) { animation-delay: 1.05s; }
-
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.main-menu-page .welcome-animation.complete .welcome-text span {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Header Styles - Fixed for notch and status bar */
-.main-menu-page ion-header {
-  position: relative;
-}
-
-.main-menu-page ion-header::after {
-  display: none;
-}
-
-.main-menu-page ion-toolbar {
-  --background: var(--main-menu-teal);
-  --color: white;
-  --min-height: 56px;
-  --padding-top: env(safe-area-inset-top, 0px);
-  --padding-bottom: 0;
-  --padding-start: 8px;
-  --padding-end: 16px;
-}
-
-.main-menu-page .header-logo {
-  width: 32px;
-  height: 32px;
-  margin: 0 8px;
-  padding: 4px;
-  background-color: white;
-  border-radius: 50%;
-}
-
-.main-menu-page ion-title[slot="end"] {
-  text-align: right;
+.main-menu-page .welcome-text::after {
+  content: "👋";
+  font-size: 1.5rem;
 }
 
 /* Content Styles */
 .main-menu-page ion-content {
-  --background: var(--main-menu-cream);
-  --padding-top: 16px;
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-bottom: env(safe-area-inset-bottom, 16px);
+  --background: transparent;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 20px;
+  --overflow: auto;
+  --padding-bottom: 32px;
 }
 
-/* Compact Weather Widget */
+/* Modern Weather Widget */
 .main-menu-page .compact-weather-widget {
-  margin-bottom: 16px;
+  margin-bottom: 32px;
 }
 
 .main-menu-page .compact-weather-widget ion-card {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--main-menu-primary);
+  border-radius: 20px;
   margin: 0;
+  padding: 20px;
+  color: white;
+  box-shadow: var(--main-menu-shadow);
 }
 
 .main-menu-page .weather-content-compact {
   display: flex;
   align-items: center;
-  padding: 8px;
-}
-
-.main-menu-page .weather-icon-compact {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background-color: var(--main-menu-light-green);
-  border-radius: 50%;
-  padding: 8px;
-  margin-right: 12px;
-}
-
-.main-menu-page .weather-icon-compact img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  justify-content: space-between;
 }
 
 .main-menu-page .weather-info-compact {
@@ -149,118 +75,97 @@
 }
 
 .main-menu-page .temperature-compact {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: var(--main-menu-teal);
-  line-height: 1.2;
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 4px;
 }
 
 .main-menu-page .condition-compact {
-  font-size: 0.9rem;
-  color: var(--main-menu-orange);
-  margin: 2px 0;
-  text-transform: capitalize;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
 }
 
 .main-menu-page .location-compact {
-  font-size: 0.8rem;
-  color: var(--main-menu-medium);
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.main-menu-page .location-icon {
-  color: var(--main-menu-orange);
-}
-
-.main-menu-page .weather-refresh-compact {
-  margin-left: auto;
-}
-
-.main-menu-page .weather-skeleton-compact {
-  padding: 8px;
-}
-
-.main-menu-page .weather-error-compact {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px;
-}
-
-.main-menu-page .weather-error-compact p {
-  margin: 0;
-  color: var(--main-menu-medium);
-}
-
-/* Section Styles */
-.main-menu-page .section-title {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin: 20px 0 12px;
-  padding-left: 4px;
-  color: var(--main-menu-teal);
-  border-left: 4px solid var(--main-menu-orange);
-  padding-left: 10px;
-}
-
-/* Track Info Cards */
+/* Modern Track Info Cards */
 .main-menu-page .track-info {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .main-menu-page .info-card {
-  margin: 6px;
-  height: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--main-menu-card-bg);
+  border-radius: 20px;
+  padding: 20px;
+  margin: 8px 0;
+  box-shadow: var(--main-menu-shadow);
   border: none;
+  transition: transform 0.2s ease;
 }
 
 .main-menu-page .info-card:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: scale(0.98);
 }
 
 .main-menu-page .info-content {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 10px;
-  padding: 16px;
-  height: 100%;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 0;
 }
 
 .main-menu-page .info-icon {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   padding: 12px;
-  border-radius: 50%;
+  border-radius: 16px;
   background: var(--main-menu-light-green);
   color: var(--main-menu-teal) !important;
 }
 
 .main-menu-page .info-content h4 {
-  margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--main-menu-dark);
+  color: var(--main-menu-text);
+  margin-bottom: 4px;
 }
 
 .main-menu-page .info-content p {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--main-menu-medium);
-  line-height: 1.3;
+  font-size: 0.9rem;
+  color: var(--main-menu-secondary-text);
+  line-height: 1.4;
+}
+
+/* New Tag Style */
+.main-menu-page .new-tag {
+  background: var(--main-menu-accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+
+/* Duration Tag Style */
+.main-menu-page .duration-tag {
+  background: var(--main-menu-light-bg);
+  color: var(--main-menu-secondary-text);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-top: 8px;
+  display: inline-block;
 }
 
 /* Grid Layout */
 .main-menu-page ion-grid {
   padding: 0;
+  margin-bottom: 32px;
 }
 
 .main-menu-page ion-row {
@@ -271,13 +176,13 @@
   padding: 8px;
 }
 
-/* Dropdown Sections Styles */
+/* Dropdown Sections Styles - Updated */
 .main-menu-page .dropdown-section {
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   border-radius: 16px;
   overflow: hidden;
-  background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--main-menu-card-bg);
+  box-shadow: var(--main-menu-shadow);
 }
 
 .main-menu-page .dropdown-header {
@@ -285,20 +190,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background-color: var(--main-menu-light-green);
+  background: var(--main-menu-light-green);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .main-menu-page .dropdown-header:hover {
-  background-color: var(--main-menu-light-green);
-  opacity: 0.9;
+  background-color: #B1C8B3;
 }
 
 .main-menu-page .dropdown-title {
   display: flex;
   align-items: center;
   gap: 12px;
+  pointer-events: none; /* Prevents text selection */
 }
 
 .main-menu-page .dropdown-icon {
@@ -311,24 +216,25 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--main-menu-teal);
+  user-select: none; /* Prevents text selection */
 }
 
 .main-menu-page .dropdown-chevron {
   font-size: 1.2rem;
   color: var(--main-menu-teal);
   transition: transform 0.3s ease;
+  pointer-events: none; /* Prevents text selection */
 }
 
 .main-menu-page .dropdown-content {
+  background: var(--main-menu-card-bg);
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.5s ease, opacity 0.3s ease;
-  opacity: 0;
+  transition: max-height 0.3s ease-in-out;
 }
 
 .main-menu-page .dropdown-content.expanded {
-  max-height: 500px;
-  opacity: 1;
+  max-height: 1000px; /* Large enough to fit content */
 }
 
 .main-menu-page .about-card,
@@ -336,16 +242,17 @@
   margin: 0;
   border-radius: 0;
   box-shadow: none;
+  background: var(--main-menu-card-bg);
 }
 
 .main-menu-page .about-content,
 .main-menu-page .developers-content {
-  padding: 8px;
+  padding: 16px;
 }
 
 .main-menu-page .about-text,
 .main-menu-page .developers-text {
-  color: var(--main-menu-medium);
+  color: var(--main-menu-text);
 }
 
 .main-menu-page .about-text p,
@@ -353,6 +260,9 @@
   margin: 0 0 12px;
   font-size: 0.9rem;
   line-height: 1.5;
+  color: var(--main-menu-secondary-text);
+  text-align: justify;
+  hyphens: auto;
 }
 
 .main-menu-page .about-text p:last-child,
@@ -390,30 +300,9 @@
   .main-menu-page .welcome-text {
     font-size: 1.5rem;
   }
-
-  .main-menu-page .info-content {
-    padding: 8px;
-  }
-
-  .main-menu-page .info-icon {
-    font-size: 1.4rem;
-    padding: 8px;
-  }
-
+  
   .main-menu-page .info-content h4 {
-    font-size: 0.9rem;
-  }
-
-  .main-menu-page .info-content p {
-    font-size: 0.75rem;
-  }
-  
-  .main-menu-page .dropdown-title h3 {
     font-size: 1rem;
-  }
-  
-  .main-menu-page .dropdown-icon {
-    font-size: 1.4rem;
   }
 }
 
@@ -421,4 +310,9 @@
   .main-menu-page ion-col[size-md="6"] {
     width: 100%;
   }
+}
+
+/* Remove conflicting styles */
+.main-menu-page .dropdown-content {
+  opacity: 1;
 }
