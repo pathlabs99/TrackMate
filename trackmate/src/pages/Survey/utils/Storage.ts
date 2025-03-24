@@ -1,40 +1,60 @@
-import { Storage } from '@ionic/storage';
 import { FormData } from '../models/FormData';
 
-interface Submission extends FormData {
+export interface Submission extends FormData {
   timestamp: string;
+  reportId: string;
 }
 
-let storage: Storage;
+const PENDING_SURVEYS_KEY = 'trackmate_pending_surveys';
 
-const initializeStorage = async () => {
-  if (!storage) {
-    storage = new Storage();
-    await storage.create();
-  }
-  return storage;
-};
-
-export const saveOfflineSubmission = async (formData: FormData) => {
+/**
+ * Save a survey submission for offline storage
+ */
+export const saveOfflineSubmission = async (submission: Submission): Promise<void> => {
   try {
-    const storageInstance = await initializeStorage();
-    const pendingSubmissions: Submission[] = (await storageInstance.get('pendingSubmissions')) || [];
-    const submissionWithTimestamp: Submission = { ...formData, timestamp: new Date().toISOString() };
-    pendingSubmissions.push(submissionWithTimestamp);
-    await storageInstance.set('pendingSubmissions', pendingSubmissions);
-    console.log('Survey saved offline:', submissionWithTimestamp);
+    const pendingSubmissions = await getPendingSubmissions();
+    pendingSubmissions.push(submission);
+    localStorage.setItem(PENDING_SURVEYS_KEY, JSON.stringify(pendingSubmissions));
+    console.log('Survey saved offline:', submission);
   } catch (error) {
     console.error('Error saving offline submission:', error);
     throw error;
   }
 };
 
+/**
+ * Get all pending survey submissions
+ */
 export const getPendingSubmissions = async (): Promise<Submission[]> => {
-  const storageInstance = await initializeStorage();
-  return (await storageInstance.get('pendingSubmissions')) || [];
+  try {
+    const stored = localStorage.getItem(PENDING_SURVEYS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Error getting pending submissions:', error);
+    return [];
+  }
 };
 
-export const updatePendingSubmissions = async (submissions: Submission[]) => {
-  const storageInstance = await initializeStorage();
-  await storageInstance.set('pendingSubmissions', submissions);
+/**
+ * Update the list of pending submissions
+ */
+export const updatePendingSubmissions = async (submissions: Submission[]): Promise<void> => {
+  try {
+    localStorage.setItem(PENDING_SURVEYS_KEY, JSON.stringify(submissions));
+  } catch (error) {
+    console.error('Error updating pending submissions:', error);
+    throw error;
+  }
+};
+
+/**
+ * Clear all pending submissions
+ */
+export const clearPendingSubmissions = async (): Promise<void> => {
+  try {
+    localStorage.removeItem(PENDING_SURVEYS_KEY);
+  } catch (error) {
+    console.error('Error clearing pending submissions:', error);
+    throw error;
+  }
 };

@@ -12,28 +12,13 @@ export class API {
    */
   static async submitReport(reportData: any): Promise<any> {
     try {
-      // Extract form data
-      const formData = reportData.formData || {};
-      
-      // Create a payload for the server that preserves all original data
-      // This helps with both online and offline reports
-      const requestPayload = {
-        // Core structure - essential for both email and CSV
-        reportId: reportData.reportId,
-        coordinates: reportData.coordinates,
-        photo: reportData.photo,
-        submissionDate: reportData.submissionDate,
-        
-        // Root-level fields for email template - use original values, not defaults
-        // This ensures offline reports use actual data, not "Not provided"
-        name: formData.name || "",
-        email: formData.email || "", 
-        telephone: formData.telephone || "",
-        dateObserved: formData.dateObserved || "",
-        location: formData.location || "",
-        issueType: formData.issueType || "",
-        urgency: formData.urgency || "",
-        comments: formData.comments || ""
+      // Add a flag to indicate no JSON attachment is needed in the email
+      const modifiedReportData = {
+        ...reportData,
+        emailOptions: {
+          attachJsonFile: false,  // This flag tells the server not to attach the JSON file in emails
+          includeDataInBody: true // This flag suggests including the data in the email body instead
+        }
       };
 
       const response = await fetch(`${API_URL}/send-report`, {
@@ -42,7 +27,7 @@ export class API {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(requestPayload),
+        body: JSON.stringify(modifiedReportData),
       });
 
       if (!response.ok) {

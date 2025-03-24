@@ -1,43 +1,50 @@
-import { isOnline } from './Network';
-import { getPendingSubmissions, updatePendingSubmissions } from './Storage';
+import { checkNetworkStatus as isOnline, sendCSVToServer } from './Network';
+import { getPendingSubmissions, updatePendingSubmissions, clearPendingSubmissions, Submission } from './Storage';
 import { generateCSV } from './CSV';
-import { FormData } from '../models/FormData';
-import SurveyService from '../services/SurveyService';
 
-interface Submission extends FormData {
-  timestamp: string;
-}
-
-export const retryPendingSubmissions = async () => {
+/**
+ * Try to submit all pending surveys
+ */
+export const retryPendingSubmissions = async (): Promise<number> => {
   try {
     const isConnected = await isOnline();
     if (!isConnected) {
       console.log('Device is offline. Skipping retry of pending submissions.');
-      return;
+      return 0;
     }
 
-    const pendingSubmissions: Submission[] = await getPendingSubmissions();
+    const pendingSubmissions = await getPendingSubmissions();
     if (pendingSubmissions.length === 0) {
       console.log('No pending submissions to retry.');
-      return;
+      return 0;
     }
 
-    const updatedPending: Submission[] = [];
+    let successCount = 0;
+    const remainingSubmissions: Submission[] = [];
+
     for (const submission of pendingSubmissions) {
       try {
         const csv = await generateCSV(submission);
-        await SurveyService.submitSurvey(submission);
-        console.log('Successfully synced submission:', submission);
+        const fileName = `survey_${submission.reportId}_${submission.timestamp.split('T')[0]}`;
+        await sendCSVToServer(csv, fileName);
+        successCount++;
       } catch (error) {
-        console.error('Failed to sync submission:', error);
-        updatedPending.push(submission);
+        console.error('Failed to submit survey:', error);
+        remainingSubmissions.push(submission);
       }
     }
 
-    await updatePendingSubmissions(updatedPending);
-    console.log('Pending submissions updated after retry.');
+    if (remainingSubmissions.length > 0) {
+      await updatePendingSubmissions(remainingSubmissions);
+    } else {
+      await clearPendingSubmissions();
+    }
+
+    console.log(`Successfully submitted ${successCount} out of ${pendingSubmissions.length} surveys`);
+    return successCount;
   } catch (error) {
-    console.error('Error during retryPendingSubmissions:', error);
+    console.error('Error during retry of pending submissions:', error);
+    throw error;
   }
 };
 

@@ -1,92 +1,73 @@
+// services/SurveyService.ts
 import { FormData } from '../models/FormData';
-import { generateCSV } from '../utils/CSV'; // Import the generateCSV function
+import { generateCSV, generateReportId } from '../utils/CSV';
+import { checkNetworkStatus, sendCSVToServer } from '../utils/Network';
+import { saveOfflineSubmission, Submission } from '../utils/Storage';
+import { retryPendingSubmissions } from '../utils/Sync';
 
-const API_URL = 'https://trackmate-server-0uvc.onrender.com';
-
+/**
+ * Service to handle survey submission and storage
+ */
 class SurveyService {
   /**
-   * Submit survey data to the server as CSV
+   * Submit survey to the server
    */
-  static async submitSurvey(formData: FormData): Promise<any> {
+  submitSurvey = async (formData: FormData): Promise<void> => {
     try {
-      const csvContent = await generateCSV(formData);
-
-      // Create a Blob with proper encoding
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-
-      const response = await fetch(`${API_URL}/send-survey`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/csv;charset=utf-8;', // Ensure proper encoding
-          Accept: 'application/json',
-        },
-        body: blob, // Send Blob instead of raw string
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${response.status} - ${errorText}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Submit error:', error);
-      throw error;
-    }
-  }
-  /**
-   * Save survey data offline as CSV
-   */
-  static async saveOffline(formData: FormData): Promise<void> {
-    try {
-      // Generate CSV content
-      const csvContent = await generateCSV(formData);
-
-      // Get existing offline surveys
-      const offlineSurveys = JSON.parse(localStorage.getItem('offlineSurveys') || '[]');
-
-      // Add timestamp to submission and store as CSV
-      const submissionWithTimestamp = {
-        csv: csvContent,
-        timestamp: new Date().toISOString(),
+      // Generate report ID and add submission date
+      const reportId = generateReportId();
+      const timestamp = new Date().toISOString();
+      const enrichedData: Submission = {
+        ...formData,
+        reportId,
+        timestamp
       };
 
-      // Add new survey to the list
-      offlineSurveys.push(submissionWithTimestamp);
+      // Generate CSV
+      const csv = await generateCSV(enrichedData);
+      const fileName = `survey_${reportId}_${timestamp.split('T')[0]}`;
 
-      // Save updated list
-      localStorage.setItem('offlineSurveys', JSON.stringify(offlineSurveys));
-
-      console.log('Survey saved offline as CSV:', submissionWithTimestamp);
+      // Check if online
+      if (await checkNetworkStatus()) {
+        // Submit to server
+        await sendCSVToServer(csv, fileName);
+        console.log('Survey submitted successfully');
+      } else {
+        // Store offline if no connection
+        await saveOfflineSubmission(enrichedData);
+        console.log('Survey saved offline');
+      }
     } catch (error) {
-      console.error('Error saving offline:', error);
+      console.error('Failed to submit survey:', error);
       throw error;
     }
-  }
+  };
 
   /**
-   * Get pending offline surveys
+   * Try to submit any pending surveys
    */
-  static async getPendingSurveys(): Promise<any[]> {
-    try {
-      const pendingSurveys = JSON.parse(localStorage.getItem('offlineSurveys') || '[]');
-      return pendingSurveys;
-    } catch (error) {
-      console.error('Error getting pending surveys:', error);
-      return [];
-    }
-  }
+  submitPendingSurveys = async (): Promise<number> => {
+    return retryPendingSubmissions();
+  };
 
   /**
-   * Update pending surveys after some have been synced
+   * Validate survey fields
    */
-  static async updatePendingSurveys(updatedSurveys: any[]): Promise<void> {
-    try {
-      localStorage.setItem('offlineSurveys', JSON.stringify(updatedSurveys));
-    } catch (error) {
-      console.error('Error updating pending surveys:', error);
+  validateField = async (name: string, value: any): Promise<string> => {
+    if (name === 'lastVisitDate') {
+      if (!value) return 'Please select a date.';
+
+      const selectedDate = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normalize today to midnight
+      const fourWeeksAgo = new Date(today);
+      fourWeeksAgo.setDate(today.getDate() - 28); // 28 days = 4 weeks
+
+      if (selectedDate > today) return 'The date cannot be in the future.';
+      if (selectedDate < fourWeeksAgo) return 'The date must be within the last four weeks.';
     }
-  }
+    return '';
+  };
 }
 
-export default SurveyService;
+export default new SurveyService();

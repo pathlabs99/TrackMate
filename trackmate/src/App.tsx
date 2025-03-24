@@ -9,89 +9,165 @@ import {
   IonTabButton,
   IonTabs,
   setupIonicReact,
+  isPlatform,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import {
   qrCode,
+  documentText,
+  warning,
   helpCircle,
   home,
-  documentText,
-  alertCircle,
 } from "ionicons/icons";
+
 import { StatusBar, Style } from "@capacitor/status-bar";
-import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 
 // Import pages
+import QRScanner from "./pages/QR/QR";
+import { SurveyTab } from "./pages/Survey/SurveyTab";
+import IssuesTab from "./pages/IssueReport/IssuesTab";
 import FAQ from "./pages/FAQ/FAQ";
 import MainMenu from "./pages/MainMenu/MainMenu";
-import Survey from "./pages/Survey/Survey";
-import QR from "./pages/QR/QR";
-import IssueReport from "./pages/IssueReport/IssueReport";
-import Balingup from "./pages/QR/Balingup";
-import Collie from "./pages/QR/Collie";
+
+// Import QR Code section pages
 import DarlingRange from "./pages/QR/DarlingRange";
-import Denmark from "./pages/QR/Denmark";
-import DonnellyRiver from "./pages/QR/DonnellyRiver";
 import Dwellingup from "./pages/QR/Dwellingup";
-import Northcliffe from "./pages/QR/Northcliffe";
+import Collie from "./pages/QR/Collie";
+import Balingup from "./pages/QR/Balingup";
+import DonnellyRiver from "./pages/QR/DonnellyRiver";
 import Pemberton from "./pages/QR/Pemberton";
+import Northcliffe from "./pages/QR/Northcliffe";
 import Walpole from "./pages/QR/Walpole";
+import Denmark from "./pages/QR/Denmark";
 
-// Core CSS
+/* Core CSS */
 import "@ionic/react/css/core.css";
+import "@ionic/react/css/normalize.css";
+import "@ionic/react/css/structure.css";
+import "@ionic/react/css/typography.css";
+import "@ionic/react/css/padding.css";
+import "@ionic/react/css/float-elements.css";
+import "@ionic/react/css/text-alignment.css";
+import "@ionic/react/css/text-transformation.css";
+import "@ionic/react/css/flex-utils.css";
+import "@ionic/react/css/display.css";
 import "./theme/variables.css";
-import "./pages/QR/LocationPages.css"; 
+import "./theme/edge-to-edge.css";
 
-setupIonicReact({ mode: "md", animated: true });
+
+setupIonicReact({
+  mode: 'md',
+});
 
 const App: React.FC = () => {
   useEffect(() => {
-    if (Capacitor.isNativePlatform()) {
-      StatusBar.setBackgroundColor({ color: "#FFA725" });
-      StatusBar.setStyle({ style: Style.Light });
-    }
+    const setupApp = async () => {
+      if (Capacitor.getPlatform() === 'android') {
+        try {
+          await StatusBar.setOverlaysWebView({ overlay: true });
+          await StatusBar.setStyle({ style: Style.Dark });
+          await StatusBar.setBackgroundColor({ color: '#00000000' });
+          // Using a semi-transparent black for better visibility
+          if (navigator) {
+            navigator.transparentNavigation(true);
+          }
+        } catch (err) {
+          console.log('Error setting up status bar:', err);
+        }
+      }
+    };
+
+    setupApp();
+
+    const handleResume = () => {
+      setupApp();
+    };
+
+    CapacitorApp.addListener('resume', handleResume);
+
+    return () => {
+      CapacitorApp.removeAllListeners();
+    };
   }, []);
 
   return (
-    <IonApp>
+    <IonApp className={isPlatform('android') ? 'android-platform' : ''}>
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
-            <Route exact path="/menu" component={MainMenu} />
-            <Route exact path="/faq" component={FAQ} />
-            <Route exact path="/survey" component={Survey} />
-            <Route exact path="/qr" component={QR} />
-            <Route exact path="/issue-report" component={IssueReport} />
-            <Route exact path="/qr/balingup" component={Balingup} />
-            <Route exact path="/qr/collie" component={Collie} />
-            <Route exact path="/qr/darling-range" component={DarlingRange} />
-            <Route exact path="/qr/denmark" component={Denmark} />
-            <Route exact path="/qr/donnelly-river" component={DonnellyRiver} />
-            <Route exact path="/qr/dwellingup" component={Dwellingup} />
-            <Route exact path="/qr/northcliffe" component={Northcliffe} />
-            <Route exact path="/qr/pemberton" component={Pemberton} />
-            <Route exact path="/qr/walpole" component={Walpole} />
+            <Route exact path="/menu">
+              <MainMenu />
+            </Route>
+            <Route exact path="/scan">
+              <QRScanner />
+            </Route>
+            <Route exact path="/survey">
+              <SurveyTab />
+            </Route>
+            <Route exact path="/issues">
+              <IssuesTab />
+            </Route>
+            <Route exact path="/faq">
+              <FAQ />
+            </Route>
+
+            {/* QR Code section routes */}
+            <Route exact path="/DarlingRange">
+              <DarlingRange />
+            </Route>
+            <Route exact path="/Dwellingup">
+              <Dwellingup />
+            </Route>
+            <Route exact path="/Collie">
+              <Collie />
+            </Route>
+            <Route exact path="/Balingup">
+              <Balingup />
+            </Route>
+            <Route exact path="/DonnellyRiver">
+              <DonnellyRiver />
+            </Route>
+            <Route exact path="/Pemberton">
+              <Pemberton />
+            </Route>
+            <Route exact path="/Northcliffe">
+              <Northcliffe />
+            </Route>
+            <Route exact path="/Walpole">
+              <Walpole />
+            </Route>
+            <Route exact path="/Denmark">
+              <Denmark />
+            </Route>
+
             <Route exact path="/">
               <Redirect to="/menu" />
             </Route>
           </IonRouterOutlet>
+
           <IonTabBar slot="bottom" className="custom-tab-bar">
             <IonTabButton tab="menu" href="/menu">
               <IonIcon icon={home} />
               <IonLabel>Home</IonLabel>
             </IonTabButton>
+
             <IonTabButton tab="survey" href="/survey">
               <IonIcon icon={documentText} />
               <IonLabel>Survey</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="qr" href="/qr">
+
+            <IonTabButton tab="scan" href="/scan" className="qr-tab-button">
               <IonIcon icon={qrCode} />
-              <IonLabel>QR</IonLabel>
+              <IonLabel>Scan</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="issue-report" href="/issue-report">
-              <IonIcon icon={alertCircle} />
-              <IonLabel>Issue Report</IonLabel>
+
+            <IonTabButton tab="issues" href="/issues">
+              <IonIcon icon={warning} />
+              <IonLabel>Issues</IonLabel>
             </IonTabButton>
+
             <IonTabButton tab="faq" href="/faq">
               <IonIcon icon={helpCircle} />
               <IonLabel>FAQ</IonLabel>

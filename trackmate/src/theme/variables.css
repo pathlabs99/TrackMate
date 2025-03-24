@@ -12,6 +12,11 @@
   
   /* Secondary Colors */
   --ion-color-secondary: #6A9C89;
+  --ion-color-secondary-rgb: 106,156,137;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255,255,255;
+  --ion-color-secondary-shade: #5d8979;
+  --ion-color-secondary-tint: #79a695;
   --ion-color-secondary-light: #C1D8C3;
   
   /* Typography */
@@ -29,6 +34,16 @@
   --ion-color-contrast-rgb: var(--ion-color-trackmate-contrast-rgb);
   --ion-color-shade: var(--ion-color-trackmate-shade);
   --ion-color-tint: var(--ion-color-trackmate-tint);
+}
+
+/* Color class for secondary color */
+.ion-color-secondary {
+  --ion-color-base: var(--ion-color-secondary);
+  --ion-color-base-rgb: var(--ion-color-secondary-rgb);
+  --ion-color-contrast: var(--ion-color-secondary-contrast);
+  --ion-color-contrast-rgb: var(--ion-color-secondary-contrast-rgb);
+  --ion-color-shade: var(--ion-color-secondary-shade);
+  --ion-color-tint: var(--ion-color-secondary-tint);
 }
 
 /* ========== GLOBAL STYLES ========== */

@@ -1,20 +1,20 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
+  IonButton,
+  IonIcon,
   IonAlert,
-  useIonRouter,
   useIonViewDidEnter,
   useIonViewWillLeave,
   useIonViewDidLeave,
-} from "@ionic/react";
-import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
-import { useState, useEffect } from "react";
-import "./QR.css";
+  useIonRouter,
+} from '@ionic/react';
+import { scanOutline, flashlightOutline } from 'ionicons/icons';
+import React, { useState, useEffect } from 'react';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import './QR.css';
 
-// List of valid QR codes 
+// List of valid QR codes
 const VALID_QR_CODES = [
   "DarlingRange",
   "Dwellingup",
@@ -27,13 +27,32 @@ const VALID_QR_CODES = [
   "Denmark",
 ];
 
-const QRScanner: React.FC = () => {
-  
+const QR: React.FC = () => {
   const router = useIonRouter();
-  const [showPermissionError, setShowPermissionError] = useState<boolean>(false);
-  const [showInvalidQRError, setShowInvalidQRError] = useState<boolean>(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [flashlightOn, setFlashlightOn] = useState(false);
+  const [showPermissionError, setShowPermissionError] = useState(false);
+  const [showInvalidQRError, setShowInvalidQRError] = useState(false);
 
+  // Cleanup function
+  const cleanupScanner = async () => {
+    try {
+      setIsScanning(false);
+      const frame = document.querySelector(".scanner-frame");
+      if (frame) {
+        frame.remove();
+      }
+      document.body.classList.remove("scanner-active");
+      await BarcodeScanner.showBackground();
+      await BarcodeScanner.stopScan();
+      setFlashlightOn(false);
+      await BarcodeScanner.disableTorch();
+    } catch (error) {
+      console.error('Cleanup error:', error);
+    }
+  };
+
+  // Handle back button
   useEffect(() => {
     const handleBackButton = (ev: any) => {
       ev.detail.register(10, async () => {
@@ -42,11 +61,15 @@ const QRScanner: React.FC = () => {
       });
     };
     document.addEventListener("ionBackButton", handleBackButton);
-    return () => document.removeEventListener("ionBackButton", handleBackButton);
+    return () => {
+      document.removeEventListener("ionBackButton", handleBackButton);
+      cleanupScanner();
+    };
   }, [router]);
 
+  // View lifecycle hooks
   useIonViewDidEnter(() => {
-    if (!isScanning) {
+    if (isScanning) {
       startScan();
     }
   });
@@ -59,56 +82,34 @@ const QRScanner: React.FC = () => {
     cleanupScanner();
   });
 
-  // Scanner cleanup function
-  const cleanupScanner = async () => {
-    try {
-      setIsScanning(false);
-      const frame = document.querySelector(".scanner-frame");
-      if (frame) {
-        frame.remove();
-      }
-      document.body.classList.remove("scanner-active");
-      await BarcodeScanner.showBackground();
-      await BarcodeScanner.stopScan();
-    } catch (error) {
-      
-    }
-  };
-
-  // QR code validation and navigation
   const handleQRNavigation = async (qrContent: string) => {
     const qrCode = qrContent.toLowerCase().trim();
-    const normalizedQrCode = qrCode
-      .replace("balingup", "balingup") // Ensure consistent casing
-      .replace("donnellyriver", "donnelly-river") // Match route format
-      .replace("darlingrange", "darling-range"); // Match route format
+    const validCode = VALID_QR_CODES.find(code => code.toLowerCase() === qrCode);
 
-    if (VALID_QR_CODES.map((code) => code.toLowerCase().trim()).includes(qrCode)) {
+    if (validCode) {
       await cleanupScanner();
-      
-      router.push(`/qr/${normalizedQrCode}`, "root", "replace");
+      // Use the exact case from VALID_QR_CODES for the route
+      router.push(`/${validCode}`, "forward");
     } else {
       await cleanupScanner();
       setShowInvalidQRError(true);
     }
   };
 
-  // Scanner initialization and frame setup
   const startScan = async () => {
     if (isScanning) return;
 
     try {
-      setIsScanning(true);
-
-      // Check camera permissions
       const status = await BarcodeScanner.checkPermission({ force: true });
+      
       if (!status.granted) {
         setShowPermissionError(true);
-        setIsScanning(false);
         return;
       }
 
-      // Create scanner frame with corner markers
+      setIsScanning(true);
+
+      // Create scanner frame
       const frame = document.createElement("div");
       frame.className = "scanner-frame";
 
@@ -134,18 +135,23 @@ const QRScanner: React.FC = () => {
         await handleQRNavigation(result.content);
       } else {
         await cleanupScanner();
-        router.push("/menu", "back");
       }
     } catch (error) {
+      console.error('Scanner error:', error);
       await cleanupScanner();
-      router.push("/menu", "back");
     }
   };
 
-  // Handler functions
-  const openDeviceSettings = () => {
-    if ((window as any).cordova?.plugins?.diagnostic) {
-      (window as any).cordova.plugins.diagnostic.switchToSettings();
+  const toggleFlashlight = async () => {
+    try {
+      if (flashlightOn) {
+        await BarcodeScanner.disableTorch();
+      } else {
+        await BarcodeScanner.enableTorch();
+      }
+      setFlashlightOn(!flashlightOn);
+    } catch (error) {
+      console.error('Flashlight error:', error);
     }
   };
 
@@ -159,16 +165,50 @@ const QRScanner: React.FC = () => {
     router.push("/menu", "back");
   };
 
-  // Component render
+  const openDeviceSettings = () => {
+    if ((window as any).cordova?.plugins?.diagnostic) {
+      (window as any).cordova.plugins.diagnostic.switchToSettings();
+    }
+  };
+
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>QR Scanner</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent>
-        {/* Permission Error Alert */}
+    <IonPage className="qr-intro">
+      <IonContent className={`intro-content ${isScanning ? 'scanning-active' : ''}`} fullscreen>
+        {!isScanning ? (
+          <div className="content-container">
+            <div className="intro-logo">
+              <IonIcon icon={scanOutline} />
+            </div>
+            <p className="intro-text">
+              Scan QR codes along the trail to access detailed information about your location, nearby routes, and directions to main roads.
+            </p>
+            <div className="bottom-container">
+              <IonButton 
+                className="start-button"
+                onClick={startScan}
+              >
+                Get Started
+              </IonButton>
+            </div>
+          </div>
+        ) : (
+          <div className="scanner-controls">
+            <IonButton
+              className="flashlight-button"
+              fill="clear"
+              onClick={toggleFlashlight}
+            >
+              <IonIcon icon={flashlightOutline} />
+            </IonButton>
+            <IonButton
+              className="stop-scan-button"
+              onClick={handleCancel}
+            >
+              Cancel
+            </IonButton>
+          </div>
+        )}
+
         <IonAlert
           isOpen={showPermissionError}
           onDidDismiss={handleCancel}
@@ -176,11 +216,10 @@ const QRScanner: React.FC = () => {
           message={"Please enable camera access in your device settings to use the QR scanner."}
           buttons={[
             { text: "Cancel", role: "cancel", handler: handleCancel },
-            { text: "Open Settings", handler: openDeviceSettings },
+            { text: "Open Settings", handler: openDeviceSettings }
           ]}
         />
 
-        {/* Invalid QR Code Alert */}
         <IonAlert
           isOpen={showInvalidQRError}
           onDidDismiss={handleCancel}
@@ -188,7 +227,7 @@ const QRScanner: React.FC = () => {
           message={"The scanned QR code is not valid for this application. Please scan a valid QR code."}
           buttons={[
             { text: "Cancel", handler: handleCancel },
-            { text: "Try Again", handler: handleRetry },
+            { text: "Try Again", handler: handleRetry }
           ]}
         />
       </IonContent>
@@ -196,4 +235,4 @@ const QRScanner: React.FC = () => {
   );
 };
 
-export default QRScanner;
+export default QR;

@@ -1,12 +1,11 @@
 // Services/StorageService.ts
-// Extracted from your local storage handling code
-
 import localforage from "localforage";
 import { IssueFormData } from "../Models/IssueReport";
 
 export class Storage {
   private static readonly DRAFT_KEY = "draft-report";
   private static readonly PENDING_REPORTS_KEY = "pending-reports";
+  private static readonly PHOTOS_KEY = "issue-photos";
 
   /**
    * Load stored form data draft
@@ -43,20 +42,55 @@ export class Storage {
   }
 
   /**
-   * Store pending report for offline mode
+   * Save photo data
    */
-  static async savePendingReport(reportData: any): Promise<void> {
+  static async savePhoto(photoId: string, photoData: string): Promise<void> {
     try {
-      const pendingReports = await this.getPendingReports();
-      pendingReports.push({
-        data: reportData,
-        timestamp: new Date().toISOString(),
-      });
-
-      await localforage.setItem(this.PENDING_REPORTS_KEY, pendingReports);
+      const photos = await this.getPhotos();
+      photos[photoId] = photoData;
+      await localforage.setItem(this.PHOTOS_KEY, photos);
     } catch (error) {
-      console.error('Error saving pending report:', error);
+      console.error('Error saving photo:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Get photo data by ID
+   */
+  static async getPhoto(photoId: string): Promise<string | null> {
+    try {
+      const photos = await this.getPhotos();
+      return photos[photoId] || null;
+    } catch (error) {
+      console.error('Error getting photo:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get all stored photos
+   */
+  static async getPhotos(): Promise<Record<string, string>> {
+    try {
+      const photos = await localforage.getItem<Record<string, string>>(this.PHOTOS_KEY);
+      return photos || {};
+    } catch (error) {
+      console.error('Error getting photos:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Delete photo by ID
+   */
+  static async deletePhoto(photoId: string): Promise<void> {
+    try {
+      const photos = await this.getPhotos();
+      delete photos[photoId];
+      await localforage.setItem(this.PHOTOS_KEY, photos);
+    } catch (error) {
+      console.error('Error deleting photo:', error);
     }
   }
 
@@ -65,7 +99,8 @@ export class Storage {
    */
   static async getPendingReports(): Promise<any[]> {
     try {
-      return (await localforage.getItem<any[]>(this.PENDING_REPORTS_KEY)) || [];
+      const reports = await localforage.getItem<any[]>(this.PENDING_REPORTS_KEY);
+      return reports || [];
     } catch (error) {
       console.error('Error getting pending reports:', error);
       return [];
@@ -73,13 +108,40 @@ export class Storage {
   }
 
   /**
-   * Update pending reports after syncing
+   * Update pending reports
    */
-  static async updatePendingReports(pendingReports: any[]): Promise<void> {
+  static async updatePendingReports(reports: any[]): Promise<void> {
     try {
-      await localforage.setItem(this.PENDING_REPORTS_KEY, pendingReports);
+      await localforage.setItem(this.PENDING_REPORTS_KEY, reports);
     } catch (error) {
       console.error('Error updating pending reports:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove a specific pending report
+   */
+  static async removePendingReport(reportId: string): Promise<void> {
+    try {
+      const reports = await this.getPendingReports();
+      const updatedReports = reports.filter(report => report.id !== reportId);
+      await this.updatePendingReports(updatedReports);
+    } catch (error) {
+      console.error('Error removing pending report:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Clear all pending reports
+   */
+  static async clearPendingReports(): Promise<void> {
+    try {
+      await localforage.removeItem(this.PENDING_REPORTS_KEY);
+    } catch (error) {
+      console.error('Error clearing pending reports:', error);
+      throw error;
     }
   }
 }
