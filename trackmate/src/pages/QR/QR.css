@@ -1,0 +1,257 @@
+/* Common styles */
+ion-toolbar {
+  --background: white;
+}
+
+/* QR Intro Page */
+.qr-intro {
+  --background: white;
+}
+
+.intro-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  text-align: center;
+  background: white;
+  box-sizing: border-box;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 16px 20px max(24px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.intro-logo {
+  width: min(35vh, 280px);
+  height: min(35vh, 280px);
+  min-width: 180px;
+  min-height: 180px;
+  background: rgba(255, 99, 71, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto 0;
+}
+
+.intro-logo ion-icon {
+  width: 35%;
+  height: 35%;
+  color: rgb(255, 99, 71);
+}
+
+.intro-text {
+  font-size: clamp(14px, 2.5vh, 16px);
+  color: #666;
+  line-height: 1.5;
+  margin: 24px 0;
+  padding: 0 20px;
+  max-width: 320px;
+}
+
+/* QR Scanner Page */
+.qr-container {
+  --background: white;
+  z-index: 101;
+}
+
+.qr-content {
+  --offset-top: 0;
+  --offset-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.background-content {
+  background: white;
+}
+
+.scan-feedback-text {
+  margin-top: 20px;
+  text-align: center;
+  color: #666;
+}
+
+/* Bottom container with button */
+.bottom-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.start-button {
+  width: min(280px, 80%);
+  height: 48px;
+  --background: rgb(255, 99, 71);
+  --color: white;
+  --border-radius: 24px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --box-shadow: none;
+  --ripple-color: rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+  font-size: 16px;
+  text-transform: none;
+  margin: 0;
+  display: block;
+}
+
+.start-button::part(native) {
+  background: rgb(255, 99, 71);
+}
+
+/* Remove any potential button focus/hover states that might cause visual artifacts */
+.start-button:hover,
+.start-button:focus {
+  --background: rgb(255, 99, 71);
+  opacity: 0.9;
+}
+
+/* Scanner styles */
+.scanner-active {
+  background: transparent !important;
+  --background: transparent !important;
+}
+
+.scanner-active ion-content {
+  --background: transparent !important;
+}
+
+.scanner-active ion-header,
+.scanner-active ion-content {
+  visibility: hidden;
+}
+
+.scanner-active > * {
+  visibility: hidden;
+}
+
+/* Scanner frame */
+.scanner-frame {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  z-index: 9999999;
+  pointer-events: none;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Corner brackets */
+.corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgb(255, 99, 71);
+  display: block !important;
+  visibility: visible !important;
+}
+
+.corner-top-left {
+  top: 0;
+  left: 0;
+  border-bottom: none;
+  border-right: none;
+}
+
+.corner-top-right {
+  top: 0;
+  right: 0;
+  border-bottom: none;
+  border-left: none;
+}
+
+.corner-bottom-left {
+  bottom: 0;
+  left: 0;
+  border-top: none;
+  border-right: none;
+}
+
+.corner-bottom-right {
+  bottom: 0;
+  right: 0;
+  border-top: none;
+  border-left: none;
+}
+
+/* Scanner UI Controls */
+.scanner-controls {
+  position: fixed;
+  bottom: max(40px, env(safe-area-inset-bottom) + 20px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: 9999999;
+  visibility: visible !important;
+  padding: 0 20px;
+}
+
+.flashlight-button {
+  --color: white;
+  --background: rgba(0, 0, 0, 0.5);
+  font-size: 24px;
+  padding: 12px;
+  border-radius: 50%;
+  margin: 0;
+  visibility: visible !important;
+}
+
+.stop-scan-button {
+  --background: #ff6347;
+  --color: white;
+  width: 200px;
+  --border-radius: 25px;
+  text-transform: none;
+  font-size: 16px;
+  visibility: visible !important;
+}
+
+.header {
+  background: white;
+}
+
+/* Media queries for different screen sizes */
+@media (max-height: 600px) {
+  .intro-logo {
+    width: min(25vh, 200px);
+    height: min(25vh, 200px);
+    min-width: 150px;
+    min-height: 150px;
+  }
+
+  .intro-text {
+    margin: 16px 0;
+    font-size: 14px;
+  }
+}
+
+@media (min-height: 800px) {
+  .content-container {
+    padding-top: max(32px, env(safe-area-inset-top));
+  }
+}

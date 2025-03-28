@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   IonContent,
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -13,34 +10,38 @@ import {
   IonAlert,
   IonIcon,
   IonButton,
-  IonImg,
   IonText,
-  IonGrid,
-  IonRow,
-  IonCol,
+  IonChip,
+  IonLabel,
   useIonViewDidEnter
 } from "@ionic/react";
 import { 
+  playOutline,
+  timeOutline,
   refreshOutline,
+  locationOutline,
   leafOutline,
   trailSignOutline,
   peopleOutline,
   compassOutline,
-  informationCircleOutline,
-  codeSlashOutline,
-  chevronDownOutline,
-  chevronUpOutline,
-  locationOutline,
   mapOutline,
-  openOutline // Added for the external link icon
+  informationCircleOutline,
+  homeOutline,
+  alertCircleOutline,
+  waterOutline,
+  qrCode,
+  heartOutline,
+  informationCircle
 } from 'ionicons/icons';
-import { StatusBar } from '@capacitor/status-bar';
+import { 
+  StatusBar 
+} from '@capacitor/status-bar';
 import { Geolocation } from '@capacitor/geolocation';
 import "./MainMenu.css";
 
 // WeatherAPI configuration
 const API_KEY = '5a77ab9c376246488da51721250903';
-const DEFAULT_CITY = 'Perth'; // Fallback city
+const DEFAULT_CITY = 'Perth';
 const WEATHER_API_BASE_URL = 'https://api.weatherapi.com/v1/current.json';
 
 interface WeatherData {
@@ -48,430 +49,317 @@ interface WeatherData {
   condition: string;
   icon: string;
   location: string;
-  humidity: number;
-  windSpeed: number;
 }
 
 const MainMenu: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [animationComplete, setAnimationComplete] = useState(false);
-  const [aboutExpanded, setAboutExpanded] = useState(false);
-  const [aboutTrackMateExpanded, setAboutTrackMateExpanded] = useState(false);
-  const [developersExpanded, setDevelopersExpanded] = useState(false);
-  const [userLocation, setUserLocation] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Configure status bar when view enters
-  useIonViewDidEnter(() => {
+  // Load cached weather data
+  const loadCachedWeather = () => {
+    const cachedData = localStorage.getItem('weatherData');
+    const cachedTimestamp = localStorage.getItem('weatherTimestamp');
+    
+    if (cachedData && cachedTimestamp) {
+      const parsedData = JSON.parse(cachedData);
+      const timestamp = parseInt(cachedTimestamp);
+      
+      // Check if cache is less than 30 minutes old
+      if (Date.now() - timestamp < 30 * 60 * 1000) {
+        setWeather(parsedData);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Save weather data to cache
+  const cacheWeatherData = (data: WeatherData) => {
+    localStorage.setItem('weatherData', JSON.stringify(data));
+    localStorage.setItem('weatherTimestamp', Date.now().toString());
+  };
+
+  // Get user's geolocation and weather
+  const getUserLocationAndWeather = async () => {
+    setLoading(true);
     try {
-      // Make status bar use teal color and light text
-      if (StatusBar) {
-        StatusBar.setBackgroundColor({ color: '#6A9C89' });
-        StatusBar.setStyle({ style: 'LIGHT' });
-        StatusBar.setOverlaysWebView({ overlay: false });
+      const position = await Geolocation.getCurrentPosition();
+      const { latitude, longitude } = position.coords;
+      const url = `${WEATHER_API_BASE_URL}?key=${API_KEY}&q=${latitude},${longitude}&aqi=no`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok && data) {
+        const weatherData = {
+          temp: Math.round(data.current.temp_c),
+          condition: data.current.condition.text,
+          icon: data.current.condition.icon.replace('//cdn.weatherapi.com', 'https://cdn.weatherapi.com'),
+          location: data.location.name
+        };
+        setWeather(weatherData);
+        cacheWeatherData(weatherData);
       }
     } catch (err) {
-      console.error('Error setting status bar properties:', err);
-    }
-    
-    // Start welcome animation
-    setTimeout(() => {
-      setAnimationComplete(true);
-    }, 2000);
-  });
-
-  // Get user's geolocation using Capacitor
-  const getUserLocation = async () => {
-    try {
-      setLoading(true);
-      setLocationError(null);
-      
-      // Request permissions first
-      const permissionStatus = await Geolocation.requestPermissions();
-      
-      if (permissionStatus.location === 'granted') {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000
-        });
-        
-        const { latitude, longitude } = position.coords;
-        setUserLocation(`${latitude},${longitude}`);
-        fetchWeather(`${latitude},${longitude}`);
-      } else {
-        setLocationError('Location permission denied. Using default location.');
+      console.error('Error:', err);
+      // Only fetch default city if we don't have cached data
+      if (!loadCachedWeather()) {
         fetchWeather(DEFAULT_CITY);
       }
-    } catch (error) {
-      console.error('Geolocation error:', error);
-      setLocationError('Unable to get your location. Using default location.');
-      fetchWeather(DEFAULT_CITY);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchWeather = async (location: string) => {
+  const fetchWeather = async (city: string) => {
     try {
-      setLoading(true);
-      setError(null);
-
-      const url = `${WEATHER_API_BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(location)}&aqi=no`;
-      
+      const url = `${WEATHER_API_BASE_URL}?key=${API_KEY}&q=${city}&aqi=no`;
       const response = await fetch(url);
       const data = await response.json();
 
       if (response.ok && data) {
-        setWeather({
+        const weatherData = {
           temp: Math.round(data.current.temp_c),
           condition: data.current.condition.text,
           icon: data.current.condition.icon.replace('//cdn.weatherapi.com', 'https://cdn.weatherapi.com'),
-          location: `${data.location.name}, ${data.location.country}`,
-          humidity: data.current.humidity,
-          windSpeed: Math.round(data.current.wind_kph)
-        });
-      } else {
-        throw new Error(data.error?.message || 'Failed to fetch weather data');
+          location: data.location.name
+        };
+        setWeather(weatherData);
+        cacheWeatherData(weatherData);
       }
     } catch (err) {
       console.error('Weather fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch weather data');
-      setWeather(null);
+      // Load cached data if available
+      loadCachedWeather();
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Get user location when component mounts
-    getUserLocation();
+    // First try to load cached data
+    const hasCachedData = loadCachedWeather();
+    
+    // Then fetch fresh data in the background
+    getUserLocationAndWeather();
+  }, []);
 
-    // Refresh weather data every 5 minutes
-    const interval = setInterval(() => {
-      if (userLocation) {
-        fetchWeather(userLocation);
-      } else {
-        getUserLocation();
-      }
-    }, 300000);
-
-    return () => clearInterval(interval);
-  }, [userLocation]);
-
-  // Function to manually refresh weather and location
-  const handleRefreshWeather = () => {
-    getUserLocation();
-  };
-
-  const quickInfo = [
+  const featuredContent = [
     {
-      title: "Track Sections",
-      icon: trailSignOutline,
-      description: "8 unique sections spanning 1000km",
+      title: "Scan & Explore",
+      description: "Scan QR codes to learn about your surroundings",
+      icon: qrCode,
+      isNew: true,
+      link: "/scan"
     },
     {
-      title: "Flora & Fauna",
-      icon: leafOutline,
-      description: "Diverse ecosystem information",
-    },
-    {
-      title: "Navigation",
-      icon: compassOutline,
-      description: "Track markers and waypoints",
-    },
-    {
-      title: "Community",
-      icon: peopleOutline,
-      description: "Join the hiking community",
+      title: "FAQ",
+      description: "Find answers to common questions about TrackMate and the Bibbulmun Track",
+      icon: informationCircle,
+      isNew: false,
+      link: "/faq"
     }
   ];
 
-  const toggleAbout = () => {
-    setAboutExpanded(!aboutExpanded);
-  };
-
-  const toggleAboutTrackMate = () => {
-    setAboutTrackMateExpanded(!aboutTrackMateExpanded);
-  };
-
-  const toggleDevelopers = () => {
-    setDevelopersExpanded(!developersExpanded);
-  };
+  const quickInfo = [
+    {
+      title: "Leave No Trace",
+      time: "Guidelines",
+      icon: leafOutline,
+      description: "Pack out all rubbish, stay on marked trails, use fuel stoves only (no campfires), and camp only at designated sites. Help preserve the track for future walkers.",
+      link: "https://www.bibbulmuntrack.org.au/trip-planner/leave-no-trace/"
+    },
+    {
+      title: "Track Markers",
+      time: "Navigation",
+      icon: trailSignOutline,
+      description: "Follow the yellow Waugal (rainbow serpent) trail markers. They're placed at regular intervals and at track junctions. If you haven't seen one for 500m, return to the last marker.",
+      link: "https://www.bibbulmuntrack.org.au/the-track/along-the-track/"
+    },
+    {
+      title: "Water Sources",
+      time: "Essential",
+      icon: waterOutline,
+      description: "Water tanks at campsites are not guaranteed. Always carry at least 3L of water per person per day. Treat all water before drinking, even from tanks.",
+      link: "https://www.bibbulmuntrack.org.au/trip-planner/health-hygiene-safety/"
+    }
+  ];
 
   return (
     <IonPage className="main-menu-page">
-      <IonHeader className="ion-no-border">
-        <IonToolbar color="primary">
-          <IonImg 
-            src="logo.png" 
-            alt="TrackMate"
-            slot="start"
-            className="header-logo"
-          />
-          <IonTitle size="small" slot="end">TrackMate</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <IonContent fullscreen>
+        <div className="safe-area-container">
+          <div className="content-container">
+            <div className="welcome-section">
+              <div className="welcome-text">
+                <span className="welcome-message">Hello, TrackMate</span>
+                <span className="welcome-emoji">👋</span>
+              </div>
+            </div>
 
-      <IonContent>
-        {/* Welcome Animation */}
-        <div className={`welcome-animation ${animationComplete ? 'complete' : ''}`}>
-          <div className="welcome-text">
-            <span>W</span>
-            <span>e</span>
-            <span>l</span>
-            <span>c</span>
-            <span>o</span>
-            <span>m</span>
-            <span>e</span>
-            <span>&nbsp;</span>
-            <span>T</span>
-            <span>o</span>
-            <span>&nbsp;</span>
-            <span>T</span>
-            <span>r</span>
-            <span>a</span>
-            <span>c</span>
-            <span>k</span>
-            <span>M</span>
-            <span>a</span>
-            <span>t</span>
-            <span>e</span>
-          </div>
-        </div>
-
-        {/* Compact Weather Widget */}
-        <div className="compact-weather-widget">
-          <IonCard>
-            <IonCardContent>
-              {loading ? (
-                <div className="weather-skeleton-compact">
-                  <IonSkeletonText animated style={{ width: '40%', height: '16px' }} />
-                  <IonSkeletonText animated style={{ width: '30%', height: '14px' }} />
-                </div>
+            {/* Weather Widget */}
+            <div className="weather-widget">
+              {loading && !weather ? (
+                <IonSkeletonText animated style={{ width: '100%', height: '40px', '--border-radius': '8px' }} />
               ) : weather ? (
-                <div className="weather-content-compact">
-                  <div className="weather-icon-compact">
-                    <img src={weather.icon} alt={weather.condition} />
+                <div className="weather-content">
+                  <div className="weather-location">
+                    <IonIcon icon={locationOutline} />
+                    <span>{weather.location}</span>
+                    <span>{weather.condition}</span>
                   </div>
-                  <div className="weather-info-compact">
-                    <div className="temperature-compact">{weather.temp}°C</div>
-                    <div className="condition-compact">{weather.condition}</div>
-                    <div className="location-compact">
-                      <IonIcon icon={locationOutline} size="small" className="location-icon" /> {weather.location}
-                    </div>
+                  <div className="weather-info">
+                    <span className="temperature">{weather.temp}°C</span>
                   </div>
-                  <IonButton 
-                    fill="clear"
-                    size="small"
-                    onClick={handleRefreshWeather}
-                    className="weather-refresh-compact"
-                  >
-                    <IonIcon icon={refreshOutline} />
-                  </IonButton>
                 </div>
-              ) : (
-                <div className="weather-error-compact">
-                  <p>Weather unavailable</p>
-                  <IonButton 
-                    fill="clear"
-                    size="small"
-                    onClick={handleRefreshWeather}
-                  >
-                    Retry
-                  </IonButton>
-                </div>
-              )}
-            </IonCardContent>
-          </IonCard>
-        </div>
+              ) : null}
+            </div>
 
-        {/* Track Information Section */}
-        <div className="track-info">
-          <IonText color="dark">
-            <h2 className="section-title">Track Information</h2>
-          </IonText>
-          <IonGrid>
-            <IonRow>
-              {quickInfo.map((info, index) => (
-                <IonCol size="6" key={index}>
-                  <IonCard className="info-card" button>
-                    <IonCardContent className="info-content">
-                      <IonIcon 
-                        icon={info.icon} 
-                        color="medium" 
-                        className="info-icon"
-                      />
-                      <h4>{info.title}</h4>
-                      <p>{info.description}</p>
+            {/* Featured Content */}
+            <div className="main-content">
+              <div className="section-header">
+                <h2>Featured</h2>
+              </div>
+              <div className="cards-grid">
+                {featuredContent.map((item, index) => (
+                  <IonCard 
+                    key={index} 
+                    className="feature-card"
+                    routerLink={item.link}
+                  >
+                    {item.isNew && <div className="new-tag">Try it</div>}
+                    <IonCardContent>
+                      <div className="card-icon">
+                        <IonIcon icon={item.icon} />
+                      </div>
+                      <h3>{item.title}</h3>
+                      <p>{item.description}</p>
                     </IonCardContent>
                   </IonCard>
-                </IonCol>
-              ))}
-            </IonRow>
-          </IonGrid>
-        </div>
+                ))}
+              </div>
+            </div>
 
-        {/* About and Developers Section */}
-        <IonText color="dark">
-          <h2 className="section-title">More Information</h2>
-        </IonText>
-        
-        <IonGrid>
-          <IonRow>
-            {/* About BTF Section */}
-            <IonCol size="12" sizeMd="6">
-              <div className="dropdown-section">
-                <div 
-                  className="dropdown-header" 
-                  onClick={toggleAbout}
-                >
-                  <div className="dropdown-title">
-                    <IonIcon icon={informationCircleOutline} className="dropdown-icon" />
-                    <h3>About BTF</h3>
-                  </div>
-                  <IonIcon 
-                    icon={aboutExpanded ? chevronUpOutline : chevronDownOutline} 
-                    className="dropdown-chevron"
-                  />
-                </div>
-                
-                <div className={`dropdown-content ${aboutExpanded ? 'expanded' : ''}`}>
-                  <IonCard className="about-card">
+            {/* Quick Info Section */}
+            <div className="practices-section">
+              <div className="section-header">
+                <h2>Quick Info</h2>
+              </div>
+              <div className="practices-list">
+                {quickInfo.map((info, index) => (
+                  <IonCard 
+                    key={index} 
+                    className="practice-card"
+                    onClick={() => window.open(info.link, '_blank')}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <IonCardContent>
-                      <div className="about-content">
-                        <div className="about-text">
-                          <p>
-                            The Bibbulmun Track Foundation is a non-profit community organization dedicated to 
-                            the management, maintenance, and marketing of the 1000km Bibbulmun Track. 
-                            Established in 1997, the Foundation works to ensure the Track remains one of the world's 
-                            great long-distance walking trails.
-                          </p>
-                          <p>
-                            Through volunteer efforts, community support, and partnerships with government 
-                            agencies, the Foundation helps thousands of hikers experience the natural beauty 
-                            of Western Australia's south-west each year.
-                          </p>
-                          <p>
-                            For more information, visit:
-                          </p>
-                          <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                            <IonButton 
-                              fill="clear" 
-                              size="small" 
-                              onClick={() => window.open('https://www.bibbulmuntrack.org.au', '_blank')}
-                            >
-                              <IonIcon icon={openOutline} style={{ fontSize: '24px', color: 'var(--main-menu-teal)' }} />
-                            </IonButton>
+                      <div className="practice-info">
+                        <div className="info-icon">
+                          <IonIcon icon={info.icon} />
+                        </div>
+                        <div className="info-content">
+                          <h3>{info.title}</h3>
+                          <p>{info.description}</p>
+                          <div className="practice-meta">
+                            <IonChip>
+                              <IonLabel>{info.time}</IonLabel>
+                            </IonChip>
                           </div>
                         </div>
                       </div>
                     </IonCardContent>
                   </IonCard>
-                </div>
+                ))}
               </div>
-            </IonCol>
-            
-            {/* About TrackMate Section */}
-            <IonCol size="12" sizeMd="6">
-              <div className="dropdown-section">
-                <div 
-                  className="dropdown-header" 
-                  onClick={toggleAboutTrackMate}
-                >
-                  <div className="dropdown-title">
-                    <IonIcon icon={mapOutline} className="dropdown-icon" />
-                    <h3>About TrackMate</h3>
-                  </div>
-                  <IonIcon 
-                    icon={aboutTrackMateExpanded ? chevronUpOutline : chevronDownOutline} 
-                    className="dropdown-chevron"
-                  />
-                </div>
-                
-                <div className={`dropdown-content ${aboutTrackMateExpanded ? 'expanded' : ''}`}>
-                  <IonCard className="about-card">
-                    <IonCardContent>
-                      <div className="about-content">
-                        <div className="about-text">
-                          <p>
-                            TrackMate is a comprehensive mobile companion app designed specifically for hikers 
-                            exploring the Bibbulmun Track. Our app provides real-time weather updates, detailed 
-                            track information, and navigation assistance to enhance your hiking experience.
-                          </p>
-                          <p>
-                            Developed in collaboration with experienced hikers and the Bibbulmun Track Foundation, 
-                            TrackMate aims to make the 1000km journey more accessible, safe, and enjoyable for 
-                            outdoor enthusiasts of all levels.
-                          </p>
-                        </div>
-                      </div>
-                    </IonCardContent>
-                  </IonCard>
-                </div>
-              </div>
-            </IonCol>
-            
-            {/* Meet the Developers Section */}
-            <IonCol size="12" sizeMd="6">
-              <div className="dropdown-section">
-                <div 
-                  className="dropdown-header" 
-                  onClick={toggleDevelopers}
-                >
-                  <div className="dropdown-title">
-                    <IonIcon icon={codeSlashOutline} className="dropdown-icon" />
-                    <h3>Meet the Developers</h3>
-                  </div>
-                  <IonIcon 
-                    icon={developersExpanded ? chevronUpOutline : chevronDownOutline} 
-                    className="dropdown-chevron"
-                  />
-                </div>
-                
-                <div className={`dropdown-content ${developersExpanded ? 'expanded' : ''}`}>
-                  <IonCard className="developers-card">
-                    <IonCardContent>
-                      <div className="developers-content">
-                        <div className="developers-text">
-                          <p>
-                            TrackMate was created by a dedicated team of developers passionate about hiking 
-                            and outdoor activities in Western Australia. Our mission is to make the Bibbulmun 
-                            Track more accessible through technology.
-                          </p>
-                          <p>
-                            Our team combines expertise in mobile development, UI/UX design, and outdoor 
-                            navigation to create a seamless experience for hikers of all levels. We work 
-                            closely with the Bibbulmun Track Foundation to ensure accuracy and usefulness.
-                          </p>
-                        </div>
-                      </div>
-                    </IonCardContent>
-                  </IonCard>
-                </div>
-              </div>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+            </div>
 
-        {/* Alert for errors */}
-        <IonAlert
-          isOpen={!!error}
-          onDidDismiss={() => setError(null)}
-          header="Error"
-          message={error || 'An error occurred'}
-          buttons={['OK']}
-        />
+            {/* About Section */}
+            <div className="about-section">
+              <div className="about-header">
+                <IonIcon icon={leafOutline} className="about-icon" />
+                <h2>About the Foundation</h2>
+              </div>
+              <div className="about-content">
+                <p>
+                  The Bibbulmun Track Foundation is a non-profit organization dedicated to supporting, maintaining, and preserving Western Australia's world-class walking trail. Since 1997, we've been the guardians of this 1000km track, connecting Kalamunda to Albany through some of the most beautiful landscapes in the South West.
+                </p>
+                <div className="about-stats">
+                  <div className="stat-item">
+                    <span className="stat-number">1000</span>
+                    <span className="stat-label">km of track</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">9</span>
+                    <span className="stat-label">sections</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">49</span>
+                    <span className="stat-label">campsites</span>
+                  </div>
+                </div>
+                <div className="about-cta">
+                  <IonButton 
+                    fill="clear" 
+                    className="learn-more"
+                    onClick={() => window.open('https://www.bibbulmuntrack.org.au/the-track/', '_blank')}
+                  >
+                    Learn More
+                    <IonIcon slot="end" icon={playOutline} />
+                  </IonButton>
+                </div>
+              </div>
+            </div>
 
-        {/* Alert for location errors */}
-        <IonAlert
-          isOpen={!!locationError}
-          onDidDismiss={() => setLocationError(null)}
-          header="Location Notice"
-          message={locationError}
-          buttons={['OK']}
-        />
+            {/* Meet the Developers */}
+            <div className="meet-developers">
+              <div className="dev-section">
+                <IonText color="medium" className="dev-text">Made with 🧡 by</IonText>
+                <div className="dev-cards">
+                  <div className="dev-card">
+                    <div className="dev-avatar">👩‍🎓</div>
+                    <div className="dev-info">Marwa</div>
+                  </div>
+                  <div className="dev-card">
+                    <div className="dev-avatar">👨‍🎓</div>
+                    <div className="dev-info">Wael</div>
+                  </div>
+                  <div className="dev-card">
+                    <div className="dev-avatar">👨‍🎓</div>
+                    <div className="dev-info">Abdullah</div>
+                  </div>
+                  <div className="dev-card">
+                    <div className="dev-avatar">👨‍🎓</div>
+                    <div className="dev-info">Steve</div>
+                  </div>
+                  <div className="dev-card">
+                    <div className="dev-avatar">👩‍🎓</div>
+                    <div className="dev-info">Roudah</div>
+                  </div>
+                  <div className="dev-card">
+                    <div className="dev-avatar">👨‍🎓</div>
+                    <div className="dev-info">Jeremy</div>
+                  </div>
+                </div>
+              </div>
+              <div className="supervisor-section">
+                <IonText color="medium" className="supervisor-text">Special thanks to our supervisors</IonText>
+                <div className="supervisor-cards">
+                  <div className="supervisor-card">
+                    <div className="supervisor-avatar">👨‍🏫</div>
+                    <div className="supervisor-info">Peter Cole</div>
+                  </div>
+                  <div className="supervisor-card">
+                    <div className="supervisor-avatar">👩‍🏫</div>
+                    <div className="supervisor-info">Noor Alkhateeb</div>
+                  </div>
+                </div>
+              </div>
+              <div className="project-info">
+                <IonText color="medium" className="project-text">Murdoch University Dubai • ICT302 Final Project • 2025</IonText>
+              </div>
+            </div>
+          </div>
+        </div>
       </IonContent>
     </IonPage>
   );

@@ -1,0 +1,28 @@
+/* SurveyTab styles */
+ion-content {
+  --background: transparent;
+}
+
+ion-header {
+  --background: transparent;
+}
+
+.survey-page {
+  --background: var(--secondary-color);
+}
+
+.survey-page ion-content {
+  --background: transparent;
+  --padding: 0;
+}
+
+.survey-page ion-header ion-toolbar {
+  --background: transparent;
+  --color: var(--ion-color-primary-contrast);
+}
+
+.survey-page .survey-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
+}

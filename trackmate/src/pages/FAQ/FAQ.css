@@ -1,0 +1,166 @@
+/* Override the main page background */
+.gradient-background,
+ion-page.gradient-background {
+    --background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+}
+
+.gradient-background {
+  --background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+/* Header and toolbar adjustments */
+ion-header {
+    position: relative !important;
+}
+
+ion-header::after {
+    display: none;
+}
+
+.transparent-toolbar {
+    --background: transparent;
+    --min-height: 56px;
+    margin-top: calc(env(safe-area-inset-top) + 32px);
+    padding-top: 0;
+}
+
+.faq-container {
+  padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin-bottom: 8px;
+  text-align: center;
+  padding-top: env(safe-area-inset-top);
+}
+
+.faq-subtitle {
+  display: block;
+  text-align: center;
+  margin: 0 auto 24px;
+  max-width: 600px;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 0 16px;
+}
+
+.custom-searchbar {
+  margin-bottom: 20px;
+  --border-radius: 12px;
+  --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --background: white;
+  --placeholder-color: var(--ion-color-medium);
+}
+
+.faq-card {
+  margin-bottom: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: white;
+  overflow: hidden;
+}
+
+.faq-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --background: transparent;
+}
+
+.faq-item h2 {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ion-color-dark);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.transition-icon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+  color: var(--ion-color-medium);
+}
+
+.transition-icon.rotated {
+  transform: rotate(90deg);
+}
+
+.faq-answer {
+  padding: 0 16px 16px;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+  line-height: 1.6;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 8px;
+  padding-top: 16px;
+}
+
+/* System font */
+* {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Fix ion-item styling */
+ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --background: transparent;
+    --border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Ensure IonContent is also using the correct background */
+ion-content {
+    --background: transparent !important;
+    --padding-top: env(safe-area-inset-top);
+    --padding-bottom: 40px;
+}
+
+ion-content::part(background) {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+}
+
+ion-content::part(scroll) {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+}
+
+.expand-collapse-container {
+  display: flex;
+  justify-content: center;
+  margin: -8px 0 16px;
+}
+
+.expand-collapse-button {
+  --color: #FFA725;
+  --color-hover: #ff9500;
+  font-size: 13px;
+  text-transform: none;
+  font-weight: 500;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+.expand-collapse-button ion-icon {
+  font-size: 18px;
+  margin-right: 6px;
+  color: #FFA725;
+}
+
+.expand-collapse-button:hover {
+  --opacity: 0.9;
+}
+
+/* Add safe area padding to IonContent */
+.safe-area {
+  --padding-top: env(safe-area-inset-top);
+  --padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}

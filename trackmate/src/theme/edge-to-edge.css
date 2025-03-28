@@ -1,0 +1,31 @@
+:root {
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
+}
+
+ion-header {
+  padding-top: var(--ion-safe-area-top);
+}
+
+ion-footer {
+  padding-bottom: var(--ion-safe-area-bottom);
+}
+
+ion-toolbar {
+  --padding-top: var(--ion-safe-area-top);
+  --padding-bottom: var(--ion-safe-area-bottom);
+  --padding-start: var(--ion-safe-area-left);
+  --padding-end: var(--ion-safe-area-right);
+}
+
+/* Android specific styles */
+.platform-android ion-content {
+  --padding-top: var(--ion-safe-area-top);
+  --padding-bottom: var(--ion-safe-area-bottom);
+}
+
+.platform-android ion-modal ion-content {
+  --padding-top: 0;
+}

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
@@ -9,28 +9,40 @@ import {
   IonTabButton,
   IonTabs,
   setupIonicReact,
+  isPlatform,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { qrCode, documentText, warning, helpCircle, menu } from "ionicons/icons";
-import Tab1 from "./pages/Tab1";
-import Tab2 from "./pages/Tab2";
-import Tab3 from "./pages/Tab3";
+import {
+  qrCode,
+  documentText,
+  warning,
+  helpCircle,
+  home,
+} from "ionicons/icons";
+
+import { StatusBar, Style } from "@capacitor/status-bar";
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+
+// Import pages
+import QRScanner from "./pages/QR/QR";
+import { SurveyTab } from "./pages/Survey/SurveyTab";
+import IssuesTab from "./pages/IssueReport/IssuesTab";
 import FAQ from "./pages/FAQ/FAQ";
 import MainMenu from "./pages/MainMenu/MainMenu";
-import QR1 from "./pages/QR/QR1";
-import QR2 from "./pages/QR/QR2";
-import QR3 from "./pages/QR/QR3";
-import QR4 from "./pages/QR/QR4";
-import QR5 from "./pages/QR/QR5";
-import QR6 from "./pages/QR/QR6";
-import QR7 from "./pages/QR/QR7";
-import QR8 from "./pages/QR/QR8";
-import QR9 from "./pages/QR/QR9";
 
-// Import Capacitor plugins
-import { StatusBar, Style } from '@capacitor/status-bar';
+// Import QR Code section pages
+import DarlingRange from "./pages/QR/DarlingRange";
+import Dwellingup from "./pages/QR/Dwellingup";
+import Collie from "./pages/QR/Collie";
+import Balingup from "./pages/QR/Balingup";
+import DonnellyRiver from "./pages/QR/DonnellyRiver";
+import Pemberton from "./pages/QR/Pemberton";
+import Northcliffe from "./pages/QR/Northcliffe";
+import Walpole from "./pages/QR/Walpole";
+import Denmark from "./pages/QR/Denmark";
 
-/* Core CSS required for Ionic components to work properly */
+/* Core CSS */
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
 import "@ionic/react/css/structure.css";
@@ -41,99 +53,123 @@ import "@ionic/react/css/text-alignment.css";
 import "@ionic/react/css/text-transformation.css";
 import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
-import "@ionic/react/css/palettes/dark.system.css";
 import "./theme/variables.css";
+import "./theme/edge-to-edge.css";
 
-setupIonicReact();
+
+setupIonicReact({
+  mode: 'md',
+});
 
 const App: React.FC = () => {
   useEffect(() => {
-    const setupStatusBar = async () => {
-      try {
-        // Configure status bar
-        await StatusBar.setOverlaysWebView({ overlay: false });
-        await StatusBar.setStyle({ style: Style.Light });
-        await StatusBar.setBackgroundColor({ color: '#ffffff' });
-      } catch (err) {
-        console.log('Status bar setup error:', err);
+    const setupApp = async () => {
+      if (Capacitor.getPlatform() === 'android') {
+        try {
+          await StatusBar.setOverlaysWebView({ overlay: true });
+          await StatusBar.setStyle({ style: Style.Dark });
+          await StatusBar.setBackgroundColor({ color: '#00000000' });
+          // Using a semi-transparent black for better visibility
+          if (navigator) {
+            navigator.transparentNavigation(true);
+          }
+        } catch (err) {
+          console.log('Error setting up status bar:', err);
+        }
       }
     };
-    
-    // Initialize status bar settings
-    setupStatusBar();
+
+    setupApp();
+
+    const handleResume = () => {
+      setupApp();
+    };
+
+    CapacitorApp.addListener('resume', handleResume);
+
+    return () => {
+      CapacitorApp.removeAllListeners();
+    };
   }, []);
 
   return (
-    <IonApp>
+    <IonApp className={isPlatform('android') ? 'android-platform' : ''}>
       <IonReactRouter>
         <IonTabs>
           <IonRouterOutlet>
             <Route exact path="/menu">
               <MainMenu />
             </Route>
-            <Route exact path="/tab1">
-              <Tab1 />
+            <Route exact path="/scan">
+              <QRScanner />
             </Route>
-            <Route exact path="/tab2">
-              <Tab2 />
+            <Route exact path="/survey">
+              <SurveyTab />
             </Route>
-            <Route exact path="/tab3">
-              <Tab3 />
+            <Route exact path="/issues">
+              <IssuesTab />
             </Route>
             <Route exact path="/faq">
               <FAQ />
             </Route>
-            <Route exact path="/qr1">
-              <QR1 />
+
+            {/* QR Code section routes */}
+            <Route exact path="/DarlingRange">
+              <DarlingRange />
             </Route>
-            <Route exact path="/qr2">
-              <QR2 />
+            <Route exact path="/Dwellingup">
+              <Dwellingup />
             </Route>
-            <Route exact path="/qr3">
-              <QR3 />
+            <Route exact path="/Collie">
+              <Collie />
             </Route>
-            <Route exact path="/qr4">
-              <QR4 />
+            <Route exact path="/Balingup">
+              <Balingup />
             </Route>
-            <Route exact path="/qr5">
-              <QR5 />
+            <Route exact path="/DonnellyRiver">
+              <DonnellyRiver />
             </Route>
-            <Route exact path="/qr6">
-              <QR6 />
+            <Route exact path="/Pemberton">
+              <Pemberton />
             </Route>
-            <Route exact path="/qr7">
-              <QR7 />
+            <Route exact path="/Northcliffe">
+              <Northcliffe />
             </Route>
-            <Route exact path="/qr8">
-              <QR8 />
+            <Route exact path="/Walpole">
+              <Walpole />
             </Route>
-            <Route exact path="/qr9">
-              <QR9 />
+            <Route exact path="/Denmark">
+              <Denmark />
             </Route>
+
             <Route exact path="/">
               <Redirect to="/menu" />
             </Route>
           </IonRouterOutlet>
 
-          <IonTabBar slot="bottom">
+          <IonTabBar slot="bottom" className="custom-tab-bar">
             <IonTabButton tab="menu" href="/menu">
-              <IonIcon aria-hidden="true" icon={menu} />
-              <IonLabel>Menu</IonLabel>
+              <IonIcon icon={home} />
+              <IonLabel>Home</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="tab1" href="/tab1">
-              <IonIcon aria-hidden="true" icon={qrCode} />
-              <IonLabel>QR Code</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="tab2" href="/tab2">
-              <IonIcon aria-hidden="true" icon={documentText} />
+
+            <IonTabButton tab="survey" href="/survey">
+              <IonIcon icon={documentText} />
               <IonLabel>Survey</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="tab3" href="/tab3">
-              <IonIcon aria-hidden="true" icon={warning} />
+
+            <IonTabButton tab="scan" href="/scan" className="qr-tab-button">
+              <IonIcon icon={qrCode} />
+              <IonLabel>Scan</IonLabel>
+            </IonTabButton>
+
+            <IonTabButton tab="issues" href="/issues">
+              <IonIcon icon={warning} />
               <IonLabel>Issues</IonLabel>
             </IonTabButton>
+
             <IonTabButton tab="faq" href="/faq">
-              <IonIcon aria-hidden="true" icon={helpCircle} />
+              <IonIcon icon={helpCircle} />
               <IonLabel>FAQ</IonLabel>
             </IonTabButton>
           </IonTabBar>
