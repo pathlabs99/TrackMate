@@ -1513,3 +1513,24 @@ input[type="date"]:focus {
 .home-button svg {
   margin-right: 8px;
 }
+
+/* Error container */
+.error-container {
+  background-color: #FFEBEE;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px 0;
+  border-left: 4px solid #D32F2F;
+}
+
+.error-container p {
+  color: #D32F2F;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.error-container .nav-button {
+  background-color: #D32F2F;
+  color: white;
+}
