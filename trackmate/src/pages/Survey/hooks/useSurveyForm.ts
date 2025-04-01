@@ -197,6 +197,18 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
+    // Special validation for totalKilometers to ensure it's a valid number
+    if (currentQ.id === 'totalKilometers') {
+      const kilometers = Number(answer);
+      if (isNaN(kilometers) || kilometers <= 0) {
+        setErrors(prev => ({
+          ...prev,
+          [currentQ.id]: 'Please enter a valid distance greater than 0'
+        }));
+        return false;
+      }
+    }
+
     // Check if 'other' is selected but no specification provided
     if (formData.transportUsed?.includes('other')) {
       if (!formData.otherTransport) {

@@ -8,8 +8,7 @@ export type QuestionType =
   | 'date' 
   | 'number'
   | 'numberWithSub'
-  | 'select'
-  | 'matrix';
+  | 'select';
 
 export interface Option {
   value: string;
@@ -182,114 +181,76 @@ export const surveyQuestions: Question[] = [
   },
   {
     id: 'numberOfNights',
-    type: 'checkbox',
+    type: 'numberWithSub',
     question: 'During your most recent trip to the Bibbulmun Track, please indicate where you stayed by completing the number of nights stayed (e.g. 5) for each type of accommodation where applicable?',
     subtext: '(If you did not stay overnight please indicate below and go to next question)',
-    options: [
-      { value: 'noStay', label: 'Did not stay overnight (please indicate by typing \'1\')' },
-      { value: 'trackShelter', label: 'Bibbulmun Track camp site - shelter' },
-      { value: 'trackTent', label: 'Bibbulmun Track camp site - tent' },
-      { value: 'hostel', label: 'Backpackers/visitor hostel' },
-      { value: 'bnb', label: 'Bed and breakfast/guest house' },
-      { value: 'caravan', label: 'Other camp site/caravan park off the trail' },
-      { value: 'friends', label: 'Family and friends' },
-      { value: 'chalet', label: 'Self-contained accommodation/chalets/units' },
-      { value: 'hotel', label: 'Hotel/motel/motor inn' }
-    ],
+    required: true,
     subQuestions: [
       {
         id: 'noStayNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'noStay'
-        },
+        label: 'Did not stay overnight (please indicate by typing \'1\')',
         min: 1,
         max: 1,
-        required: true
+        required: false
       },
       {
         id: 'trackShelterNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'trackShelter'
-        },
+        label: 'Bibbulmun Track camp site - shelter',
         min: 1,
-        required: true
+        required: false
       },
       {
         id: 'trackTentNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'trackTent'
-        },
+        label: 'Bibbulmun Track camp site - tent',
         min: 1,
-        required: true
+        required: false
       },
       {
         id: 'hostelNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'hostel'
-        },
+        label: 'Backpackers/visitor hostel',
         min: 1,
-        required: true
+        required: false
       },
       {
         id: 'bnbNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'bnb'
-        },
+        label: 'Bed and breakfast/guest house',
         min: 1,
-        required: true
+        required: false
       },
       {
         id: 'caravanNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'caravan'
-        },
+        label: 'Other camp site/caravan park off the trail',
         min: 1,
-        required: true
+        required: false
       },
       {
         id: 'friendsNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'friends'
-        },
+        label: 'Family and friends',
         min: 1,
-        required: true
+        required: false
       },
       {
         id: 'chaletNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'chalet'
-        },
+        label: 'Self-contained accommodation/chalets/units',
         min: 1,
-        required: true
+        required: false
       },
       {
         id: 'hotelNights',
         type: 'number',
-        label: 'Please specify:',
-        condition: {
-          value: 'hotel'
-        },
+        label: 'Hotel/motel/motor inn',
         min: 1,
-        required: true
+        required: false
       }
-    ],
-    required: true
+    ]
   },
   {
     id: 'logbookRecord',
@@ -328,6 +289,7 @@ export const surveyQuestions: Question[] = [
       }
     ]
   },
+  
   {
     id: 'satisfaction',
     type: 'radio',
@@ -356,106 +318,72 @@ export const surveyQuestions: Question[] = [
   },
   {
     id: 'trackExpenditure',
-    type: 'checkbox',
+    type: 'numberWithSub',
     question: 'During your most recent trip to the Bibbulmun Track in the last four weeks, would you mind telling us how much you spent to access and use the track? ($Australian - type in amount only e.g. 50 (no $) to nearest dollar value). (If money was not spent for a particular category please leave blank).',
-    options: [
-      { value: 'travelTransport', label: 'Travel/transport (fuel, car hire, taxi etc.) to and from the Bibbulmun Track' },
-      { value: 'accommodation', label: 'Accommodation' },
-      { value: 'foodSupplies', label: 'Food/drink supplies/medicinals' },
-      { value: 'mealsOut', label: 'Meals (eating out)' },
-      { value: 'activities', label: 'Activities (sightseeing trips, tours, lessons, etc.)' },
-      { value: 'equipment', label: 'Equipment (purchased or hired for this trip)' },
-      { value: 'maps', label: 'Maps, guides and other publications (purchased for this trip)' },
-      { value: 'other', label: 'Other (clothing, merchandise, souvenirs, etc. purchased for this trip)' }
-    ],
+    required: false,
     subQuestions: [
       {
         id: 'travelTransportCost',
+        label: 'Travel/transport (fuel, car hire, taxi etc.) to and from the Bibbulmun Track',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'travelTransport'
-        },
         min: 0,
-        required: true
+        required: false
       },
       {
         id: 'accommodationCost',
+        label: 'Accommodation',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'accommodation'
-        },
         min: 0,
-        required: true
+        required: false
       },
       {
         id: 'foodSuppliesCost',
+        label: 'Food/drink supplies/medicinals',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'foodSupplies'
-        },
         min: 0,
-        required: true
+        required: false
       },
       {
         id: 'mealsOutCost',
+        label: 'Meals (eating out)',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'mealsOut'
-        },
         min: 0,
-        required: true
+        required: false
       },
       {
         id: 'activitiesCost',
+        label: 'Activities (sightseeing trips, tours, lessons, etc.)',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'activities'
-        },
         min: 0,
-        required: true
+        required: false
       },
       {
         id: 'equipmentCost',
+        label: 'Equipment (purchased or hired for this trip)',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'equipment'
-        },
         min: 0,
-        required: true
+        required: false
       },
       {
         id: 'mapsCost',
+        label: 'Maps, guides and other publications (purchased for this trip)',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'maps'
-        },
         min: 0,
-        required: true
+        required: false
       },
       {
         id: 'otherCost',
+        label: 'Other (clothing, merchandise, souvenirs, etc. purchased for this trip)',
         type: 'number',
-        label: 'Please specify amount:',
-        condition: {
-          value: 'other'
-        },
         min: 0,
-        required: true
+        required: false
       }
-    ],
-    required: false
+    ]
   },
   {
     id: 'expenditureTiming',
     type: 'radio',
-    question: 'Please indicate if the above figures are',
+    question: 'Please indicate if the previous figures are',
     options: [
       { value: 'perNight', label: 'per night, or' },
       { value: 'totalTrip', label: 'for the total length of your most recent trip' }
@@ -546,30 +474,23 @@ export const surveyQuestions: Question[] = [
   },
   {
     id: 'totalKilometers',
-    type: 'numberWithSub',
+    type: 'number',
     question: 'How many kilometres did you cover in total during your last trip on the Bibbulmun Track? (Please use a whole number)',
-    description: 'If you require assistance in calculating the distance, please click on the link:',
-    subtext: '<a href="https://www.bibbulmuntrack.org.au/trip-planner/distance-calculator/" target="_blank">Bibbulmun Track distance calculator</a> (this link will open in a new window)',
+    description: 'If you are unsure, you can use the Bibbulmun Track distance calculator to help you.',
+    subtext: 'You can find the distance calculator at <a href="https://www.bibbulmuntrack.org.au/trip-planner-and-track-info/track-sections-and-campsites/" target="_blank">Bibbulmun Track Foundation website</a>.',
     required: true,
-    subQuestions: [
-      {
-        id: 'kilometers',
-        label: 'Total kilometers',
-        min: 0,
-        required: true
-      }
-    ]
+    min: 0
   },
   {
     id: 'walkingBenefits',
-    type: 'matrix',
-    question: 'Please indicate on the scale below your level of agreement with each of the following statements.\nWalking on the Bibbulmun Track provides me with the following opportunities or benefits:',
+    type: 'select',
+    question: 'Please indicate your level of agreement with each of the following statements.\nWalking on the Bibbulmun Track provides me with the following opportunities or benefits:',
     required: true,
     subQuestions: [
       {
         id: 'accessNature',
         label: 'Access natural experiences',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -584,7 +505,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'appreciateScenic',
         label: 'Appreciate scenic beauty',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -599,7 +520,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'challengeYourself',
         label: 'Challenge yourself',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -614,7 +535,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'activeHealthy',
         label: 'Engage in an active/healthy activity',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -629,7 +550,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'escapeUrban',
         label: 'Escape the urban environment',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -644,7 +565,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'experienceNew',
         label: 'Experience something new and different',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -659,7 +580,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'relaxUnwind',
         label: 'Relax and unwind',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -674,7 +595,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'socialise',
         label: 'Socialise with friends and family',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -689,7 +610,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'outdoorRecreation',
         label: 'Participate in outdoor recreation activities',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -704,7 +625,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'connectNature',
         label: 'Connect with nature',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -719,7 +640,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'improveQuality',
         label: 'Improve quality of life',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -734,7 +655,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'increaseAppreciation',
         label: 'Increase appreciation of the natural environment',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -749,7 +670,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'healthBenefits',
         label: 'Achieve physical and mental health benefits',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -765,14 +686,14 @@ export const surveyQuestions: Question[] = [
   },
   {
     id: 'societalBenefits',
-    type: 'matrix',
+    type: 'select',
     question: 'Please indicate on the scale below your level of agreement with each of the following statements.\nThe Bibbulmun Track provides the following benefits to society:',
     required: true,
     subQuestions: [
       {
         id: 'greenCorridors',
         label: 'Provision of green corridors/spaces',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -787,7 +708,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'communityWellbeing',
         label: 'Increased community wellbeing',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -802,7 +723,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'regionalTourism',
         label: 'Increased tourism in regional centres',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -817,7 +738,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'communityPride',
         label: 'Increased community pride',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -832,7 +753,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'employment',
         label: 'Generation of employment',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -847,7 +768,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'biodiversity',
         label: 'Protection of biological diversity',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -862,7 +783,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'physicalFitness',
         label: 'Encouraging physical fitness and healthy lifestyles',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -877,7 +798,7 @@ export const surveyQuestions: Question[] = [
       {
         id: 'businessInvestment',
         label: 'Increased business investment',
-        type: 'radio',
+        type: 'select',
         required: true,
         options: [
           { value: 'veryStronglyDisagree', label: 'Very strongly disagree' },
@@ -915,7 +836,11 @@ export const surveyQuestions: Question[] = [
       { value: 'vic', label: 'Victoria' },
       { value: 'wa', label: 'Western Australia' }
     ],
-    required: true
+    required: true,
+    condition: {
+      questionId: 'residence',
+      value: 'australia'
+    }
   },
   {
     id: 'overseasCountry',
@@ -950,6 +875,10 @@ export const surveyQuestions: Question[] = [
       { value: 'other', label: 'Other' }
     ],
     required: true,
+    condition: {
+      questionId: 'residence',
+      value: 'overseas'
+    },
     subQuestions: [
       {
         id: 'overseasCountryOther',
@@ -977,6 +906,10 @@ export const surveyQuestions: Question[] = [
     type: 'numberWithSub',
     question: 'If you are a Western Australian resident, what is your postcode?',
     required: true,
+    condition: {
+      questionId: 'stateTerritory',
+      value: 'wa'
+    },
     subQuestions: [
       {
         id: 'postcode',

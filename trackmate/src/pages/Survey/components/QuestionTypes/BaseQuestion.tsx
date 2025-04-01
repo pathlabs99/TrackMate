@@ -41,7 +41,12 @@ export const BaseQuestion: React.FC<BaseQuestionProps> = ({
           className="text-input"
         />
       </div>
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="validation-error" role="alert">
+          <span className="error-icon">⚠️</span>
+          <span className="error-text">{error}</span>
+        </div>
+      )}
     </div>
   );
 };

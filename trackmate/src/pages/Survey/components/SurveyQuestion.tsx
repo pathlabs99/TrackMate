@@ -35,7 +35,8 @@ export const SurveyQuestion: React.FC<SurveyQuestionProps> = ({
         formData={formData}
       />
       {error && (
-        <div className="error-message" role="alert">
+        <div className="validation-error" role="alert">
+          <span className="error-icon">⚠️</span>
           <span className="error-text">{error}</span>
         </div>
       )}

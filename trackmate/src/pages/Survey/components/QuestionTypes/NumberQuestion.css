@@ -1,0 +1,68 @@
+.question-description {
+  margin-bottom: 16px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.question-subtext {
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.question-subtext a {
+  color: #0066CC;
+  text-decoration: underline;
+}
+
+.question-subtext a:hover {
+  text-decoration: none;
+  color: #0052A3;
+}
+
+.number-input-container {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.number-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #666;
+}
+
+.number-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px;
+  border: 2px solid #FF6B35;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  background-color: white;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: #FF4500;
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+}
+
+.error-message {
+  color: #dc2626;
+  margin-top: 8px;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: rgba(220, 38, 38, 0.1);
+  border-left: 3px solid #dc2626;
+}
+
+/* Fix number input arrows in different browsers */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  opacity: 1;
+  height: 24px;
+} 

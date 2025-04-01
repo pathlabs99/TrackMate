@@ -63,8 +63,8 @@ export const Survey: React.FC = () => {
         if (question?.type === "checkbox") {
           newFormData[questionId] = Array.isArray(value) ? value : [value];
         } else if (question?.type === "number") {
-          // Allow empty strings for number inputs
-          newFormData[questionId] = value === '' ? '' : Number(value);
+          // Don't convert to number yet - keep as string until submission
+          newFormData[questionId] = value;
         } else {
           newFormData[questionId] = value as string;
           if (questionId === 'transportUsed' && value !== 'other') {
@@ -88,8 +88,8 @@ export const Survey: React.FC = () => {
   const getQuestionValue = (questionId: string): string | string[] => {
     const value = formData[questionId];
     if (Array.isArray(value)) return value;
-    if (typeof value === 'string') return value;
-    return '';
+    if (value === null || value === undefined) return '';
+    return String(value);
   };
 
   const handleSubmit = async () => {
