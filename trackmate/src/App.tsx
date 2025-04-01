@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
@@ -30,6 +30,7 @@ import { SurveyTab } from "./pages/Survey/SurveyTab";
 import IssuesTab from "./pages/IssueReport/IssuesTab";
 import FAQ from "./pages/FAQ/FAQ";
 import MainMenu from "./pages/MainMenu/MainMenu";
+import Onboarding from "./components/Onboarding/Onboarding";
 
 // Import QR Code section pages
 import DarlingRange from "./pages/QR/DarlingRange";
@@ -56,12 +57,15 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 import "./theme/edge-to-edge.css";
 
-
 setupIonicReact({
   mode: 'md',
 });
 
 const App: React.FC = () => {
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(
+    localStorage.getItem('onboardingCompleted') === 'true'
+  );
+
   useEffect(() => {
     const setupApp = async () => {
       if (Capacitor.getPlatform() === 'android') {
@@ -69,10 +73,6 @@ const App: React.FC = () => {
           await StatusBar.setOverlaysWebView({ overlay: true });
           await StatusBar.setStyle({ style: Style.Dark });
           await StatusBar.setBackgroundColor({ color: '#00000000' });
-          // Using a semi-transparent black for better visibility
-          if (navigator) {
-            navigator.transparentNavigation(true);
-          }
         } catch (err) {
           console.log('Error setting up status bar:', err);
         }
@@ -95,85 +95,91 @@ const App: React.FC = () => {
   return (
     <IonApp className={isPlatform('android') ? 'android-platform' : ''}>
       <IonReactRouter>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route exact path="/menu">
-              <MainMenu />
-            </Route>
-            <Route exact path="/scan">
-              <QRScanner />
-            </Route>
-            <Route exact path="/survey">
-              <SurveyTab />
-            </Route>
-            <Route exact path="/issues">
-              <IssuesTab />
-            </Route>
-            <Route exact path="/faq">
-              <FAQ />
-            </Route>
+        {!hasCompletedOnboarding ? (
+          <Route path="/" exact>
+            <Onboarding onComplete={() => setHasCompletedOnboarding(true)} />
+          </Route>
+        ) : (
+          <IonTabs>
+            <IonRouterOutlet>
+              <Route exact path="/menu">
+                <MainMenu />
+              </Route>
+              <Route exact path="/scan">
+                <QRScanner />
+              </Route>
+              <Route exact path="/survey">
+                <SurveyTab />
+              </Route>
+              <Route exact path="/issues">
+                <IssuesTab />
+              </Route>
+              <Route exact path="/faq">
+                <FAQ />
+              </Route>
 
-            {/* QR Code section routes */}
-            <Route exact path="/DarlingRange">
-              <DarlingRange />
-            </Route>
-            <Route exact path="/Dwellingup">
-              <Dwellingup />
-            </Route>
-            <Route exact path="/Collie">
-              <Collie />
-            </Route>
-            <Route exact path="/Balingup">
-              <Balingup />
-            </Route>
-            <Route exact path="/DonnellyRiver">
-              <DonnellyRiver />
-            </Route>
-            <Route exact path="/Pemberton">
-              <Pemberton />
-            </Route>
-            <Route exact path="/Northcliffe">
-              <Northcliffe />
-            </Route>
-            <Route exact path="/Walpole">
-              <Walpole />
-            </Route>
-            <Route exact path="/Denmark">
-              <Denmark />
-            </Route>
+              {/* QR Code section routes */}
+              <Route exact path="/DarlingRange">
+                <DarlingRange />
+              </Route>
+              <Route exact path="/Dwellingup">
+                <Dwellingup />
+              </Route>
+              <Route exact path="/Collie">
+                <Collie />
+              </Route>
+              <Route exact path="/Balingup">
+                <Balingup />
+              </Route>
+              <Route exact path="/DonnellyRiver">
+                <DonnellyRiver />
+              </Route>
+              <Route exact path="/Pemberton">
+                <Pemberton />
+              </Route>
+              <Route exact path="/Northcliffe">
+                <Northcliffe />
+              </Route>
+              <Route exact path="/Walpole">
+                <Walpole />
+              </Route>
+              <Route exact path="/Denmark">
+                <Denmark />
+              </Route>
 
-            <Route exact path="/">
-              <Redirect to="/menu" />
-            </Route>
-          </IonRouterOutlet>
+              <Route exact path="/">
+                <Redirect to="/menu" />
+              </Route>
+            </IonRouterOutlet>
 
-          <IonTabBar slot="bottom" className="custom-tab-bar">
-            <IonTabButton tab="menu" href="/menu">
-              <IonIcon icon={home} />
-              <IonLabel>Home</IonLabel>
-            </IonTabButton>
+            <IonTabBar slot="bottom" className="custom-tab-bar">
+              <IonTabButton tab="menu" href="/menu">
+                <IonIcon icon={home} />
+                <IonLabel>Home</IonLabel>
+              </IonTabButton>
 
-            <IonTabButton tab="survey" href="/survey">
-              <IonIcon icon={documentText} />
-              <IonLabel>Survey</IonLabel>
-            </IonTabButton>
+              <IonTabButton tab="survey" href="/survey">
+                <IonIcon icon={documentText} />
+                <IonLabel>Survey</IonLabel>
+              </IonTabButton>
 
-            <IonTabButton tab="scan" href="/scan" className="qr-tab-button">
-              <IonIcon icon={qrCode} />
-              <IonLabel>Scan</IonLabel>
-            </IonTabButton>
+              <IonTabButton tab="scan" href="/scan" className="qr-tab-button">
+                <IonIcon icon={qrCode} />
+                <IonLabel>Scan</IonLabel>
+              </IonTabButton>
 
-            <IonTabButton tab="issues" href="/issues">
-              <IonIcon icon={warning} />
-              <IonLabel>Issues</IonLabel>
-            </IonTabButton>
+              <IonTabButton tab="issues" href="/issues">
+                <IonIcon icon={warning} />
+                <IonLabel>Issues</IonLabel>
+              </IonTabButton>
 
-            <IonTabButton tab="faq" href="/faq">
-              <IonIcon icon={helpCircle} />
-              <IonLabel>FAQ</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
+              <IonTabButton tab="faq" href="/faq">
+                <IonIcon icon={helpCircle} />
+                <IonLabel>FAQ</IonLabel>
+              </IonTabButton>
+            </IonTabBar>
+          </IonTabs>
+        )}
       </IonReactRouter>
     </IonApp>
   );

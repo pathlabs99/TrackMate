@@ -62,6 +62,9 @@ export const Survey: React.FC = () => {
         const question = surveyQuestions.find((q) => q.id === questionId);
         if (question?.type === "checkbox") {
           newFormData[questionId] = Array.isArray(value) ? value : [value];
+        } else if (question?.type === "number") {
+          // Allow empty strings for number inputs
+          newFormData[questionId] = value === '' ? '' : Number(value);
         } else {
           newFormData[questionId] = value as string;
           if (questionId === 'transportUsed' && value !== 'other') {
@@ -153,15 +156,15 @@ export const Survey: React.FC = () => {
   const handleNext = useCallback(() => {
     if (validateCurrentQuestion()) {
       const currentQ = visibleQuestions[currentQuestion];
-      // If we're on the satisfaction question and user visited in last 4 weeks, submit instead of next
-      if (currentQ.id === 'satisfaction' && formData.visitedLastFourWeeks === 'yes') {
-        handleSubmit();
+      // If we're on the first question and user hasn't visited, go back to homepage
+      if (currentQ.id === 'visitedLastFourWeeks' && formData.visitedLastFourWeeks === 'no') {
+        history.push('/menu');
       } else {
         setCurrentQuestion(prev => Math.min(prev + 1, visibleQuestions.length - 1));
         setErrors({});
       }
     }
-  }, [validateCurrentQuestion, visibleQuestions, currentQuestion, formData.visitedLastFourWeeks, handleSubmit]);
+  }, [validateCurrentQuestion, visibleQuestions, currentQuestion, formData.visitedLastFourWeeks, history]);
 
   const handlePrevious = useCallback(() => {
     setCurrentQuestion(prev => Math.max(prev - 1, 0));
@@ -292,8 +295,7 @@ export const Survey: React.FC = () => {
                 >
                   {currentQuestion === 0 && formData.visitedLastFourWeeks === 'no' 
                     ? 'Back to homepage'
-                    : currentQuestion === visibleQuestions.length - 1 || 
-                      (visibleQuestions[currentQuestion].id === 'satisfaction' && formData.visitedLastFourWeeks === 'yes')
+                    : currentQuestion === visibleQuestions.length - 1
                       ? 'Submit' 
                       : 'Next'}
                 </button>

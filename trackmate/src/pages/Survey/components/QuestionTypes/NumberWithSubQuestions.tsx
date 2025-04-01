@@ -11,11 +11,14 @@ export const NumberWithSubQuestions: React.FC<QuestionComponentProps> = ({
   const values = value ? JSON.parse(value as string) : {};
 
   const handleSubQuestionChange = (subQuestionId: string, newValue: string) => {
-    const updatedValues = {
-      ...values,
-      [subQuestionId]: newValue
-    };
-    onChange(question.id, JSON.stringify(updatedValues));
+    // Only update if the value is valid
+    if (newValue === '' || !isNaN(Number(newValue))) {
+      const updatedValues = {
+        ...values,
+        [subQuestionId]: newValue === '' ? '' : Number(newValue)
+      };
+      onChange(question.id, JSON.stringify(updatedValues));
+    }
   };
 
   return (

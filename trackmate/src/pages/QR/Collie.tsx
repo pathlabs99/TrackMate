@@ -24,12 +24,17 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import collieImage from './images/collie.jpg';
+
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
 
 const Collie: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('details');
@@ -37,6 +42,33 @@ const Collie: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  const landmarks: Landmark[] = [
+    {
+      name: "Collie River",
+      searchQuery: "Collie+River+Western+Australia"
+    },
+    {
+      name: "Mungalup Dam",
+      searchQuery: "Mungalup+Dam+Collie+WA"
+    },
+    {
+      name: "Glen Mervyn Dam",
+      searchQuery: "Glen+Mervyn+Dam+Collie+WA"
+    },
+    {
+      name: "Mumballup Forest Tavern",
+      searchQuery: "Mumballup+Tavern+Western+Australia"
+    },
+    {
+      name: "Noggerup Conservation Park",
+      searchQuery: "Noggerup+Conservation+Park+WA"
+    }
+  ];
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   const DropdownSection: React.FC<{
     title: string;
@@ -49,7 +81,6 @@ const Collie: React.FC = () => {
 
     const handleToggle = () => {
       onToggle();
-      // Add small delay to allow animation to start
       if (!isOpen) {
         setTimeout(() => {
           sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -64,10 +95,6 @@ const Collie: React.FC = () => {
             <IonIcon icon={icon} />
             <h4>{title}</h4>
           </div>
-          <IonIcon 
-            icon={chevronDownOutline} 
-            className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-          />
         </div>
         <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
           {children}
@@ -100,26 +127,22 @@ const Collie: React.FC = () => {
               onToggle={() => setLandmarksOpen(!landmarksOpen)}
             >
               <div className="landmarks-list">
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Collie River</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Mungalup Dam</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Glen Mervyn Dam</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Mumballup Forest Tavern</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Noggerup Conservation Park</span>
-                </div>
+                {landmarks.map((landmark, index) => (
+                  <div className="landmark-item" key={index}>
+                    <div className="landmark-info">
+                      <IonIcon icon={locationOutline} />
+                      <span>{landmark.name}</span>
+                    </div>
+                    <IonIcon 
+                      icon={mapOutline} 
+                      className="map-icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openInGoogleMaps(landmark.searchQuery);
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </DropdownSection>
 
@@ -152,93 +175,97 @@ const Collie: React.FC = () => {
         );
       
       case 'emergency':
-        return (
-          <div className="tab-content">
-            <DropdownSection
-              title="EMERGENCY ACCESS"
-              icon={medkitOutline}
-              isOpen={emergencyOpen}
-              onToggle={() => setEmergencyOpen(!emergencyOpen)}
-            >
-              <div className="emergency-details">
-                <div className="detail-item">
-                  <IonIcon icon={locationOutline} />
-                  <div className="detail-item-content">
-                    <strong>Nearest Access Point</strong>
-                    <p>Donnybrook-Boyup Brook Road (Mumballup)</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={timeOutline} />
-                  <div className="detail-item-content">
-                    <strong>Distance</strong>
-                    <p>Approx. 19km south of Collie</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={informationCircleOutline} />
-                  <div className="detail-item-content">
-                    <strong>Description</strong>
-                    <p>Accessible from Mumballup, this road connects to the Mumballup Forest Tavern. It is a small settlement road with limited facilities.</p>
-                  </div>
-                </div>
-              </div>
-            </DropdownSection>
-          </div>
-        );
+        return renderEmergencyTab();
       
       case 'camp':
-        return (
-          <div className="tab-content">
-            <DropdownSection
-              title="CAMP FACILITIES"
-              icon={homeOutline}
-              isOpen={facilitiesOpen}
-              onToggle={() => setFacilitiesOpen(!facilitiesOpen)}
-            >
-              <div className="camp-details">
-                <div className="detail-item">
-                  <IonIcon icon={locationOutline} />
-                  <div className="detail-item-content">
-                    <strong>Name</strong>
-                    <p>Yabberup Campsite</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={timeOutline} />
-                  <div className="detail-item-content">
-                    <strong>Distance</strong>
-                    <p>Approx. 19.3km from Collie</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={bedOutline} />
-                  <div className="detail-item-content">
-                    <strong>Facilities</strong>
-                    <ul>
-                      <li>Sleeping shelter</li>
-                      <li>Rainwater tank</li>
-                      <li>Toilet</li>
-                      <li>Picnic tables</li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={locationOutline} />
-                  <div className="detail-item-content">
-                    <strong>GPS Coordinates</strong>
-                    <p>-33.463577317679274, 116.07753239488885</p>
-                  </div>
-                </div>
-              </div>
-            </DropdownSection>
-          </div>
-        );
+        return renderCampTab();
       
       default:
         return null;
     }
   };
+
+  const renderEmergencyTab = () => (
+    <div className="tab-content">
+      <DropdownSection
+        title="EMERGENCY ACCESS"
+        icon={medkitOutline}
+        isOpen={emergencyOpen}
+        onToggle={() => setEmergencyOpen(!emergencyOpen)}
+      >
+        <div className="emergency-details">
+          <div className="detail-item">
+            <IonIcon icon={locationOutline} />
+            <div className="detail-item-content">
+              <strong>Nearest Access Point</strong>
+              <p>Mungalup Road (South)</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={timeOutline} />
+            <div className="detail-item-content">
+              <strong>Distance</strong>
+              <p>2.4 km south of Collie</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={informationCircleOutline} />
+            <div className="detail-item-content">
+              <strong>Description</strong>
+              <p>Mungalup Road South provides a convenient entry to the track for emergency services and hikers. The Wellington Spur Trail, connecting to Wellington Dam recreation area, can be accessed here.</p>
+            </div>
+          </div>
+        </div>
+      </DropdownSection>
+    </div>
+  );
+
+  const renderCampTab = () => (
+    <div className="tab-content">
+      <DropdownSection
+        title="CAMP FACILITIES"
+        icon={homeOutline}
+        isOpen={facilitiesOpen}
+        onToggle={() => setFacilitiesOpen(!facilitiesOpen)}
+      >
+        <div className="camp-details">
+          <div className="detail-item">
+            <IonIcon icon={locationOutline} />
+            <div className="detail-item-content">
+              <strong>Name</strong>
+              <p>Yabberup Campsite</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={timeOutline} />
+            <div className="detail-item-content">
+              <strong>Distance</strong>
+              <p>19.3 km from Collie</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={bedOutline} />
+            <div className="detail-item-content">
+              <strong>Facilities</strong>
+              <ul>
+                <li>Sleeping shelter</li>
+                <li>Rainwater tank</li>
+                <li>Toilet</li>
+                <li>Picnic tables</li>
+              </ul>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={locationOutline} />
+            <div className="detail-item-content">
+              <strong>GPS Coordinates</strong>
+              <p>-33.463577317679274, 116.07753239488885</p>
+            </div>
+          </div>
+        </div>
+      </DropdownSection>
+    </div>
+  );
 
   return (
     <IonPage>

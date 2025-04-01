@@ -24,10 +24,10 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
   waterOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import northcliffeImage from './images/northcliffe.jpg';
@@ -54,16 +54,17 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         <IonIcon icon={icon} />
         <h4>{title}</h4>
       </div>
-      <IonIcon 
-        icon={chevronDownOutline} 
-        className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-      />
     </div>
     <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
       {children}
     </div>
   </div>
 );
+
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
 
 const Northcliffe: React.FC = () => {
   // State management for tabs and dropdowns
@@ -72,6 +73,25 @@ const Northcliffe: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  const landmarks: Landmark[] = [
+    {
+      name: "Boorara Tree",
+      searchQuery: "Boorara+Tree+Northcliffe+WA"
+    },
+    {
+      name: "Mount Chance",
+      searchQuery: "Mount+Chance+Northcliffe+WA"
+    },
+    {
+      name: "Gardner River",
+      searchQuery: "Gardner+River+Northcliffe+WA"
+    }
+  ];
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   // Tab content rendering functions
   const renderDetailsTab = () => (
@@ -97,26 +117,22 @@ const Northcliffe: React.FC = () => {
         onToggle={() => setLandmarksOpen(!landmarksOpen)}
       >
         <div className="landmarks-list">
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Mount Chance (Granite dome)</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Dog Pool</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Lake Maringup</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Mandalay Beach</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Mount Clare</span>
-          </div>
+          {landmarks.map((landmark, index) => (
+            <div className="landmark-item" key={index}>
+              <div className="landmark-info">
+                <IonIcon icon={locationOutline} />
+                <span>{landmark.name}</span>
+              </div>
+              <IonIcon 
+                icon={mapOutline} 
+                className="map-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openInGoogleMaps(landmark.searchQuery);
+                }}
+              />
+            </div>
+          ))}
         </div>
       </DropdownSection>
 
@@ -176,7 +192,7 @@ const Northcliffe: React.FC = () => {
             <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
               <strong>Description</strong>
-              <p>Provides access to the track near the Gardner Campsite</p>
+              <p>Provides access to the track and directs to the Gardner Campsite.</p>
             </div>
           </div>
         </div>
@@ -224,7 +240,7 @@ const Northcliffe: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>GPS Coordinates</strong>
-              <p>-34.7194, 116.1797</p>
+              <p>-34.719391827235924, 116.17974247962637</p>
             </div>
           </div>
         </div>

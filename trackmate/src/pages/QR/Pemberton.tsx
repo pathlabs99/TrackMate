@@ -24,13 +24,18 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
   waterOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import pembertonImage from './images/pemberton.jpg';
+
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
 
 const Pemberton: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('details');
@@ -38,6 +43,33 @@ const Pemberton: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  const landmarks: Landmark[] = [
+    {
+      name: "Gloucester Tree",
+      searchQuery: "Gloucester+Tree+Pemberton+WA"
+    },
+    {
+      name: "Warren River Valley",
+      searchQuery: "Warren+River+Valley+Pemberton+WA"
+    },
+    {
+      name: "River Road Bridge",
+      searchQuery: "River+Road+Bridge+Pemberton+WA"
+    },
+    {
+      name: "Moons Crossing",
+      searchQuery: "Moons+Crossing+Pemberton+WA"
+    },
+    {
+      name: "Northcliffe Forest Park",
+      searchQuery: "Northcliffe+Forest+Park+WA"
+    }
+  ];
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   const DropdownSection: React.FC<{
     title: string;
@@ -52,10 +84,6 @@ const Pemberton: React.FC = () => {
           <IonIcon icon={icon} />
           <h4>{title}</h4>
         </div>
-        <IonIcon 
-          icon={chevronDownOutline} 
-          className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-        />
       </div>
       <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
         {children}
@@ -87,26 +115,22 @@ const Pemberton: React.FC = () => {
               onToggle={() => setLandmarksOpen(!landmarksOpen)}
             >
               <div className="landmarks-list">
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Gloucester Tree (72m fire-lookout)</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={waterOutline} />
-                  <span>Warren River Valley</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>River Road Bridge</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={waterOutline} />
-                  <span>Moons Crossing</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Northcliffe Forest Park</span>
-                </div>
+                {landmarks.map((landmark, index) => (
+                  <div className="landmark-item" key={index}>
+                    <div className="landmark-info">
+                      <IonIcon icon={locationOutline} />
+                      <span>{landmark.name}</span>
+                    </div>
+                    <IonIcon 
+                      icon={mapOutline} 
+                      className="map-icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openInGoogleMaps(landmark.searchQuery);
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </DropdownSection>
 
@@ -152,21 +176,21 @@ const Pemberton: React.FC = () => {
                   <IonIcon icon={locationOutline} />
                   <div className="detail-item-content">
                     <strong>Nearest Access Point</strong>
-                    <p>River Road Bridge</p>
+                    <p>Gloucester Tree (Car Track Crossing)</p>
                   </div>
                 </div>
                 <div className="detail-item">
                   <IonIcon icon={timeOutline} />
                   <div className="detail-item-content">
                     <strong>Distance</strong>
-                    <p>10 km south of Pemberton town</p>
+                    <p>3 km from current location</p>
                   </div>
                 </div>
                 <div className="detail-item">
                   <IonIcon icon={informationCircleOutline} />
                   <div className="detail-item-content">
                     <strong>Description</strong>
-                    <p>Historic wooden trestle bridge from 1930s, accessible by vehicle</p>
+                    <p>Access via Ellis St (off the main street) in Pemberton. Look for signs to the Gloucester Tree.</p>
                   </div>
                 </div>
               </div>
@@ -195,7 +219,14 @@ const Pemberton: React.FC = () => {
                   <IonIcon icon={timeOutline} />
                   <div className="detail-item-content">
                     <strong>Distance</strong>
-                    <p>15 km south of Pemberton</p>
+                    <p>20.3 km from current location</p>
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <IonIcon icon={informationCircleOutline} />
+                  <div className="detail-item-content">
+                    <strong>Alternative Route</strong>
+                    <p>Starting from Gloucester Tree reduces distance to about 19 km</p>
                   </div>
                 </div>
                 <div className="detail-item">
@@ -215,7 +246,7 @@ const Pemberton: React.FC = () => {
                   <IonIcon icon={locationOutline} />
                   <div className="detail-item-content">
                     <strong>GPS Coordinates</strong>
-                    <p>-34.5090, 115.9610</p>
+                    <p>-34.509040835930634, 115.96098926612025</p>
                   </div>
                 </div>
               </div>

@@ -24,10 +24,10 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
   waterOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import donellyriverImage from './images/donellyriver.jpg';
@@ -54,16 +54,17 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         <IonIcon icon={icon} />
         <h4>{title}</h4>
       </div>
-      <IonIcon 
-        icon={chevronDownOutline} 
-        className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-      />
     </div>
     <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
       {children}
     </div>
   </div>
 );
+
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
 
 const DonellyRiver: React.FC = () => {
   // State management for tabs and dropdowns
@@ -72,6 +73,25 @@ const DonellyRiver: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  const landmarks: Landmark[] = [
+    {
+      name: "Donnelly River",
+      searchQuery: "Donnelly+River+Village+WA"
+    },
+    {
+      name: "One Tree Bridge",
+      searchQuery: "One+Tree+Bridge+Conservation+Park+WA"
+    },
+    {
+      name: "Glenoran Pool",
+      searchQuery: "Glenoran+Pool+Donnelly+River+WA"
+    }
+  ];
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   // Tab content rendering functions
   const renderDetailsTab = () => (
@@ -97,26 +117,22 @@ const DonellyRiver: React.FC = () => {
         onToggle={() => setLandmarksOpen(!landmarksOpen)}
       >
         <div className="landmarks-list">
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Twin Bridges</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>One Tree Bridge</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Beedelup Falls</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Big Brook Dam</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Big Brook Arboretum</span>
-          </div>
+          {landmarks.map((landmark, index) => (
+            <div className="landmark-item" key={index}>
+              <div className="landmark-info">
+                <IonIcon icon={locationOutline} />
+                <span>{landmark.name}</span>
+              </div>
+              <IonIcon 
+                icon={mapOutline} 
+                className="map-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openInGoogleMaps(landmark.searchQuery);
+                }}
+              />
+            </div>
+          ))}
         </div>
       </DropdownSection>
 
@@ -162,21 +178,21 @@ const DonellyRiver: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>Nearest Access Point</strong>
-              <p>One Tree Bridge on Graphite Road</p>
+              <p>Tom Road Intersection</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>11.05 km from Tom Road Campsite</p>
+              <p>11.4 km from current location</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
               <strong>Description</strong>
-              <p>Popular tourist spot with vehicle access for emergency evacuation</p>
+              <p>A popular tourist spot with vehicle access offers a safe emergency evacuation and assistance point.</p>
             </div>
           </div>
         </div>
@@ -204,7 +220,7 @@ const DonellyRiver: React.FC = () => {
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>5 km north along the Bibbulmun Track</p>
+              <p>15.9 km from current location</p>
             </div>
           </div>
           <div className="detail-item">
@@ -221,10 +237,17 @@ const DonellyRiver: React.FC = () => {
             </div>
           </div>
           <div className="detail-item">
+            <IonIcon icon={informationCircleOutline} />
+            <div className="detail-item-content">
+              <strong>Important Note</strong>
+              <p>Walkers need to carry food for five days in this section</p>
+            </div>
+          </div>
+          <div className="detail-item">
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>GPS Coordinates</strong>
-              <p>-34.1643, 115.9129</p>
+              <p>-34.16429219388179, 115.9129101219183</p>
             </div>
           </div>
         </div>

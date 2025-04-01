@@ -24,10 +24,10 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
   waterOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import denmarkImage from './images/denmark.jpg';
@@ -54,16 +54,36 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         <IonIcon icon={icon} />
         <h4>{title}</h4>
       </div>
-      <IonIcon 
-        icon={chevronDownOutline} 
-        className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-      />
     </div>
     <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
       {children}
     </div>
   </div>
 );
+
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
+
+const landmarks: Landmark[] = [
+  {
+    name: "Wilson Inlet",
+    searchQuery: "Wilson+Inlet+Denmark+WA"
+  },
+  {
+    name: "Ocean Beach",
+    searchQuery: "Ocean+Beach+Denmark+WA"
+  },
+  {
+    name: "Lights Beach",
+    searchQuery: "Lights+Beach+Denmark+WA"
+  },
+  {
+    name: "Mount Hallowell",
+    searchQuery: "Mount+Hallowell+Denmark+WA"
+  }
+];
 
 const Denmark: React.FC = () => {
   // State management for tabs and dropdowns
@@ -72,6 +92,10 @@ const Denmark: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   // Tab content rendering functions
   const renderDetailsTab = () => (
@@ -97,22 +121,22 @@ const Denmark: React.FC = () => {
         onToggle={() => setLandmarksOpen(!landmarksOpen)}
       >
         <div className="landmarks-list">
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Wilson Inlet</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Ocean Beach</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Lights Beach</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Mount Hallowell</span>
-          </div>
+          {landmarks.map((landmark, index) => (
+            <div className="landmark-item" key={index}>
+              <div className="landmark-info">
+                <IonIcon icon={locationOutline} />
+                <span>{landmark.name}</span>
+              </div>
+              <IonIcon 
+                icon={mapOutline} 
+                className="map-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openInGoogleMaps(landmark.searchQuery);
+                }}
+              />
+            </div>
+          ))}
         </div>
       </DropdownSection>
 
@@ -158,21 +182,21 @@ const Denmark: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>Nearest Access Point</strong>
-              <p>Ocean Beach Road</p>
+              <p>Nullaki Boat Ramp (Reeves Grove via sandbar route)</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>3 km from town center</p>
+              <p>7 km from Denmark town center</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
               <strong>Description</strong>
-              <p>Sealed road with good vehicle access. Denmark Hospital nearby.</p>
+              <p>The Nullaki Boat Ramp is accessible via Reeves Grove and the sandbar route from Denmark.</p>
             </div>
           </div>
         </div>
@@ -193,14 +217,14 @@ const Denmark: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>Name</strong>
-              <p>William Bay Campsite</p>
+              <p>Nullaki Campsite</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>8.5 km from Denmark</p>
+              <p>17 km from current location</p>
             </div>
           </div>
           <div className="detail-item">
@@ -208,19 +232,26 @@ const Denmark: React.FC = () => {
             <div className="detail-item-content">
               <strong>Facilities</strong>
               <ul>
-                <li>Sleeping shelter</li>
+                <li>Three-sided shelter</li>
+                <li>Pit toilet</li>
                 <li>Rainwater tank</li>
-                <li>Toilet</li>
-                <li>Picnic area</li>
-                <li>Ocean views</li>
+                <li>Picnic tables</li>
+                <li>Tent sites</li>
               </ul>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={informationCircleOutline} />
+            <div className="detail-item-content">
+              <strong>Important Note</strong>
+              <p>No fire campsite</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>GPS Coordinates</strong>
-              <p>-35.0259, 117.3157</p>
+              <p>-35.03894914836487, 117.455186994991</p>
             </div>
           </div>
         </div>

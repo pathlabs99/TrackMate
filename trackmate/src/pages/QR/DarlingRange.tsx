@@ -24,13 +24,17 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
   mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import darlingrangeImage from './images/darlingrange.jpeg';
+
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
 
 const DarlingRange: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('details');
@@ -52,16 +56,27 @@ const DarlingRange: React.FC = () => {
           <IonIcon icon={icon} />
           <h4>{title}</h4>
         </div>
-        <IonIcon 
-          icon={chevronDownOutline} 
-          className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-        />
       </div>
       <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
         {children}
       </div>
     </div>
   );
+
+  const landmarks: Landmark[] = [
+    {
+      name: "Mundaring Weir",
+      searchQuery: "Mundaring+Weir+Perth+Hills+WA"
+    },
+    {
+      name: "Beelu National Park",
+      searchQuery: "Beelu+National+Park+Mundaring+WA"
+    }
+  ];
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   const renderTabContent = () => {
     switch (selectedTab) {
@@ -87,14 +102,22 @@ const DarlingRange: React.FC = () => {
               onToggle={() => setLandmarksOpen(!landmarksOpen)}
             >
               <div className="landmarks-list">
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Mundaring Weir</span>
-                </div>
-                <div className="landmark-item">
-                  <IonIcon icon={locationOutline} />
-                  <span>Beelu National Park</span>
-                </div>
+                {landmarks.map((landmark, index) => (
+                  <div className="landmark-item" key={index}>
+                    <div className="landmark-info">
+                      <IonIcon icon={locationOutline} />
+                      <span>{landmark.name}</span>
+                    </div>
+                    <IonIcon 
+                      icon={mapOutline} 
+                      className="map-icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openInGoogleMaps(landmark.searchQuery);
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </DropdownSection>
 
@@ -119,93 +142,95 @@ const DarlingRange: React.FC = () => {
         );
       
       case 'emergency':
-        return (
-          <div className="tab-content">
-            <DropdownSection
-              title="EMERGENCY ACCESS"
-              icon={medkitOutline}
-              isOpen={emergencyOpen}
-              onToggle={() => setEmergencyOpen(!emergencyOpen)}
-            >
-              <div className="emergency-details">
-                <div className="detail-item">
-                  <IonIcon icon={locationOutline} />
-                  <div className="detail-item-content">
-                    <strong>Nearest Access Point</strong>
-                    <p>Mundaring Weir Road</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={timeOutline} />
-                  <div className="detail-item-content">
-                    <strong>Distance</strong>
-                    <p>2 km from the track</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={informationCircleOutline} />
-                  <div className="detail-item-content">
-                    <strong>Description</strong>
-                    <p>Sealed road accessible by emergency vehicles</p>
-                  </div>
-                </div>
-              </div>
-            </DropdownSection>
-          </div>
-        );
+        return renderEmergencyTab();
       
       case 'camp':
-        return (
-          <div className="tab-content">
-            <DropdownSection
-              title="CAMP FACILITIES"
-              icon={homeOutline}
-              isOpen={facilitiesOpen}
-              onToggle={() => setFacilitiesOpen(!facilitiesOpen)}
-            >
-              <div className="camp-details">
-                <div className="detail-item">
-                  <IonIcon icon={locationOutline} />
-                  <div className="detail-item-content">
-                    <strong>Name</strong>
-                    <p>Hewett's Hill Campsite</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={timeOutline} />
-                  <div className="detail-item-content">
-                    <strong>Distance</strong>
-                    <p>5 km</p>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={bedOutline} />
-                  <div className="detail-item-content">
-                    <strong>Facilities</strong>
-                    <ul>
-                      <li>Sleeping shelter</li>
-                      <li>Rainwater tank</li>
-                      <li>Toilet</li>
-                      <li>Picnic tables</li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <IonIcon icon={locationOutline} />
-                  <div className="detail-item-content">
-                    <strong>GPS Coordinates</strong>
-                    <p>-31.9650, 116.1587</p>
-                  </div>
-                </div>
-              </div>
-            </DropdownSection>
-          </div>
-        );
+        return renderCampTab();
       
       default:
         return null;
     }
   };
+
+  const renderEmergencyTab = () => (
+    <div className="tab-content">
+      <DropdownSection
+        title="EMERGENCY ACCESS"
+        icon={medkitOutline}
+        isOpen={emergencyOpen}
+        onToggle={() => setEmergencyOpen(!emergencyOpen)}
+      >
+        <div className="emergency-details">
+          <div className="detail-item">
+            <IonIcon icon={locationOutline} />
+            <div className="detail-item-content">
+              <strong>Nearest Access Point</strong>
+              <p>Mundaring Weir Road</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={timeOutline} />
+            <div className="detail-item-content">
+              <strong>Distance</strong>
+              <p>2 km from the track</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={informationCircleOutline} />
+            <div className="detail-item-content">
+              <strong>Description</strong>
+              <p>Sealed road accessible by emergency vehicles</p>
+            </div>
+          </div>
+        </div>
+      </DropdownSection>
+    </div>
+  );
+
+  const renderCampTab = () => (
+    <div className="tab-content">
+      <DropdownSection
+        title="CAMP FACILITIES"
+        icon={homeOutline}
+        isOpen={facilitiesOpen}
+        onToggle={() => setFacilitiesOpen(!facilitiesOpen)}
+      >
+        <div className="camp-details">
+          <div className="detail-item">
+            <IonIcon icon={locationOutline} />
+            <div className="detail-item-content">
+              <strong>Name</strong>
+              <p>Hewett's Hill Campsite</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={timeOutline} />
+            <div className="detail-item-content">
+              <strong>Distance</strong>
+              <p>11.1 km</p>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={bedOutline} />
+            <div className="detail-item-content">
+              <strong>Facilities</strong>
+              <ul>
+                <li>Sleeping shelter</li>
+                <li>No re-supply points until Dwellingup</li>
+              </ul>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={locationOutline} />
+            <div className="detail-item-content">
+              <strong>GPS Coordinates</strong>
+              <p>-31.9650, 116.1587</p>
+            </div>
+          </div>
+        </div>
+      </DropdownSection>
+    </div>
+  );
 
   return (
     <IonPage>
