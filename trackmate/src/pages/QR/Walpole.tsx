@@ -24,10 +24,10 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
   waterOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import walpoleImage from './images/walpole.jpg';
@@ -54,16 +54,18 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         <IonIcon icon={icon} />
         <h4>{title}</h4>
       </div>
-      <IonIcon 
-        icon={chevronDownOutline} 
-        className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-      />
     </div>
     <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
       {children}
     </div>
   </div>
 );
+
+// Add interface and landmarks array before the component
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
 
 const Walpole: React.FC = () => {
   // State management for tabs and dropdowns
@@ -72,6 +74,29 @@ const Walpole: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  const landmarks: Landmark[] = [
+    {
+      name: "Valley of the Giants",
+      searchQuery: "Valley+of+the+Giants+Tree+Top+Walk+Walpole+WA"
+    },
+    {
+      name: "Tingle Forest",
+      searchQuery: "Giant+Tingle+Trees+Walpole+WA"
+    },
+    {
+      name: "Circular Pool",
+      searchQuery: "Circular+Pool+Walpole+Nornalup+National+Park"
+    },
+    {
+      name: "Conspicuous Cliff",
+      searchQuery: "Conspicuous+Cliff+Walpole+WA"
+    }
+  ];
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   // Tab content rendering functions
   const renderDetailsTab = () => (
@@ -97,26 +122,22 @@ const Walpole: React.FC = () => {
         onToggle={() => setLandmarksOpen(!landmarksOpen)}
       >
         <div className="landmarks-list">
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Valley of the Giants Tree Top Walk</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Conspicuous Beach</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Conspicuous Cliff</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Hilltop Lookout</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Parry Inlet</span>
-          </div>
+          {landmarks.map((landmark, index) => (
+            <div className="landmark-item" key={index}>
+              <div className="landmark-info">
+                <IonIcon icon={locationOutline} />
+                <span>{landmark.name}</span>
+              </div>
+              <IonIcon 
+                icon={mapOutline} 
+                className="map-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openInGoogleMaps(landmark.searchQuery);
+                }}
+              />
+            </div>
+          ))}
         </div>
       </DropdownSection>
 
@@ -162,21 +183,21 @@ const Walpole: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>Nearest Access Point</strong>
-              <p>South Coast Highway (via Peaceful Bay Road)</p>
+              <p>Coalmine Beach (Knoll Drive)</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>10 km from Peaceful Bay</p>
+              <p>3.2 km one-way</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
               <strong>Description</strong>
-              <p>Vehicle access to Peaceful Bay, connecting to South Coast Highway</p>
+              <p>This trail is a 6-kilometer return journey, starting from the Walpole-Nornalup Visitor Centre and traversing swamplands and boardwalks before reaching Coalmine Beach.</p>
             </div>
           </div>
         </div>
@@ -197,34 +218,28 @@ const Walpole: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>Name</strong>
-              <p>Boat Harbour Campsite</p>
+              <p>Frankland River Campsite</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>7 km east of Peaceful Bay</p>
+              <p>17.4 km from current location</p>
             </div>
           </div>
           <div className="detail-item">
-            <IonIcon icon={bedOutline} />
+            <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
-              <strong>Facilities</strong>
-              <ul>
-                <li>Water tank</li>
-                <li>Sleeping platforms</li>
-                <li>Picnic tables</li>
-                <li>Toilet</li>
-                <li>Swimming spot nearby</li>
-              </ul>
+              <strong>Special Note</strong>
+              <p>No fire campsite and voted the best on the Track for its location by the Frankland River.</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>GPS Coordinates</strong>
-              <p>-35.0325, 117.0680</p>
+              <p>-35.03246352104092, 117.06800236414422</p>
             </div>
           </div>
         </div>

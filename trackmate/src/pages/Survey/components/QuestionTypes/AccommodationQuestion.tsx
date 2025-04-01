@@ -8,26 +8,24 @@ export const AccommodationQuestion: React.FC<QuestionComponentProps> = ({
 }) => {
   const values = value ? JSON.parse(value as string) : {};
 
-  const handleChange = (updatedValues: { [key: string]: string }) => {
-    onChange(question.id, JSON.stringify(updatedValues));
-  };
-
   const handleNightsChange = (optionValue: string, nights: string) => {
-    const updatedValues = {
-      ...values,
-      [optionValue]: nights
-    };
-    handleChange(updatedValues);
-  };
-
-  const handleSubQuestionChange = (subQuestionId: string, value: string) => {
-    const newValues = { ...values };
-    newValues[subQuestionId] = value;
-    handleChange(newValues);
+    if (nights === '') {
+      const updatedValues = { ...values };
+      delete updatedValues[optionValue];
+      onChange(question.id, JSON.stringify(updatedValues));
+    } else {
+      const updatedValues = {
+        ...values,
+        [optionValue]: nights
+      };
+      onChange(question.id, JSON.stringify(updatedValues));
+    }
   };
 
   return (
     <div className="question-container">
+      <div className="question-text">{question.question}</div>
+      {question.subtext && <div className="question-subtext">{question.subtext}</div>}
       <div className="accommodation-options">
         {question.options?.map((option) => (
           <div key={option.value} className="accommodation-option">

@@ -28,6 +28,7 @@ import {
   timeOutline,
   waterOutline,
   bedOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 // Import local image
@@ -55,16 +56,18 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         <IonIcon icon={icon} />
         <h4>{title}</h4>
       </div>
-      <IonIcon 
-        icon={chevronDownOutline} 
-        className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-      />
     </div>
     <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
       {children}
     </div>
   </div>
 );
+
+// Update the Landmark interface
+interface Landmark {
+  name: string;
+  searchQuery: string; // Google Maps search query
+}
 
 const Balingup: React.FC = () => {
   // State management for tabs and dropdowns
@@ -73,6 +76,23 @@ const Balingup: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  // Update landmark data with search queries
+  const landmarks: Landmark[] = [
+    {
+      name: "Golden Valley Tree Park",
+      searchQuery: "Golden+Valley+Tree+Park+Balingup+WA"
+    },
+    {
+      name: "Donnelly River Village",
+      searchQuery: "Donnelly+River+Village+Western+Australia"
+    }
+  ];
+
+  // Update the Google Maps opening function
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   // Tab content rendering functions
   const renderDetailsTab = () => (
@@ -98,14 +118,22 @@ const Balingup: React.FC = () => {
         onToggle={() => setLandmarksOpen(!landmarksOpen)}
       >
         <div className="landmarks-list">
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Golden Valley Tree Park</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Donnelly River Village</span>
-          </div>
+          {landmarks.map((landmark, index) => (
+            <div className="landmark-item" key={index}>
+              <div className="landmark-info">
+                <IonIcon icon={locationOutline} />
+                <span>{landmark.name}</span>
+              </div>
+              <IonIcon 
+                icon={mapOutline} 
+                className="map-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openInGoogleMaps(landmark.searchQuery);
+                }}
+              />
+            </div>
+          ))}
         </div>
       </DropdownSection>
 
@@ -143,21 +171,21 @@ const Balingup: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>Nearest Access Point</strong>
-              <p>Old Padbury Road</p>
+              <p>Brockman Highway (West)</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>2 km from track</p>
+              <p>0.9 km from current location</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
               <strong>Description</strong>
-              <p>Accessible via main road with clear signage for emergency vehicles.</p>
+              <p>Brockman Highway West is a designated emergency access point near Karri Gully, with a vehicle parking area available.</p>
             </div>
           </div>
         </div>
@@ -185,7 +213,7 @@ const Balingup: React.FC = () => {
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>13.5 km</p>
+              <p>13.5 km south of Balingup</p>
             </div>
           </div>
           <div className="detail-item">
@@ -195,9 +223,17 @@ const Balingup: React.FC = () => {
               <ul>
                 <li>Sleeping shelter</li>
                 <li>Rainwater tank</li>
-                <li>Toilet</li>
-                <li>Picnic tables</li>
+                <li>Bush toilet</li>
+                <li>Picnic table</li>
+                <li>Tent sites</li>
               </ul>
+            </div>
+          </div>
+          <div className="detail-item">
+            <IonIcon icon={locationOutline} />
+            <div className="detail-item-content">
+              <strong>GPS Coordinates</strong>
+              <p>-33.86321745905593, 115.95974921338063</p>
             </div>
           </div>
         </div>

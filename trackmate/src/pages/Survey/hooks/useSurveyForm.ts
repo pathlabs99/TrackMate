@@ -86,6 +86,18 @@ export const useSurveyForm = (questions: Question[]) => {
         return currentValue === 'other';
       }
 
+      // Handle residence questions
+      if (questionId === 'placeOfResidence') {
+        // For state/territory question, show only if user selected Australia
+        if (question.id === 'stateTerritory') {
+          return currentValue === 'australia';
+        }
+        // For overseas country question, show only if user selected overseas
+        if (question.id === 'overseasCountry') {
+          return currentValue === 'overseas';
+        }
+      }
+
       return currentValue === value;
     });
   }, [formData, questions]);
@@ -154,23 +166,41 @@ export const useSurveyForm = (questions: Question[]) => {
 
     // Special validation for "Other" transport
     if (currentQ.id === 'transportUsed' && answer === 'other') {
-      if (!formData.transportUsedOther) {
+      if (!formData.otherTransport) {
         setErrors(prev => ({
           ...prev,
-          [currentQ.id]: 'Please specify your mode of transport'
+          [currentQ.id]: 'Please specify other transport method'
         }));
         return false;
       }
     }
 
     // Special validation for "Overnight" duration
-    if (currentQ.id === 'walkDuration' && answer === 'overnight') {
-      if (!formData.walkDurationNights) {
+    if (currentQ.id === 'tripDuration' && answer === 'overnight') {
+      if (!formData.tripDurationOvernight) {
         setErrors(prev => ({
           ...prev,
           [currentQ.id]: 'Please specify number of nights'
         }));
         return false;
+      }
+    }
+
+    // Special validation for overseas country "Other" option
+    if (currentQ.id === 'overseasCountry' && answer === 'other') {
+      if (!formData.overseasCountryOther) {
+        setErrors(prev => ({
+          ...prev,
+          [currentQ.id]: 'Please specify your country'
+        }));
+        return false;
+      }
+    }
+
+    // Check if 'other' is selected but no specification provided
+    if (formData.transportUsed?.includes('other')) {
+      if (!formData.otherTransport) {
+        errors.transportUsed = 'Please specify other transport method';
       }
     }
 

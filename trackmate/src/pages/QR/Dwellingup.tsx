@@ -24,10 +24,10 @@ import {
   flowerOutline,
   pawOutline,
   medkitOutline,
-  chevronDownOutline,
   timeOutline,
   bedOutline,
   waterOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import './LocationPages.css';
 import dwellingupImage from './images/dwellingup.jpg';
@@ -54,16 +54,18 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         <IonIcon icon={icon} />
         <h4>{title}</h4>
       </div>
-      <IonIcon 
-        icon={chevronDownOutline} 
-        className={`dropdown-icon ${isOpen ? 'open' : ''}`}
-      />
     </div>
     <div className={`dropdown-content ${isOpen ? 'open' : ''}`}>
       {children}
     </div>
   </div>
 );
+
+// Add interface and landmarks array before the component
+interface Landmark {
+  name: string;
+  searchQuery: string;
+}
 
 const Dwellingup: React.FC = () => {
   // State management for tabs and dropdowns
@@ -72,6 +74,25 @@ const Dwellingup: React.FC = () => {
   const [floraOpen, setFloraOpen] = useState(false);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
   const [facilitiesOpen, setFacilitiesOpen] = useState(false);
+
+  const landmarks: Landmark[] = [
+    {
+      name: "Old Railway Formations",
+      searchQuery: "Dwellingup+Railway+Station+Heritage+Trail+WA"
+    },
+    {
+      name: "Murray River Rapids",
+      searchQuery: "Murray+River+Rapids+Dwellingup+WA"
+    },
+    {
+      name: "Lane Poole Reserve",
+      searchQuery: "Lane+Poole+Reserve+Dwellingup+WA"
+    }
+  ];
+
+  const openInGoogleMaps = (searchQuery: string) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${searchQuery}`, '_blank');
+  };
 
   // Tab content rendering functions
   const renderDetailsTab = () => (
@@ -97,22 +118,22 @@ const Dwellingup: React.FC = () => {
         onToggle={() => setLandmarksOpen(!landmarksOpen)}
       >
         <div className="landmarks-list">
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Old Railway Formations</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Murray River Rapids</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={waterOutline} />
-            <span>Tranquil Pools</span>
-          </div>
-          <div className="landmark-item">
-            <IonIcon icon={locationOutline} />
-            <span>Historic Trail Markers</span>
-          </div>
+          {landmarks.map((landmark, index) => (
+            <div className="landmark-item" key={index}>
+              <div className="landmark-info">
+                <IonIcon icon={locationOutline} />
+                <span>{landmark.name}</span>
+              </div>
+              <IonIcon 
+                icon={mapOutline} 
+                className="map-icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openInGoogleMaps(landmark.searchQuery);
+                }}
+              />
+            </div>
+          ))}
         </div>
       </DropdownSection>
 
@@ -154,21 +175,21 @@ const Dwellingup: React.FC = () => {
             <IonIcon icon={locationOutline} />
             <div className="detail-item-content">
               <strong>Nearest Access Point</strong>
-              <p>Harvey-Quindanning Road Access Point</p>
+              <p>River Road</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={timeOutline} />
             <div className="detail-item-content">
               <strong>Distance</strong>
-              <p>42 km from Harvey or 35 km from Quindanning</p>
+              <p>1.8 km from current location</p>
             </div>
           </div>
           <div className="detail-item">
             <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
               <strong>Description</strong>
-              <p>Park at Chalk Road intersection, 160m east of track crossing</p>
+              <p>River Road is a key emergency access route in the Dwellingup region, directly connecting main roads and essential services.</p>
             </div>
           </div>
         </div>
@@ -205,7 +226,7 @@ const Dwellingup: React.FC = () => {
               <strong>Facilities</strong>
               <ul>
                 <li>Three-sided timber shelter</li>
-                <li>Sit-down pedestal pit toilet</li>
+                <li>Sit-down pedestal pit toilet (BYO toilet paper)</li>
                 <li>Rainwater tank</li>
                 <li>Picnic tables</li>
                 <li>Tent sites</li>
@@ -215,8 +236,12 @@ const Dwellingup: React.FC = () => {
           <div className="detail-item">
             <IonIcon icon={informationCircleOutline} />
             <div className="detail-item-content">
-              <strong>Note</strong>
-              <p>Tank water must be treated before drinking</p>
+              <strong>Important Notes</strong>
+              <ul>
+                <li>Tank water must be treated before drinking (boil, filter, or chemical treatment)</li>
+                <li>Limited to no phone signal in this area</li>
+                <li>Water supply not guaranteed</li>
+              </ul>
             </div>
           </div>
         </div>

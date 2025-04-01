@@ -470,3 +470,27 @@ html {
   text-align: left;
   width: 100%;
 }
+
+.landmark-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.landmark-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-icon {
+  color: #666;
+  font-size: 1.2em;
+  padding: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.map-icon:hover {
+  color: #3880ff;
+}
