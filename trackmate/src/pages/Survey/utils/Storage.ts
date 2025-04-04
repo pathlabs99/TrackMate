@@ -58,3 +58,18 @@ export const clearPendingSubmissions = async (): Promise<void> => {
     throw error;
   }
 };
+
+/**
+ * Reset all survey-related storage to fix any corrupted state
+ */
+export const resetSurveyStorage = () => {
+  localStorage.removeItem('surveyProgress');
+  localStorage.removeItem('surveyFormData');
+};
+
+// Add a window-level emergency reset function
+(window as any).resetTrackMateSurvey = () => {
+  resetSurveyStorage();
+  console.log('Survey data has been reset');
+  window.location.reload();
+};

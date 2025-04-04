@@ -14,11 +14,17 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
 }) => {
   const { id, options = [], subQuestions = [] } = question;
   
-  // Safely parse the value
+  // Handle both string values and object values
   let selectValues: SelectValues = {};
   try {
     if (typeof value === 'string' && value) {
-      selectValues = JSON.parse(value);
+      // For standalone select questions
+      if (subQuestions.length === 0) {
+        selectValues = { main: value };
+      } else {
+        // For select questions with subquestions
+        selectValues = JSON.parse(value);
+      }
     } else if (value && typeof value === 'object' && !Array.isArray(value)) {
       selectValues = value as SelectValues;
     }
@@ -33,6 +39,25 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
       {question.subtext && <div dangerouslySetInnerHTML={{ __html: question.subtext }} />}
       
       <div className="select-group">
+        {/* Render main select if no subquestions */}
+        {subQuestions.length === 0 && (
+          <select
+            id={id}
+            value={selectValues.main || ''}
+            onChange={(e) => onChange(id, e.target.value)}
+            className="select-input"
+            required={question.required}
+          >
+            <option value="">Select an option</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {/* Render subquestions if any */}
         {subQuestions.map((subQ) => (
           <div key={subQ.id} className="select-option">
             <label htmlFor={subQ.id}>{subQ.label}</label>
@@ -49,7 +74,11 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
                 required={subQ.required}
               >
                 <option value="">Select an option</option>
-                {options.map((option) => (
+                {subQ.options ? subQ.options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                )) : options.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>

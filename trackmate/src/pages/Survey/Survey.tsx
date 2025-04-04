@@ -63,8 +63,8 @@ export const Survey: React.FC = () => {
         if (question?.type === "checkbox") {
           newFormData[questionId] = Array.isArray(value) ? value : [value];
         } else if (question?.type === "number") {
-          // Allow empty strings for number inputs
-          newFormData[questionId] = value === '' ? '' : Number(value);
+          // Don't convert to number yet - keep as string until submission
+          newFormData[questionId] = value;
         } else {
           newFormData[questionId] = value as string;
           if (questionId === 'transportUsed' && value !== 'other') {
@@ -86,10 +86,15 @@ export const Survey: React.FC = () => {
   };
 
   const getQuestionValue = (questionId: string): string | string[] => {
-    const value = formData[questionId];
-    if (Array.isArray(value)) return value;
-    if (typeof value === 'string') return value;
-    return '';
+    try {
+      const value = formData[questionId];
+      if (Array.isArray(value)) return value;
+      if (value === null || value === undefined) return '';
+      return String(value);
+    } catch (e) {
+      console.error(`Error getting value for question ${questionId}:`, e);
+      return '';
+    }
   };
 
   const handleSubmit = async () => {
@@ -235,75 +240,98 @@ export const Survey: React.FC = () => {
 
   return (
     <>
-      <div className="survey-container">
-        <div className="survey-header">
-          {currentQuestion >= 0 && (
-            <button className="exit-button" onClick={handleExit}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Exit
-            </button>
-          )}
-          {currentQuestion >= 0 && (
-            <div className="progress-container">
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${((currentQuestion + 1) / surveyQuestions.length) * 100}%` }}
-                />
-              </div>
-              <div className="question-number">
-                Question {currentQuestion + 1} of {surveyQuestions.length}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="survey-content">
-          {currentQuestion === -1 ? (
-            <SurveyCard onStartSurvey={handleStartSurvey} />
-          ) : isSubmitted ? (
-            <SurveyCompletion 
-              onReset={() => {
-                clearProgress();
-                setIsSubmitted(false);
-                setCurrentQuestion(-1);
-                setSubmitError(null);
-                setSubmissionProgress(null);
-              }} 
-            />
-          ) : (
-            <div className="question-container">
-              <SurveyQuestion
-                question={visibleQuestions[currentQuestion]}
-                value={getQuestionValue(visibleQuestions[currentQuestion].id)}
-                onChange={handleCustomInputChange}
-                error={errors[visibleQuestions[currentQuestion].id]}
-                formData={formData}
-              />
-              <div className="navigation-buttons">
-                {currentQuestion > 0 && (
-                  <button className="nav-button" onClick={handlePrevious}>
-                    Previous
+      {(() => {
+        try {
+          return (
+            <div className="survey-container">
+              <div className="survey-header">
+                {currentQuestion >= 0 && (
+                  <button className="exit-button" onClick={handleExit}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Exit
                   </button>
                 )}
-                <button 
-                  className="nav-button next-button"
-                  onClick={currentQuestion === visibleQuestions.length - 1 ? handleSubmit : handleNext}
-                  disabled={!!errors[visibleQuestions[currentQuestion].id]}
-                >
-                  {currentQuestion === 0 && formData.visitedLastFourWeeks === 'no' 
-                    ? 'Back to homepage'
-                    : currentQuestion === visibleQuestions.length - 1
-                      ? 'Submit' 
-                      : 'Next'}
-                </button>
+                {currentQuestion >= 0 && (
+                  <div className="progress-container">
+                    <div className="progress-bar">
+                      <div 
+                        className="progress-fill" 
+                        style={{ width: `${((currentQuestion + 1) / surveyQuestions.length) * 100}%` }}
+                      />
+                    </div>
+                    <div className="question-number">
+                      Question {currentQuestion + 1} of {surveyQuestions.length}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="survey-content">
+                {currentQuestion === -1 ? (
+                  <SurveyCard onStartSurvey={handleStartSurvey} />
+                ) : isSubmitted ? (
+                  <SurveyCompletion 
+                    onReset={() => {
+                      clearProgress();
+                      setIsSubmitted(false);
+                      setCurrentQuestion(-1);
+                      setSubmitError(null);
+                      setSubmissionProgress(null);
+                    }} 
+                  />
+                ) : visibleQuestions.length === 0 || currentQuestion >= visibleQuestions.length ? (
+                  // If we don't have valid questions, reset to start
+                  <SurveyCard onStartSurvey={handleStartSurvey} />
+                ) : (
+                  <div className="question-container">
+                    <SurveyQuestion
+                      question={visibleQuestions[currentQuestion]}
+                      value={getQuestionValue(visibleQuestions[currentQuestion].id)}
+                      onChange={handleCustomInputChange}
+                      error={errors[visibleQuestions[currentQuestion].id]}
+                      formData={formData}
+                    />
+                    
+                    <div className="navigation-buttons">
+                      {currentQuestion > 0 && (
+                        <button className="nav-button" onClick={handlePrevious}>
+                          Previous
+                        </button>
+                      )}
+                      <button 
+                        className="nav-button next-button"
+                        onClick={currentQuestion === visibleQuestions.length - 1 ? handleSubmit : handleNext}
+                        disabled={!!errors[visibleQuestions[currentQuestion].id]}
+                      >
+                        {currentQuestion === 0 && formData.visitedLastFourWeeks === 'no' 
+                          ? 'Back to homepage'
+                          : currentQuestion === visibleQuestions.length - 1
+                            ? 'Submit' 
+                            : 'Next'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
-      </div>
+          );
+        } catch (error) {
+          // If anything fails, reset to a clean state
+          localStorage.removeItem('surveyProgress');
+          
+          return (
+            <div className="survey-container">
+              <div className="survey-content">
+                <SurveyCard onStartSurvey={() => {
+                  window.location.reload();
+                }} />
+              </div>
+            </div>
+          );
+        }
+      })()}
 
       <IonToast
         isOpen={showOfflineToast}

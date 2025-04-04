@@ -346,28 +346,46 @@ ion-content {
 
 /* Error message */
 .error-message {
-  color: white !important;
-  background-color: #dc3545;
-  padding: 8px 12px;
-  margin-top: 8px;
+  background-color: #FFEBEE;
+  color: #D32F2F;
+  padding: 12px;
   border-radius: 6px;
+  margin-top: 10px;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  line-height: 1.4;
+  border-left: 4px solid #D32F2F;
 }
 
-.error-message::before {
-  content: "⚠️";
-  font-size: 16px;
-  margin-right: 4px;
+.error-message .error-icon {
+  margin-right: 8px;
+  color: #D32F2F;
+  font-size: 20px;
 }
 
-.error-message .error-text,
-.error-message span,
-.error-message div {
-  color: white !important;
+.error-text {
+  color: #D32F2F;
+  font-weight: 500;
+}
+
+/* Make the validation error more prominent */
+.validation-error {
+  background-color: #FFEBEE;
+  color: #D32F2F;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  border-left: 4px solid #D32F2F;
+  animation: flash 1s ease-out;
+}
+
+@keyframes flash {
+  0% { background-color: #FFEBEE; }
+  50% { background-color: #FFCDD2; }
+  100% { background-color: #FFEBEE; }
 }
 
 /* Navigation buttons */
@@ -1494,4 +1512,25 @@ input[type="date"]:focus {
 
 .home-button svg {
   margin-right: 8px;
+}
+
+/* Error container */
+.error-container {
+  background-color: #FFEBEE;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px 0;
+  border-left: 4px solid #D32F2F;
+}
+
+.error-container p {
+  color: #D32F2F;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.error-container .nav-button {
+  background-color: #D32F2F;
+  color: white;
 }

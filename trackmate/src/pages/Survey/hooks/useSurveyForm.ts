@@ -12,45 +12,29 @@ interface SavedProgress {
 }
 
 export const useSurveyForm = (questions: Question[]) => {
-  const [currentQuestion, setCurrentQuestion] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('surveyProgress');
-      if (saved) {
-        const { currentQuestion } = JSON.parse(saved) as SavedProgress;
-        return currentQuestion;
-      }
-    } catch (e) {
-      console.error('Error loading saved question:', e);
-    }
-    return -1;
-  });
-
-  const [formData, setFormData] = useState<FormData>(() => {
-    try {
-      // Try to load saved progress
-      const saved = localStorage.getItem('surveyProgress');
-      if (saved) {
-        const { formData } = JSON.parse(saved) as SavedProgress;
-        return formData;
-      }
-    } catch (e) {
-      console.error('Error loading saved progress:', e);
-    }
-
-    // Initialize with empty form data if no saved progress
-    const initialData: FormData = {};
-    questions.forEach(question => {
-      if (question.type === 'checkbox') {
-        initialData[question.id] = [];
-      } else {
-        initialData[question.id] = '';
-      }
-    });
-    return initialData;
-  });
-
+  // Initialize an empty form data object
+  const initialData: FormData = {};
+  
+  // Set default values for fields
+  const [currentQuestion, setCurrentQuestion] = useState<number>(-1);
+  const [formData, setFormData] = useState<FormData>(initialData);
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Load saved progress once on component mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('surveyProgress');
+      if (saved) {
+        const { formData, currentQuestion } = JSON.parse(saved);
+        setFormData(formData);
+        setCurrentQuestion(currentQuestion);
+      }
+    } catch (e) {
+      // If there's an error, just start fresh
+      localStorage.removeItem('surveyProgress');
+    }
+  }, []);
 
   // Save progress whenever formData or currentQuestion changes
   useEffect(() => {
@@ -87,7 +71,7 @@ export const useSurveyForm = (questions: Question[]) => {
       }
 
       // Handle residence questions
-      if (questionId === 'placeOfResidence') {
+      if (questionId === 'residence') {
         // For state/territory question, show only if user selected Australia
         if (question.id === 'stateTerritory') {
           return currentValue === 'australia';
@@ -197,6 +181,18 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
+    // Special validation for totalKilometers to ensure it's a valid number
+    if (currentQ.id === 'totalKilometers') {
+      const kilometers = Number(answer);
+      if (isNaN(kilometers) || kilometers <= 0) {
+        setErrors(prev => ({
+          ...prev,
+          [currentQ.id]: 'Please enter a valid distance greater than 0'
+        }));
+        return false;
+      }
+    }
+
     // Check if 'other' is selected but no specification provided
     if (formData.transportUsed?.includes('other')) {
       if (!formData.otherTransport) {
@@ -232,7 +228,7 @@ export const useSurveyForm = (questions: Question[]) => {
 
   const clearProgress = useCallback(() => {
     localStorage.removeItem('surveyProgress');
-    setFormData({} as FormData);
+    setFormData({});
     setCurrentQuestion(-1);
     setErrors({});
     setIsSubmitted(false);
