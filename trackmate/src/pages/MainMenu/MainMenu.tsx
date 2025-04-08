@@ -1,37 +1,54 @@
 import React, { useEffect, useState } from "react";
 import {
   IonContent,
+  IonHeader,
   IonPage,
+  IonTitle,
+  IonToolbar,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonSkeletonText,
-  IonAlert,
   IonIcon,
-  IonButton,
+  IonLabel,
+  IonMenu,
+  IonList,
+  IonItem,
+  IonMenuToggle,
+  IonRippleEffect,
+  IonSkeletonText,
   IonText,
   IonChip,
-  IonLabel,
-  useIonViewDidEnter
+  IonButtons,
+  IonMenuButton,
+  IonFooter,
+  IonAccordion,
+  IonAccordionGroup,
 } from "@ionic/react";
 import { 
-  playOutline,
   timeOutline,
-  refreshOutline,
   locationOutline,
+  compassOutline,
+  informationCircleOutline,
+  settingsOutline,
+  refreshOutline,
   leafOutline,
   trailSignOutline,
   peopleOutline,
-  compassOutline,
   mapOutline,
-  informationCircleOutline,
+  informationCircle,
   homeOutline,
   alertCircleOutline,
   waterOutline,
   qrCode,
   heartOutline,
-  informationCircle
+  menu,
+  chevronForward,
+  chevronDown,
+  sunny,
+  partlySunny,
+  cloud,
+  rainy,
+  thunderstorm,
+  snow
 } from 'ionicons/icons';
 import { 
   StatusBar 
@@ -49,11 +66,13 @@ interface WeatherData {
   condition: string;
   icon: string;
   location: string;
+  iconType?: string;
 }
 
 const MainMenu: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Load cached weather data
   const loadCachedWeather = () => {
@@ -90,11 +109,13 @@ const MainMenu: React.FC = () => {
       const data = await response.json();
 
       if (response.ok && data) {
+        const iconType = getWeatherIconType(data.current.condition.text.toLowerCase());
         const weatherData = {
           temp: Math.round(data.current.temp_c),
           condition: data.current.condition.text,
           icon: data.current.condition.icon.replace('//cdn.weatherapi.com', 'https://cdn.weatherapi.com'),
-          location: data.location.name
+          location: data.location.name,
+          iconType: iconType
         };
         setWeather(weatherData);
         cacheWeatherData(weatherData);
@@ -117,11 +138,13 @@ const MainMenu: React.FC = () => {
       const data = await response.json();
 
       if (response.ok && data) {
+        const iconType = getWeatherIconType(data.current.condition.text.toLowerCase());
         const weatherData = {
           temp: Math.round(data.current.temp_c),
           condition: data.current.condition.text,
           icon: data.current.condition.icon.replace('//cdn.weatherapi.com', 'https://cdn.weatherapi.com'),
-          location: data.location.name
+          location: data.location.name,
+          iconType: iconType
         };
         setWeather(weatherData);
         cacheWeatherData(weatherData);
@@ -135,6 +158,12 @@ const MainMenu: React.FC = () => {
     }
   };
 
+  const handleWeatherRefresh = async () => {
+    setIsRefreshing(true);
+    await getUserLocationAndWeather();
+    setIsRefreshing(false);
+  };
+
   useEffect(() => {
     // First try to load cached data
     const hasCachedData = loadCachedWeather();
@@ -143,225 +172,327 @@ const MainMenu: React.FC = () => {
     getUserLocationAndWeather();
   }, []);
 
-  const featuredContent = [
-    {
-      title: "Scan & Explore",
-      description: "Scan QR codes to learn about your surroundings",
-      icon: qrCode,
-      isNew: true,
-      link: "/scan"
-    },
-    {
-      title: "FAQ",
-      description: "Find answers to common questions about TrackMate and the Bibbulmun Track",
-      icon: informationCircle,
-      isNew: false,
-      link: "/faq"
-    }
-  ];
-
   const quickInfo = [
     {
       title: "Leave No Trace",
       time: "Guidelines",
       icon: leafOutline,
-      description: "Pack out all rubbish, stay on marked trails, use fuel stoves only (no campfires), and camp only at designated sites. Help preserve the track for future walkers.",
+      description: "Pack out rubbish, stay on trails, use fuel stoves only, camp at designated sites.",
       link: "https://www.bibbulmuntrack.org.au/trip-planner/leave-no-trace/"
     },
     {
       title: "Track Markers",
       time: "Navigation",
       icon: trailSignOutline,
-      description: "Follow the yellow Waugal (rainbow serpent) trail markers. They're placed at regular intervals and at track junctions. If you haven't seen one for 500m, return to the last marker.",
+      description: "Follow yellow Waugal markers at intervals and track junctions.",
       link: "https://www.bibbulmuntrack.org.au/the-track/along-the-track/"
     },
     {
       title: "Water Sources",
       time: "Essential",
       icon: waterOutline,
-      description: "Water tanks at campsites are not guaranteed. Always carry at least 3L of water per person per day. Treat all water before drinking, even from tanks.",
+      description: "Carry 3L per person daily. Treat all water before drinking.",
       link: "https://www.bibbulmuntrack.org.au/trip-planner/health-hygiene-safety/"
     }
   ];
 
-  return (
-    <IonPage className="main-menu-page">
-      <IonContent fullscreen>
-        <div className="safe-area-container">
-          <div className="content-container">
-            <div className="welcome-section">
-              <div className="welcome-text">
-                <span className="welcome-message">Hello, TrackMate</span>
-                <span className="welcome-emoji">👋</span>
-              </div>
-            </div>
+  const developers = [
+    {
+      name: "Marwa Artan",
+      emoji: "👩‍💻",
+      role: "Communications Officer"
+    },
+    {
+      name: "Wael Tartraf",
+      emoji: "👨‍💻",
+      role: "Security Coordinator"
+    },
+    {
+      name: "Abdullah Mohamed",
+      emoji: "👨‍💻",
+      role: "Software Coordinator"
+    }
+  ];
 
-            {/* Weather Widget */}
-            <div className="weather-widget">
-              {loading && !weather ? (
-                <IonSkeletonText animated style={{ width: '100%', height: '40px', '--border-radius': '8px' }} />
-              ) : weather ? (
-                <div className="weather-content">
-                  <div className="weather-location">
-                    <IonIcon icon={locationOutline} />
-                    <span>{weather.location}</span>
-                    <span>{weather.condition}</span>
-                  </div>
-                  <div className="weather-info">
-                    <span className="temperature">{weather.temp}°C</span>
+  const operators = [
+    {
+      name: "Roudah Ashfaq",
+      emoji: "🧠",
+      role: "Project Activity Coordinator"
+    },
+    {
+      name: "Jeremy Uduwalage",
+      emoji: "📊",
+      role: "Librarian"
+    },
+    {
+      name: "Steve Ellison John",
+      emoji: "🔍",
+      role: "Secretary"
+    }
+  ];
+
+  // Function to determine which Ionic icon to use based on weather condition
+  const getWeatherIconType = (condition: string): string => {
+    if (condition.includes('sunny') || condition.includes('clear')) {
+      return 'sunny';
+    } else if (condition.includes('partly cloudy') || condition.includes('partly sunny')) {
+      return 'partlySunny';
+    } else if (condition.includes('cloudy') || condition.includes('overcast')) {
+      return 'cloud';
+    } else if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('mist')) {
+      return 'rainy';
+    } else if (condition.includes('thunder') || condition.includes('storm')) {
+      return 'thunderstorm';
+    } else if (condition.includes('snow') || condition.includes('sleet') || condition.includes('ice')) {
+      return 'snow';
+    } else {
+      return 'partlySunny'; // Default icon
+    }
+  };
+
+  // Helper function to get the appropriate Ionic icon based on weather condition
+  const getWeatherIcon = (iconType: string) => {
+    switch (iconType) {
+      case 'sunny':
+        return sunny;
+      case 'partlySunny':
+        return partlySunny;
+      case 'cloud':
+        return cloud;
+      case 'rainy':
+        return rainy;
+      case 'thunderstorm':
+        return thunderstorm;
+      case 'snow':
+        return snow;
+      default:
+        return partlySunny;
+    }
+  };
+
+  // Helper function to get the appropriate color for each weather icon
+  const getWeatherIconColor = (iconType: string): string => {
+    switch (iconType) {
+      case 'sunny':
+        return '#FFA500'; // Bright orange for sun
+      case 'partlySunny':
+        return '#4B96F3'; // Blue with orange highlights for partly sunny
+      case 'cloud':
+        return '#7C9CBF'; // Light blue-gray for clouds
+      case 'rainy':
+        return '#5B8CDE'; // Blue for rain
+      case 'thunderstorm':
+        return '#4A6FA5'; // Dark blue for thunderstorms
+      case 'snow':
+        return '#A8D1E7'; // Light blue for snow
+      default:
+        return '#4B96F3'; // Default blue
+    }
+  };
+
+  return (
+    <>
+      <IonMenu contentId="main-content" className="app-menu">
+        <div className="menu-header">
+          {/* Empty header for spacing */}
+        </div>
+
+        <IonContent className="menu-content">
+          <div className="menu-intro">
+            <p className="menu-subtitle">Your hiking companion</p>
+          </div>
+          
+          <IonAccordionGroup mode="md" className="transparent-accordion">
+            <IonAccordion value="about">
+              <IonItem slot="header" className="menu-item" lines="none">
+                <IonIcon slot="start" icon={informationCircleOutline} color="primary" />
+                <IonLabel>About</IonLabel>
+              </IonItem>
+              
+              <div slot="content" className="accordion-content">
+                <div className="foundation-section">
+                  <h3>About the Foundation</h3>
+                  <p className="foundation-text">
+                    The Bibbulmun Track Foundation maintains and preserves one of the world's great long-distance walking trails, 
+                    stretching 1000km from Kalamunda to Albany through Western Australia.
+                  </p>
+                  
+                  <div className="foundation-stats">
+                    <div className="stat-item">
+                      <span className="stat-icon">🗺️</span>
+                      <div className="stat-number">1000</div>
+                      <div className="stat-label">KM</div>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-icon">🧩</span>
+                      <div className="stat-number">9</div>
+                      <div className="stat-label">Sections</div>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-icon">⛺</span>
+                      <div className="stat-number">49</div>
+                      <div className="stat-label">Camps</div>
+                    </div>
                   </div>
                 </div>
-              ) : null}
+              </div>
+            </IonAccordion>
+          </IonAccordionGroup>
+
+          <div className="dev-team">
+            <h3>Development Team</h3>
+            <p>Meet the minds behind TrackMate</p>
+            
+            <div className="dev-list">
+              {developers.map((dev, index) => (
+                <div className="dev-item" key={index}>
+                  <div className="dev-avatar">{dev.emoji}</div>
+                  <div className="dev-name">{dev.name}</div>
+                  <div className="dev-tooltip">{dev.role}</div>
+                </div>
+              ))}
             </div>
 
-            {/* Featured Content */}
-            <div className="main-content">
-              <div className="section-header">
-                <h2>Featured</h2>
+            <h3 className="operators-title">Project Operators</h3>
+            <p>The team that makes it happen</p>
+            
+            <div className="dev-list">
+              {operators.map((op, index) => (
+                <div className="dev-item" key={index}>
+                  <div className="dev-avatar">{op.emoji}</div>
+                  <div className="dev-name">{op.name}</div>
+                  <div className="dev-tooltip">{op.role}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </IonContent>
+
+        <div className="menu-footer">
+          <div className="university-name">Murdoch University Dubai</div>
+          <p className="project-info">ICT302 Final Project • 2025</p>
+        </div>
+      </IonMenu>
+
+      <IonPage id="main-content" className="main-menu-page">
+        <IonHeader className="ion-no-border header-container">
+          <IonToolbar className="main-toolbar">
+            <IonButtons slot="start">
+              <IonMenuButton></IonMenuButton>
+            </IonButtons>
+            <IonTitle>TrackMate</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        
+        <IonContent fullscreen className="ion-padding-horizontal">
+          <div className="safe-area-container">
+            <div className="content-container">
+              {/* Greeting Section */}
+              <div className="greeting-section">
+                <div className="greeting-content">
+                  <h1 className="greeting-text">Hello, TrackMate!</h1>
+                </div>
+                <div className="greeting-icon">
+                  <span role="img" aria-label="pin">📍</span>
+                </div>
               </div>
-              <div className="cards-grid">
-                {featuredContent.map((item, index) => (
-                  <IonCard 
-                    key={index} 
-                    className="feature-card"
-                    routerLink={item.link}
-                  >
-                    {item.isNew && <div className="new-tag">Try it</div>}
+
+              {/* Weather Widget */}
+              <div className="weather-section">
+                {loading && !weather ? (
+                  <IonCard className="weather-card skeleton">
                     <IonCardContent>
-                      <div className="card-icon">
-                        <IonIcon icon={item.icon} />
-                      </div>
-                      <h3>{item.title}</h3>
-                      <p>{item.description}</p>
+                      <IonSkeletonText animated style={{ width: '60%', height: '28px' }} />
+                      <IonSkeletonText animated style={{ width: '40%', height: '20px' }} />
                     </IonCardContent>
                   </IonCard>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Info Section */}
-            <div className="practices-section">
-              <div className="section-header">
-                <h2>Quick Info</h2>
-              </div>
-              <div className="practices-list">
-                {quickInfo.map((info, index) => (
-                  <IonCard 
-                    key={index} 
-                    className="practice-card"
-                    onClick={() => window.open(info.link, '_blank')}
-                    style={{ cursor: 'pointer' }}
-                  >
+                ) : (
+                  <IonCard className="weather-card" onClick={handleWeatherRefresh}>
                     <IonCardContent>
-                      <div className="practice-info">
-                        <div className="info-icon">
+                      <div className="weather-content">
+                        <div className="weather-main">
+                          <div className="weather-icon">
+                            {weather?.iconType ? (
+                              <IonIcon 
+                                icon={getWeatherIcon(weather.iconType)} 
+                                style={{ 
+                                  fontSize: '48px', 
+                                  width: '48px', 
+                                  height: '48px',
+                                  color: getWeatherIconColor(weather.iconType),
+                                  filter: weather.iconType === 'partlySunny' ? 'drop-shadow(0 0 2px #FFA500)' : 
+                                         weather.iconType === 'thunderstorm' ? 'drop-shadow(0 0 3px #FFD700)' : 'none'
+                                }}
+                              />
+                            ) : (
+                              <IonIcon 
+                                icon={partlySunny} 
+                                style={{ 
+                                  fontSize: '48px', 
+                                  width: '48px', 
+                                  height: '48px',
+                                  color: '#4B96F3',
+                                  filter: 'drop-shadow(0 0 2px #FFA500)'
+                                }}
+                              />
+                            )}
+                          </div>
+                          <div className="weather-temp">
+                            <span className="temperature">{weather?.temp}°</span>
+                            <span className="unit">C</span>
+                          </div>
+                        </div>
+                        <div className="weather-details">
+                          <div className="condition">{weather?.condition}</div>
+                          <div className="location">
+                            <IonIcon icon={locationOutline} />
+                            {weather?.location}
+                          </div>
+                        </div>
+                        <IonIcon 
+                          icon={refreshOutline} 
+                          className={`weather-refresh ${isRefreshing ? 'spinning' : ''}`} 
+                        />
+                      </div>
+                      <IonRippleEffect />
+                    </IonCardContent>
+                  </IonCard>
+                )}
+              </div>
+
+              {/* Track Info Section */}
+              <div className="track-info-section">
+                <div className="section-header">
+                  <h2>Track Info</h2>
+                </div>
+                <div className="info-cards">
+                  {quickInfo.map((info, index) => (
+                    <IonCard key={index} className="info-card" button onClick={() => window.open(info.link, '_blank')}>
+                      <IonCardContent className="horizontal-card-content">
+                        <div className="card-icon">
                           <IonIcon icon={info.icon} />
                         </div>
-                        <div className="info-content">
-                          <h3>{info.title}</h3>
-                          <p>{info.description}</p>
-                          <div className="practice-meta">
-                            <IonChip>
+                        <div className="card-main-content">
+                          <div className="card-header">
+                            <span className="card-title">{info.title}</span>
+                            <IonChip className="card-tag">
                               <IonLabel>{info.time}</IonLabel>
                             </IonChip>
                           </div>
+                          <span className="card-description">{info.description}</span>
                         </div>
-                      </div>
-                    </IonCardContent>
-                  </IonCard>
-                ))}
-              </div>
-            </div>
-
-            {/* About Section */}
-            <div className="about-section">
-              <div className="about-header">
-                <IonIcon icon={leafOutline} className="about-icon" />
-                <h2>About the Foundation</h2>
-              </div>
-              <div className="about-content">
-                <p>
-                  The Bibbulmun Track Foundation is a non-profit organization dedicated to supporting, maintaining, and preserving Western Australia's world-class walking trail. Since 1997, we've been the guardians of this 1000km track, connecting Kalamunda to Albany through some of the most beautiful landscapes in the South West.
-                </p>
-                <div className="about-stats">
-                  <div className="stat-item">
-                    <span className="stat-number">1000</span>
-                    <span className="stat-label">km of track</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-number">9</span>
-                    <span className="stat-label">sections</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-number">49</span>
-                    <span className="stat-label">campsites</span>
-                  </div>
+                      </IonCardContent>
+                    </IonCard>
+                  ))}
                 </div>
-                <div className="about-cta">
-                  <IonButton 
-                    fill="clear" 
-                    className="learn-more"
-                    onClick={() => window.open('https://www.bibbulmuntrack.org.au/the-track/', '_blank')}
-                  >
-                    Learn More
-                    <IonIcon slot="end" icon={playOutline} />
-                  </IonButton>
-                </div>
-              </div>
-            </div>
-
-            {/* Meet the Developers */}
-            <div className="meet-developers">
-              <div className="dev-section">
-                <IonText color="medium" className="dev-text">Made with 🧡 by</IonText>
-                <div className="dev-cards">
-                  <div className="dev-card">
-                    <div className="dev-avatar">👩‍🎓</div>
-                    <div className="dev-info">Marwa</div>
-                  </div>
-                  <div className="dev-card">
-                    <div className="dev-avatar">👨‍🎓</div>
-                    <div className="dev-info">Wael</div>
-                  </div>
-                  <div className="dev-card">
-                    <div className="dev-avatar">👨‍🎓</div>
-                    <div className="dev-info">Abdullah</div>
-                  </div>
-                  <div className="dev-card">
-                    <div className="dev-avatar">👨‍🎓</div>
-                    <div className="dev-info">Steve</div>
-                  </div>
-                  <div className="dev-card">
-                    <div className="dev-avatar">👩‍🎓</div>
-                    <div className="dev-info">Roudah</div>
-                  </div>
-                  <div className="dev-card">
-                    <div className="dev-avatar">👨‍🎓</div>
-                    <div className="dev-info">Jeremy</div>
-                  </div>
-                </div>
-              </div>
-              <div className="supervisor-section">
-                <IonText color="medium" className="supervisor-text">Special thanks to our supervisors</IonText>
-                <div className="supervisor-cards">
-                  <div className="supervisor-card">
-                    <div className="supervisor-avatar">👨‍🏫</div>
-                    <div className="supervisor-info">Peter Cole</div>
-                  </div>
-                  <div className="supervisor-card">
-                    <div className="supervisor-avatar">👩‍🏫</div>
-                    <div className="supervisor-info">Noor Alkhateeb</div>
-                  </div>
-                </div>
-              </div>
-              <div className="project-info">
-                <IonText color="medium" className="project-text">Murdoch University Dubai • ICT302 Final Project • 2025</IonText>
               </div>
             </div>
           </div>
-        </div>
-      </IonContent>
-    </IonPage>
+
+        </IonContent>
+      </IonPage>
+    </>
   );
 };
 

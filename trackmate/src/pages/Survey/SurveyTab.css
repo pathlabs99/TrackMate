@@ -9,20 +9,24 @@ ion-header {
 
 .survey-page {
   --background: var(--secondary-color);
+  background: linear-gradient(180deg, var(--secondary-color) 0%, rgba(255, 240, 234, 0) 100%);
 }
 
 .survey-page ion-content {
   --background: transparent;
-  --padding: 0;
+  --padding: 16px;
+}
+
+.survey-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .survey-page ion-header ion-toolbar {
   --background: transparent;
   --color: var(--ion-color-primary-contrast);
-}
-
-.survey-page .survey-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0;
 }

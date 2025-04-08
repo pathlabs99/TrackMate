@@ -30,6 +30,8 @@ import {
   checkmarkOutline,
 } from "ionicons/icons";
 import "./IssueReport.css";
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
 
 // Import models and services
 import {
@@ -450,9 +452,16 @@ const IssueReport: React.FC = () => {
     setShowActionSheet(true);
   };
 
+  useEffect(() => {
+    if (Capacitor.getPlatform() === 'android') {
+      StatusBar.setBackgroundColor({ color: '#ffffff' });
+      StatusBar.setStyle({ style: Style.Light });
+    }
+  }, []);
+
   return (
     <IonPage className="issue-report-page">
-      <IonContent fullscreen>
+      <IonContent className="ion-padding">
         <div className="issue-card-container">
           <form className="form-container" onSubmit={handleSubmit}>
             {/* Network status indicator */}
@@ -567,6 +576,7 @@ const IssueReport: React.FC = () => {
             <div className="form-section">
               <label className="field-label">Date Observed <span className="required">*</span></label>
               <button
+                type="button"
                 className="date-button"
                 onClick={() => setShowDatePicker(true)}
               >
@@ -583,20 +593,25 @@ const IssueReport: React.FC = () => {
               )}
               <div className="helper-text">Note: Date must be within the last 4 weeks</div>
 
-              <IonPopover
+              <IonModal
                 isOpen={showDatePicker}
                 onDidDismiss={() => setShowDatePicker(false)}
-                showBackdrop={true}
-                backdropDismiss={true}
+                className="date-picker-modal"
               >
-                <IonDatetime
-                  value={formData.dateObserved}
-                  onIonChange={(e) => handleDateChange(e.detail.value!)}
-                  presentation="date"
-                  showDefaultButtons={true}
-                  max={new Date().toISOString()}
-                />
-              </IonPopover>
+                <div className="date-picker-container">
+                  <IonDatetime
+                    value={formData.dateObserved}
+                    onIonChange={(e) => handleDateChange(e.detail.value!)}
+                    presentation="date"
+                    showDefaultButtons={true}
+                    doneText="Done"
+                    cancelText="Cancel"
+                    firstDayOfWeek={0}
+                    max={new Date().toISOString()}
+                    className="date-picker"
+                  />
+                </div>
+              </IonModal>
             </div>
 
             <div className="form-section">
@@ -709,16 +724,17 @@ const IssueReport: React.FC = () => {
         <IonModal
           isOpen={showSuccessModal}
           onDidDismiss={() => setShowSuccessModal(false)}
-          className="success-modal"
+          className="simple-success-modal"
         >
-          <div className="modal-content">
-            <div className="success-icon">
-              <IonIcon icon={checkmarkOutline} />
-            </div>
-            <h2>Report Submitted</h2>
-            <p>Your issue has been successfully reported.</p>
-            <IonButton expand="block" onClick={() => setShowSuccessModal(false)}>
-              DONE
+          <div className="simple-modal-content">
+            <IonIcon icon={checkmarkOutline} className="success-check-icon" />
+            <h2>Report Submitted Successfully!</h2>
+            <IonButton 
+              expand="block" 
+              onClick={() => setShowSuccessModal(false)}
+              className="success-done-button"
+            >
+              Done
             </IonButton>
           </div>
         </IonModal>

@@ -21,6 +21,7 @@ export const Survey: React.FC = () => {
   const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
   const [showOfflineToast, setShowOfflineToast] = useState(false);
+  const [showResumeToast, setShowResumeToast] = useState(false);
 
   const {
     formData,
@@ -33,6 +34,7 @@ export const Survey: React.FC = () => {
     setIsSubmitted,
     setErrors,
     handleStartSurvey,
+    handleContinueSurvey,
     validateCurrentQuestion,
     clearProgress
   } = useSurveyForm(surveyQuestions);
@@ -42,8 +44,16 @@ export const Survey: React.FC = () => {
   };
 
   const handleSaveAndExit = () => {
+    // Force save the current progress with exact current question
+    const progressData = {
+      formData,
+      currentQuestion
+    };
+    localStorage.setItem('surveyProgress', JSON.stringify(progressData));
+    console.log(`Explicitly saved at question ${currentQuestion + 1} before exit`);
+    
     setShowExitModal(false);
-    setCurrentQuestion(-1); // Go back to survey card
+    setCurrentQuestion(-1); // Go back to survey card, but keep progress saved
   };
 
   const handleDiscardAndExit = () => {
@@ -238,6 +248,60 @@ export const Survey: React.FC = () => {
     };
   }, []);
 
+  // Modified function to handle continuing a survey and show feedback
+  const handleContinueWithFeedback = () => {
+    // Get saved question from storage to show in toast
+    try {
+      const saved = localStorage.getItem('surveyProgress');
+      if (saved) {
+        const { currentQuestion } = JSON.parse(saved);
+        if (typeof currentQuestion === 'number' && currentQuestion >= 0) {
+          // Continue the survey
+          handleContinueSurvey();
+          
+          // Show toast after a small delay to ensure navigation happens first
+          setTimeout(() => {
+            setShowResumeToast(true);
+          }, 300);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Error reading saved survey progress:', e);
+    }
+    
+    // If we get here, something went wrong with getting the saved question
+    handleContinueSurvey();
+    setShowResumeToast(true);
+  };
+
+  // Add a useEffect to verify loaded data is valid
+  useEffect(() => {
+    if (currentQuestion === -1) {
+      try {
+        const saved = localStorage.getItem('surveyProgress');
+        if (saved) {
+          const { formData: savedFormData, currentQuestion: savedQuestion } = JSON.parse(saved);
+          console.log(`Verified saved data: question=${savedQuestion + 1}, form fields=${Object.keys(savedFormData).length}`);
+        }
+      } catch (e) {
+        console.error('Error verifying saved data:', e);
+      }
+    }
+  }, [currentQuestion]);
+
+  const renderSubmissionScreen = () => {
+    return (
+      <div className="submission-screen">
+        <h2 className="submission-title">Submitting Survey</h2>
+        <div className="submission-progress-bar">
+          <div className="submission-progress-fill" />
+        </div>
+        <p>Please wait a moment...</p>
+      </div>
+    );
+  };
+
   return (
     <>
       {(() => {
@@ -248,7 +312,7 @@ export const Survey: React.FC = () => {
                 {currentQuestion >= 0 && (
                   <button className="exit-button" onClick={handleExit}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M15 19L8 12L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     Exit
                   </button>
@@ -270,7 +334,10 @@ export const Survey: React.FC = () => {
 
               <div className="survey-content">
                 {currentQuestion === -1 ? (
-                  <SurveyCard onStartSurvey={handleStartSurvey} />
+                  <SurveyCard 
+                    onStartSurvey={handleStartSurvey} 
+                    onContinueSurvey={handleContinueWithFeedback}
+                  />
                 ) : isSubmitted ? (
                   <SurveyCompletion 
                     onReset={() => {
@@ -283,7 +350,10 @@ export const Survey: React.FC = () => {
                   />
                 ) : visibleQuestions.length === 0 || currentQuestion >= visibleQuestions.length ? (
                   // If we don't have valid questions, reset to start
-                  <SurveyCard onStartSurvey={handleStartSurvey} />
+                  <SurveyCard 
+                    onStartSurvey={handleStartSurvey}
+                    onContinueSurvey={handleContinueWithFeedback}
+                  />
                 ) : (
                   <div className="question-container">
                     <SurveyQuestion
@@ -324,9 +394,14 @@ export const Survey: React.FC = () => {
           return (
             <div className="survey-container">
               <div className="survey-content">
-                <SurveyCard onStartSurvey={() => {
-                  window.location.reload();
-                }} />
+                <SurveyCard 
+                  onStartSurvey={() => {
+                    window.location.reload();
+                  }}
+                  onContinueSurvey={() => {
+                    window.location.reload();
+                  }}
+                />
               </div>
             </div>
           );
@@ -348,64 +423,55 @@ export const Survey: React.FC = () => {
         ]}
       />
 
+      <IonToast
+        isOpen={showResumeToast}
+        onDidDismiss={() => setShowResumeToast(false)}
+        message="Resuming your survey from where you left off."
+        duration={3000}
+        position="bottom"
+        color="success"
+        buttons={[
+          {
+            text: 'OK',
+            role: 'cancel',
+          }
+        ]}
+      />
+
       <IonModal
         isOpen={isSubmitting}
         className="submission-modal"
-        breakpoints={[0, 1]}
-        initialBreakpoint={1}
+        backdropDismiss={false}
+        breakpoints={[1.0]}
+        initialBreakpoint={1.0}
+        showBackdrop={false}
       >
-        <div className="submission-modal-content">
-          <div className="submission-modal-header">
-            <h2>Submitting Survey</h2>
-          </div>
-          {submissionProgress && (
-            <div className="submission-progress">
-              <div className="submission-progress-bar">
-                <div 
-                  className="submission-progress-fill" 
-                  style={{ width: `${submissionProgress.progress}%` }}
-                />
-              </div>
-              <div className="submission-status">
-                {submissionProgress.status === 'preparing' ? 'Preparing submission...' :
-                 submissionProgress.status === 'uploading' ? `Uploading... ${Math.round(submissionProgress.progress)}%` :
-                 'Processing...'}
-              </div>
-            </div>
-          )}
-          {submitError && (
-            <div className="submission-error">
-              {submitError}
-            </div>
-          )}
-        </div>
+        <div className="submission-overlay" />
+        {renderSubmissionScreen()}
       </IonModal>
 
-      <IonModal
-        isOpen={showExitModal}
+      <IonModal 
+        isOpen={showExitModal} 
         onDidDismiss={() => setShowExitModal(false)}
-        className="exit-modal"
-        breakpoints={[0, 1]}
-        initialBreakpoint={1}
+        className="save-progress-modal"
       >
-        <div className="exit-modal-content">
-          <div className="exit-modal-header">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
-              <path d="M12 8V12M12 16H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <h2>Save Your Progress?</h2>
+        <div className="save-progress-content">
+          <div className="save-progress-icon">
+            <span>⚠️</span>
           </div>
-          <p>You can continue where you left off next time you open the survey.</p>
-          <div className="exit-modal-buttons">
+          <h2 className="save-progress-title">Save Your Progress?</h2>
+          <p className="save-progress-message">
+            You can continue where you left off next time you open the survey.
+          </p>
+          <div className="save-progress-buttons">
             <button 
-              className="modal-button discard-button"
+              className="discard-exit-button"
               onClick={handleDiscardAndExit}
             >
               Discard & Exit
             </button>
             <button 
-              className="modal-button save-button"
+              className="save-exit-button"
               onClick={handleSaveAndExit}
             >
               Save & Exit

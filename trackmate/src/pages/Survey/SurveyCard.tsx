@@ -46,9 +46,9 @@ const SurveyCard: React.FC<SurveyCardProps> = ({
         <div className="feature-item">
           <span className="feature-icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="10" cy="10" r="9" stroke="#F2C94C" strokeWidth="2"/>
-              <path d="M10 5V11" stroke="#F2C94C" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="10" cy="14" r="1" fill="#F2C94C"/>
+              <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM10 18C5.6 18 2 14.4 2 10C2 5.6 5.6 2 10 2C14.4 2 18 5.6 18 10C18 14.4 14.4 18 10 18Z" fill="#F2C94C"/>
+              <path d="M9 5H11V11H9V5Z" fill="#F2C94C"/>
+              <path d="M9 13H11V15H9V13Z" fill="#F2C94C"/>
             </svg>
           </span>
           <span>For visits within the last 4 weeks only</span>
@@ -56,10 +56,8 @@ const SurveyCard: React.FC<SurveyCardProps> = ({
         <div className="feature-item">
           <span className="feature-icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="10" cy="10" r="9" stroke="#EB5757" strokeWidth="2"/>
-              <path d="M10 5V10" stroke="#EB5757" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M5 10H10" stroke="#EB5757" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M10 10L14 10" stroke="#EB5757" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM10 18C5.6 18 2 14.4 2 10C2 5.6 5.6 2 10 2C14.4 2 18 5.6 18 10C18 14.4 14.4 18 10 18Z" fill="#EB5757"/>
+              <path d="M15 9H11V5H9V9H5V11H9V15H11V11H15V9Z" fill="#EB5757"/>
             </svg>
           </span>
           <span>Help improve track design & management</span>
@@ -102,11 +100,55 @@ const SurveyCard: React.FC<SurveyCardProps> = ({
           className="continue-button"
           onClick={onStartSurvey}
         >
-          Start Survey
+          Continue Survey
         </button>
       )}
+
+      <div className="nav-bar">
+        <div className="nav-item">
+          <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>Home</span>
+        </div>
+        <div className="nav-item nav-active">
+          <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Survey</span>
+        </div>
+        <div className="nav-item">
+          <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <span>Scan</span>
+        </div>
+        <div className="nav-item">
+          <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>Issues</span>
+        </div>
+        <div className="nav-item">
+          <svg className="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>FAQ</span>
+        </div>
+      </div>
     </IonContent>
   );
 };
 
-export default SurveyCard;
+export default SurveyCard; 

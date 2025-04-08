@@ -1,0 +1,174 @@
+/* Welcome page styles */
+ion-content.welcome-page {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --background: #ffffff;
+}
+
+.welcome-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/* Header section with brand */
+.header-section {
+  padding: 20px 20px 10px;
+  text-align: center;
+}
+
+.brand-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FF6B00;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  font-size: 18px;
+  color: #6B7280;
+  margin: 4px 0 0;
+  font-weight: 400;
+}
+
+/* Main content section */
+.content-section {
+  padding: 10px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.headline {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 10px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.subheadline {
+  font-size: 16px;
+  color: #6B7280;
+  margin: 0 0 20px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Feature points */
+.key-points {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.key-point {
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 15px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.key-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.key-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  line-height: 1.3;
+}
+
+/* Button container fixed at bottom */
+.button-container {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  width: 100%;
+}
+
+.start-button {
+  background: #FF6B00;
+  color: white;
+  border: none;
+  border-radius: 100px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
+  width: 100%;
+  margin: 0 auto;
+  max-width: 400px;
+  display: block;
+}
+
+.continue-button {
+  background: white;
+  color: #FF6B00;
+  border: 1px solid rgba(255, 107, 0, 0.5);
+  border-radius: 100px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 400px;
+  display: block;
+}
+
+.new-button {
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: #6B7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 400px;
+  display: block;
+}
+
+/* Simple responsive adjustments */
+@media (max-width: 480px) {
+  .header-section {
+    padding: 16px 16px 8px;
+  }
+  
+  .brand-name {
+    font-size: 28px;
+  }
+  
+  .content-section {
+    padding: 8px 16px;
+  }
+  
+  .headline {
+    font-size: 22px;
+  }
+  
+  .subheadline {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+} 

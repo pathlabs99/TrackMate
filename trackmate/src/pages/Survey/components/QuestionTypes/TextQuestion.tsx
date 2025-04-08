@@ -23,6 +23,7 @@ export const TextQuestion: React.FC<QuestionComponentProps> = ({
           onChange={handleChange}
           placeholder={question.subtext}
           className="text-input textarea"
+          style={{ height: '36px', padding: '6px 10px', fontSize: '13px' }}
         />
       </div>
     </div>

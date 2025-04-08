@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -33,6 +33,8 @@ import {
 import './LocationPages.css';
 // Import local image
 import balingupImage from './images/balingup.jpg';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
 
 // Reusable dropdown section component
 interface DropdownSectionProps {
@@ -255,25 +257,43 @@ const Balingup: React.FC = () => {
     }
   };
 
+  // Add this useEffect at the top of your component
+  useEffect(() => {
+    if (Capacitor.getPlatform() === 'android') {
+      StatusBar.setOverlaysWebView({ overlay: true });
+      StatusBar.setBackgroundColor({ color: '#00000000' });
+      StatusBar.setStyle({ style: Style.Light });
+    }
+
+    return () => {
+      // Reset status bar when leaving the page
+      if (Capacitor.getPlatform() === 'android') {
+        StatusBar.setOverlaysWebView({ overlay: false });
+        StatusBar.setBackgroundColor({ color: '#ffffff' });
+        StatusBar.setStyle({ style: Style.Light });
+      }
+    };
+  }, []);
+
   // Component render
   return (
     <IonPage>
       <IonHeader className="ion-no-border transparent-header">
         <div className="header-buttons">
-          <IonBackButton defaultHref="/tab1" className="back-button" icon={arrowBack} />
+          <IonBackButton defaultHref="/menu" className="back-button" icon={arrowBack} />
         </div>
       </IonHeader>
       
-      <IonContent className="location-content">
+      <IonContent className="location-content" fullscreen>
         {/* Hero Image with Location Name */}
         <div className="hero-container">
           <IonImg 
             src={balingupImage}
             className="hero-image" 
-            alt="Balingup landscape" 
+            alt="Ballingup landscape" 
           />
           <div className="hero-overlay">
-            <h1 className="location-name">BALINGUP</h1>
+            <h1 className="location-name">BALLINGUP</h1>
             <p className="location-subtitle">Western Australia</p>
           </div>
         </div>

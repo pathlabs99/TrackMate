@@ -112,42 +112,26 @@ export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
       <div className="checkbox-group">
         {options.map((option) => (
           <div key={option.value} className="checkbox-option">
-            <input
-              type="checkbox"
-              id={`${question.id}-${option.value}`}
-              checked={selectedValues.includes(option.value)}
-              onChange={(e) => handleChange(option.value, e.target.checked)}
-            />
-            <label htmlFor={`${question.id}-${option.value}`} className="checkbox-label">
-              {option.label}
-            </label>
-            {/* Special handling for accommodation nights and expenditure */}
-            {(id === 'numberOfNights' || id === 'trackExpenditure') && (
-              <div className="other-input-container">
-                <input
-                  type="number"
-                  min="0"
-                  value={getJsonValue(option.value)}
-                  onChange={(e) => handleJsonChange(option.value, e.target.value)}
-                  placeholder="0"
-                  className="other-input"
-                />
-              </div>
-            )}
-            {/* Regular subquestions handling */}
+            <div className="checkbox-label-container">
+              <input
+                type="checkbox"
+                id={`${id}-${option.value}`}
+                checked={isOptionChecked(option.value)}
+                onChange={(e) => handleChange(option.value, e.target.checked)}
+              />
+              <label htmlFor={`${id}-${option.value}`} className="checkbox-label">
+                {option.label}
+              </label>
+            </div>
             {question.subQuestions?.map((subQuestion) => (
-              subQuestion.condition?.value === option.value && selectedValues.includes(option.value) && (
+              subQuestion.condition?.value === option.value && isOptionChecked(option.value) && (
                 <div key={subQuestion.id} className="other-input-container">
                   <input
-                    id={subQuestion.id}
                     type={subQuestion.type === 'number' ? 'number' : 'text'}
-                    min={subQuestion.min}
-                    max={subQuestion.max}
                     value={getSubQuestionValue(subQuestion.id)}
                     onChange={(e) => handleSubQuestionChange(e, subQuestion)}
                     placeholder="Please specify"
                     className="other-input"
-                    required={subQuestion.required}
                   />
                 </div>
               )

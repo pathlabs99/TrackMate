@@ -26,26 +26,56 @@ export const useSurveyForm = (questions: Question[]) => {
     try {
       const saved = localStorage.getItem('surveyProgress');
       if (saved) {
-        const { formData, currentQuestion } = JSON.parse(saved);
-        setFormData(formData);
-        setCurrentQuestion(currentQuestion);
+        const savedData = JSON.parse(saved);
+        if (savedData && savedData.formData) {
+          setFormData(savedData.formData);
+          // Only set current question to welcome screen (-1)
+          setCurrentQuestion(-1);
+          console.log('Loaded saved progress, form data restored');
+        }
       }
     } catch (e) {
       // If there's an error, just start fresh
+      console.error('Error loading saved progress:', e);
       localStorage.removeItem('surveyProgress');
     }
   }, []);
 
   // Save progress whenever formData or currentQuestion changes
   useEffect(() => {
-    if (currentQuestion >= -1 && !isSubmitted) {
-      const progress: SavedProgress = {
-        formData,
-        currentQuestion
-      };
-      localStorage.setItem('surveyProgress', JSON.stringify(progress));
+    if (!isSubmitted) {
+      // Never save a welcome screen state (-1) as the current question
+      // This ensures we always save the actual question number
+      const questionToSave = currentQuestion >= 0 ? currentQuestion : 
+        // If we're at welcome screen, try to get the previously saved question
+        getSavedQuestionFromStorage();
+      
+      // Only save if we have a valid question number (>= 0)
+      if (questionToSave >= 0) {
+        const progress: SavedProgress = {
+          formData,
+          currentQuestion: questionToSave
+        };
+        localStorage.setItem('surveyProgress', JSON.stringify(progress));
+        console.log(`Saved progress at question ${questionToSave + 1}`);
+      }
     }
   }, [formData, currentQuestion, isSubmitted]);
+
+  // Helper to read saved question directly from localStorage
+  const getSavedQuestionFromStorage = (): number => {
+    try {
+      const saved = localStorage.getItem('surveyProgress');
+      if (saved) {
+        const { currentQuestion } = JSON.parse(saved);
+        return typeof currentQuestion === 'number' && currentQuestion >= 0 ? 
+          currentQuestion : 0;
+      }
+    } catch (e) {
+      console.error('Error getting saved question:', e);
+    }
+    return 0; // Default to first question if nothing saved
+  };
 
   const getVisibleQuestions = useCallback(() => {
     // If they answered "no" to first question, only show that question
@@ -211,8 +241,43 @@ export const useSurveyForm = (questions: Question[]) => {
   }, [currentQuestion, formData, visibleQuestions]);
 
   const handleStartSurvey = useCallback(() => {
-    setCurrentQuestion(0);
+    setCurrentQuestion(0); // Always start from the beginning for new surveys
   }, []);
+
+  const handleContinueSurvey = useCallback(() => {
+    // Simple direct implementation - read from localStorage and set current question
+    try {
+      const saved = localStorage.getItem('surveyProgress');
+      if (saved) {
+        const { currentQuestion: savedQuestion } = JSON.parse(saved);
+        
+        if (typeof savedQuestion === 'number' && savedQuestion >= 0) {
+          // Calculate visible questions based on form data
+          const visible = getVisibleQuestions();
+          
+          if (visible.length === 0) {
+            console.error('No visible questions available');
+            setCurrentQuestion(0);
+            return;
+          }
+          
+          // Ensure the question is within bounds
+          const validQuestion = Math.min(savedQuestion, visible.length - 1);
+          console.log(`Resuming survey directly at question ${validQuestion + 1}`);
+          
+          // IMPORTANT: Directly set the question number
+          setCurrentQuestion(validQuestion);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Error in handleContinueSurvey:', e);
+    }
+    
+    // If anything fails, start from the beginning
+    console.log('Fallback to first question');
+    setCurrentQuestion(0);
+  }, [getVisibleQuestions]);
 
   const handleNext = useCallback(() => {
     if (validateCurrentQuestion()) {
@@ -245,9 +310,11 @@ export const useSurveyForm = (questions: Question[]) => {
     setIsSubmitted,
     setErrors,
     handleStartSurvey,
+    handleContinueSurvey,
     handleNext,
     handlePrevious,
     validateCurrentQuestion,
     clearProgress
   };
 };
+

@@ -1,0 +1,180 @@
+/* Responsive Layout System for TrackMate */
+
+/* ===== SAFE AREA HANDLING ===== */
+:root {
+  /* These variables are set dynamically in App.tsx */
+  --status-bar-height: var(--actual-status-bar-height, 24px);
+  --safe-area-top: var(--safe-area-inset-top, 24px);
+  --safe-area-bottom: var(--safe-area-inset-bottom, 0px);
+  --safe-area-left: var(--safe-area-inset-left, 0px);
+  --safe-area-right: var(--safe-area-inset-right, 0px);
+  
+  /* Content spacing */
+  --content-padding: 16px;
+  --content-padding-top: calc(var(--safe-area-top) + var(--content-padding));
+  --content-padding-bottom: calc(var(--safe-area-bottom) + var(--content-padding));
+  
+  /* Header height */
+  --header-height: 56px;
+  --header-total-height: calc(var(--header-height) + var(--safe-area-top));
+  
+  /* Footer height */
+  --footer-height: 56px;
+  --footer-total-height: calc(var(--footer-height) + var(--safe-area-bottom));
+}
+
+/* ===== GLOBAL RESPONSIVE CONTAINERS ===== */
+.responsive-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--content-padding);
+  box-sizing: border-box;
+}
+
+.responsive-content {
+  padding-top: var(--content-padding-top);
+  padding-bottom: var(--content-padding-bottom);
+  min-height: calc(100vh - var(--header-total-height) - var(--footer-total-height));
+  box-sizing: border-box;
+}
+
+/* ===== HEADER FIXES ===== */
+ion-header {
+  position: relative !important;
+  padding-top: var(--safe-area-top) !important;
+  height: var(--header-total-height) !important;
+}
+
+ion-header::after {
+  display: none !important;
+}
+
+ion-toolbar {
+  --min-height: var(--header-height) !important;
+  --padding-top: 0 !important;
+  --padding-bottom: 0 !important;
+  --background: var(--ion-background-color) !important;
+}
+
+/* ===== CONTENT FIXES ===== */
+ion-content {
+  --padding-top: var(--content-padding-top) !important;
+  --padding-bottom: var(--content-padding-bottom) !important;
+  --padding-start: var(--content-padding) !important;
+  --padding-end: var(--content-padding) !important;
+  --offset-top: var(--header-total-height) !important;
+  --offset-bottom: var(--footer-total-height) !important;
+}
+
+/* ===== FOOTER FIXES ===== */
+ion-footer {
+  padding-bottom: var(--safe-area-bottom) !important;
+}
+
+ion-tab-bar {
+  --padding-bottom: var(--safe-area-bottom) !important;
+  height: var(--footer-total-height) !important;
+}
+
+/* ===== CARD AND ITEM FIXES ===== */
+ion-card {
+  margin: var(--content-padding) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+ion-item {
+  --padding-start: var(--content-padding) !important;
+  --padding-end: var(--content-padding) !important;
+  --inner-padding-end: var(--content-padding) !important;
+}
+
+/* ===== RESPONSIVE TYPOGRAPHY ===== */
+@media (max-width: 360px) {
+  :root {
+    --content-padding: 12px;
+  }
+  
+  h1 {
+    font-size: 20px !important;
+  }
+  
+  h2 {
+    font-size: 18px !important;
+  }
+  
+  h3 {
+    font-size: 16px !important;
+  }
+  
+  p, ion-label {
+    font-size: 14px !important;
+  }
+}
+
+@media (min-width: 361px) and (max-width: 480px) {
+  :root {
+    --content-padding: 14px;
+  }
+}
+
+@media (min-width: 481px) {
+  :root {
+    --content-padding: 16px;
+  }
+}
+
+/* ===== FIX FOR NOTCHED DEVICES ===== */
+.notched-device ion-header {
+  padding-top: var(--safe-area-top) !important;
+}
+
+.notched-device ion-content {
+  --padding-top: var(--content-padding-top) !important;
+}
+
+/* ===== FIX FOR DEVICES WITH HOME INDICATOR ===== */
+.device-with-home-indicator ion-footer,
+.device-with-home-indicator ion-tab-bar {
+  padding-bottom: var(--safe-area-bottom) !important;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.safe-area-top {
+  padding-top: var(--safe-area-top) !important;
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--safe-area-bottom) !important;
+}
+
+.safe-area-left {
+  padding-left: var(--safe-area-left) !important;
+}
+
+.safe-area-right {
+  padding-right: var(--safe-area-right) !important;
+}
+
+/* ===== FIX FOR MODALS ===== */
+ion-modal {
+  --height: 100% !important;
+  --width: 100% !important;
+}
+
+ion-modal ion-content {
+  --padding-top: var(--safe-area-top) !important;
+  --padding-bottom: var(--safe-area-bottom) !important;
+}
+
+/* ===== FIX FOR ALERTS AND TOASTS ===== */
+ion-alert {
+  --max-width: 90% !important;
+}
+
+ion-toast {
+  --start: var(--safe-area-left) !important;
+  --end: var(--safe-area-right) !important;
+  --bottom: calc(var(--safe-area-bottom) + 16px) !important;
+} 

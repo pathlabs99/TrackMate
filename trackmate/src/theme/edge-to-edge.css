@@ -1,10 +1,38 @@
 :root {
-  --ion-safe-area-top: env(safe-area-inset-top);
-  --ion-safe-area-bottom: env(safe-area-inset-bottom);
-  --ion-safe-area-left: env(safe-area-inset-left);
-  --ion-safe-area-right: env(safe-area-inset-right);
+  --actual-status-bar-height: 0px;
+  --safe-area-inset-top: env(safe-area-inset-top, 24px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --ion-safe-area-top: var(--actual-status-bar-height);
+  --ion-safe-area-bottom: var(--safe-area-inset-bottom);
+  --ion-safe-area-left: var(--safe-area-inset-left);
+  --ion-safe-area-right: var(--safe-area-inset-right);
 }
 
+/* Add proper safe area handling for Android */
+.android-platform {
+  --ion-safe-area-top: var(--actual-status-bar-height);
+  --content-padding-top: calc(var(--actual-status-bar-height) + 16px);
+}
+
+/* Ensure content respects safe areas */
+ion-content {
+  --padding-top: var(--ion-safe-area-top);
+  --padding-bottom: var(--ion-safe-area-bottom);
+  --padding-start: var(--ion-safe-area-left);
+  --padding-end: var(--ion-safe-area-right);
+}
+
+/* Prevent content from going under system bars */
+.platform-android ion-content {
+  --offset-top: var(--ion-safe-area-top);
+  --offset-bottom: var(--ion-safe-area-bottom);
+  --offset-start: var(--ion-safe-area-left);
+  --offset-end: var(--ion-safe-area-right);
+}
+
+/* Ensure headers respect safe areas */
 ion-header {
   padding-top: var(--ion-safe-area-top);
 }
@@ -18,14 +46,82 @@ ion-toolbar {
   --padding-bottom: var(--ion-safe-area-bottom);
   --padding-start: var(--ion-safe-area-left);
   --padding-end: var(--ion-safe-area-right);
+  --min-height: calc(56px + var(--ion-safe-area-top));
 }
 
 /* Android specific styles */
 .platform-android ion-content {
-  --padding-top: var(--ion-safe-area-top);
-  --padding-bottom: var(--ion-safe-area-bottom);
+  --padding-top: var(--content-padding-top) !important;
 }
 
 .platform-android ion-modal ion-content {
-  --padding-top: 0;
+  --padding-top: var(--actual-status-bar-height);
+}
+
+/* Add responsive viewport handling */
+.android-platform {
+  --ion-safe-area-top: env(safe-area-inset-top, 20px);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom, 20px);
+  --ion-safe-area-left: env(safe-area-inset-left, 0px);
+  --padding-end: var(--ion-safe-area-right);
+}
+
+/* Ensure content respects screen boundaries */
+.platform-android ion-content {
+  --padding-top: var(--ion-safe-area-top);
+  --padding-bottom: var(--ion-safe-area-bottom);
+  --padding-start: var(--ion-safe-area-left);
+  --padding-end: var(--ion-safe-area-right);
+}
+
+/* Add responsive scaling for different screen densities */
+@media screen and (min-width: 320px) and (max-width: 480px) {
+  ion-content {
+    --scale-factor: 0.85;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  ion-content {
+    --scale-factor: 1;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  ion-content {
+    --scale-factor: 1.15;
+  }
+}
+
+/* Add a background color to the safe area to prevent transparency */
+ion-content::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--ion-safe-area-top);
+  background: var(--ion-background-color);
+  z-index: 1;
+}
+
+/* Fixed header for status bar background */
+.status-bar-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--actual-status-bar-height);
+  background: #ffffff;
+  z-index: 1000;
+}
+
+/* Issue reporting specific adjustments */
+.issue-report-page {
+  --header-height: calc(56px + var(--actual-status-bar-height));
+  --content-offset: var(--header-height);
+}
+
+.issue-report-page ion-content {
+  --offset-top: var(--content-offset);
 }

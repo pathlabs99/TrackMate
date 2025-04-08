@@ -1,96 +1,83 @@
-.select-input {
-  width: 100%;
+.select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   padding: 12px;
-  border: 2px solid #FF6B35;
-  border-radius: 8px;
-  font-size: 16px;
-  color: #333;
-  background-color: white;
-  margin-top: 8px;
-  margin-bottom: 16px;
-  appearance: auto; /* Make sure browser dropdown arrow is visible */
-}
-
-.select-input:focus {
-  outline: none;
-  border-color: #FF4500;
-  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  margin-top: 16px;
 }
 
 .select-option {
   display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-.select-option:nth-child(odd) {
-  background-color: rgba(255, 107, 53, 0.05);
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
 }
 
 .select-option label {
-  flex: 1;
-  margin-right: 16px;
-  margin-bottom: 0;
+  font-size: 14px;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
-.select-option select {
-  width: 250px;
-  min-width: 250px;
+.select-input {
+  width: 100%;
   max-width: 100%;
-  border: 2px solid #FF6B35;
-  border-radius: 8px;
-  padding: 10px;
-  background-color: white;
+  padding: 8px 12px;
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--text-primary);
+  background: var(--secondary-color);
+  height: 38px;
+}
+
+.select-input option {
+  font-size: 12px;
+  padding: 6px;
+  line-height: 1.2;
+}
+
+@media (max-width: 480px) {
+  .select-input {
+    font-size: 11px;
+    height: 36px;
+    padding: 6px 10px;
+  }
+  
+  .select-input option {
+    font-size: 11px;
+    padding: 4px;
+  }
 }
 
 .text-input {
   width: 100%;
+  max-width: 100%;
   padding: 12px;
-  border: 2px solid #FF6B35;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-.error-message {
-  color: #dc2626;
-  margin-top: 8px;
+  height: 44px;
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
   font-size: 14px;
-  padding: 8px;
-  border-radius: 4px;
-  background-color: rgba(220, 38, 38, 0.1);
-  border-left: 3px solid #dc2626;
+  background: var(--secondary-color);
 }
 
-.question-description {
-  margin-bottom: 16px;
-  color: #666;
+.select-input:hover,
+.text-input:hover {
+  background: rgba(255, 152, 0, 0.15);
 }
 
-/* Add some spacing between the question text and the select input */
-.question-text + .select-group {
-  margin-top: 16px;
+@media (max-width: 480px) {
+  .select-input,
+  .text-input {
+    height: 40px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .select-option label {
+    font-size: 13px;
+  }
 }
-
-/* Style for the placeholder option */
-.select-input option[value=""] {
-  color: #666;
-}
-
-/* Container for multiple select questions */
-.select-group {
-  border: 1px solid #FFE0D1;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 16px;
-  background-color: #FFF8F5;
-}
-
-/* Ensure dropdown options are clearly visible */
-.select-input option {
-  padding: 8px;
-  background-color: white;
-  color: #333;
-} 

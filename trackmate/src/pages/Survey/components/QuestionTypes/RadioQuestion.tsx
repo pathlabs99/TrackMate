@@ -38,17 +38,19 @@ export const RadioQuestion: React.FC<QuestionComponentProps> = ({
         <div className="radio-group">
           {question.options.map((option) => (
             <div key={option.value} className="radio-option">
-              <input
-                type="radio"
-                id={`${question.id}-${option.value}`}
-                name={question.id}
-                value={option.value}
-                checked={value === option.value}
-                onChange={(e) => onChange(question.id, e.target.value)}
-              />
-              <label htmlFor={`${question.id}-${option.value}`} className="radio-label">
-                {option.label}
-              </label>
+              <div className="radio-label-container">
+                <input
+                  type="radio"
+                  id={`${question.id}-${option.value}`}
+                  name={question.id}
+                  value={option.value}
+                  checked={value === option.value}
+                  onChange={(e) => onChange(question.id, e.target.value)}
+                />
+                <label htmlFor={`${question.id}-${option.value}`} className="radio-label">
+                  {option.label}
+                </label>
+              </div>
               {question.subQuestions?.map((subQuestion) => (
                 subQuestion.condition?.value === option.value && value === option.value && (
                   <div key={subQuestion.id} className="other-input-container">
@@ -61,7 +63,6 @@ export const RadioQuestion: React.FC<QuestionComponentProps> = ({
                       onChange={(e) => handleSubQuestionChange(e, subQuestion)}
                       placeholder="Please specify"
                       className="other-input"
-                      required={subQuestion.required}
                     />
                   </div>
                 )

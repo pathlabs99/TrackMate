@@ -1,0 +1,249 @@
+.onboarding-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.onboarding-content {
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.onboarding-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
+.illustration-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  perspective: 1000px;
+}
+
+.illustration-container::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle at center, rgba(255, 99, 71, 0.08) 0%, rgba(255, 99, 71, 0) 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.onboarding-illustration {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(255, 99, 71, 0.15));
+  transform-style: preserve-3d;
+}
+
+.content-container {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.onboarding-slide h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.onboarding-slide h2 {
+  font-size: 20px;
+  font-weight: 500;
+  color: rgb(255, 99, 71);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.onboarding-slide p {
+  font-size: 16px;
+  color: #666666;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.navigation-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+  z-index: 10;
+  background-color: #ffffff;
+}
+
+.navigation-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  width: 24px;
+  background-color: rgb(255, 99, 71);
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.skip-button,
+.next-button,
+.get-started-button {
+  padding: 14px 28px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  min-width: 120px;
+}
+
+.skip-button {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #666666;
+}
+
+.next-button,
+.get-started-button {
+  background-color: rgb(255, 99, 71);
+  color: white;
+}
+
+.get-started-button {
+  padding: 16px 32px;
+  font-size: 18px;
+  min-width: 160px;
+}
+
+.skip-button:hover,
+.next-button:hover,
+.get-started-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+@media (max-height: 800px) {
+  .illustration-container {
+    max-width: 320px;
+  }
+  
+  .onboarding-slide h1 {
+    font-size: 28px;
+  }
+  
+  .onboarding-slide h2 {
+    font-size: 18px;
+  }
+  
+  .onboarding-slide p {
+    font-size: 15px;
+  }
+}
+
+@media (max-height: 700px) {
+  .onboarding-content {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .illustration-container {
+    max-width: 280px;
+  }
+  
+  .onboarding-slide h1 {
+    font-size: 24px;
+  }
+  
+  .onboarding-slide h2 {
+    font-size: 16px;
+  }
+  
+  .onboarding-slide p {
+    font-size: 14px;
+  }
+
+  .skip-button,
+  .next-button {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-width: 100px;
+  }
+
+  .get-started-button {
+    padding: 14px 28px;
+    font-size: 16px;
+    min-width: 140px;
+  }
+}
+
+@supports(padding: max(0px)) {
+  .onboarding-content {
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
+    padding-top: max(2rem, env(safe-area-inset-top));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+}

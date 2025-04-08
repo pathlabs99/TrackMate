@@ -1,0 +1,115 @@
+/* ResponsiveLayout Component Styles */
+
+.responsive-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.responsive-page ion-header {
+  flex: 0 0 auto;
+}
+
+.responsive-page ion-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure content doesn't overflow on small screens */
+.responsive-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--content-padding);
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Ensure images are responsive */
+.responsive-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure tables are responsive */
+.responsive-container table {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+/* Ensure forms are responsive */
+.responsive-container form {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Ensure buttons are properly sized on small screens */
+@media (max-width: 360px) {
+  .responsive-container ion-button {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    font-size: 14px;
+  }
+}
+
+/* Ensure proper spacing for cards */
+.responsive-container ion-card {
+  margin: var(--content-padding) 0;
+  width: 100%;
+}
+
+/* Ensure proper spacing for lists */
+.responsive-container ion-list {
+  margin: var(--content-padding) 0;
+  padding: 0;
+}
+
+/* Ensure proper spacing for items */
+.responsive-container ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 8px;
+}
+
+/* Ensure proper spacing for segments */
+.responsive-container ion-segment {
+  margin: var(--content-padding) 0;
+}
+
+/* Ensure proper spacing for grids */
+.responsive-container ion-grid {
+  padding: 0;
+}
+
+/* Ensure proper spacing for rows */
+.responsive-container ion-row {
+  margin: 0 calc(-1 * var(--content-padding));
+}
+
+/* Ensure proper spacing for columns */
+.responsive-container ion-col {
+  padding: var(--content-padding);
+}
+
+/* Ensure proper spacing for modals */
+.responsive-container ion-modal {
+  --height: 100%;
+  --width: 100%;
+}
+
+/* Ensure proper spacing for alerts */
+.responsive-container ion-alert {
+  --max-width: 90%;
+}
+
+/* Ensure proper spacing for toasts */
+.responsive-container ion-toast {
+  --start: var(--safe-area-left);
+  --end: var(--safe-area-right);
+  --bottom: calc(var(--safe-area-bottom) + 16px);
+} 

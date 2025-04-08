@@ -1,0 +1,247 @@
+/* Move these to the top for specificity */
+ion-content.welcome-page {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --background: #ffffff;
+}
+
+/* Adjust the iOS safe area for the content */
+@supports (padding: max(0px)) {
+  ion-content.welcome-page {
+    --padding-bottom: max(0px, env(safe-area-inset-bottom));
+    --padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
+
+/* Modern, minimal welcome page design */
+.welcome-page {
+  --primary: #FF6B00;
+  --accent: #4F46E5;
+  --text: #1f2937;
+  --text-light: #6B7280;
+  --surface: #ffffff;
+  --background: #ffffff;
+  font-family: system-ui, -apple-system, sans-serif;
+  height: 100%;
+}
+
+.welcome-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+/* Header section with brand */
+.header-section {
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.brand-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  font-size: 18px;
+  color: var(--text-light);
+  margin: 4px 0 0;
+  font-weight: 400;
+}
+
+/* Main content section */
+.content-section {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.headline {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 12px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.subheadline {
+  font-size: 16px;
+  color: var(--text-light);
+  margin: 0 0 32px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Feature points */
+.key-points {
+  display: flex;
+  margin-bottom: 40px;
+  gap: 12px;
+}
+
+.key-point {
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.key-icon {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.key-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+/* Button container */
+.button-container {
+  padding: 20px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.start-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 100px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.2);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.start-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+}
+
+.continue-button {
+  background: white;
+  color: var(--primary);
+  border: 1px solid rgba(255, 107, 0, 0.5);
+  border-radius: 100px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.continue-button:hover {
+  background: rgba(255, 107, 0, 0.05);
+}
+
+.new-button {
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-align: center;
+}
+
+.new-button:hover {
+  color: var(--text);
+}
+
+/* Media queries for responsive design */
+@media (max-width: 480px) {
+  .header-section {
+    padding: 20px 16px;
+  }
+  
+  .brand-name {
+    font-size: 30px;
+  }
+  
+  .content-section {
+    padding: 16px;
+  }
+  
+  .headline {
+    font-size: 24px;
+  }
+  
+  .subheadline {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+  
+  .key-points {
+    margin-bottom: 32px;
+  }
+  
+  .key-point {
+    padding: 16px 8px;
+  }
+  
+  .button-container {
+    padding: 0 16px 32px;
+  }
+}
+
+/* For very small screens */
+@media (max-height: 600px) {
+  .header-section {
+    padding: 16px;
+  }
+  
+  .brand-name {
+    font-size: 28px;
+  }
+  
+  .headline {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  
+  .subheadline {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .key-points {
+    margin-bottom: 24px;
+  }
+  
+  .key-point {
+    padding: 14px 8px;
+  }
+  
+  .key-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+} 
