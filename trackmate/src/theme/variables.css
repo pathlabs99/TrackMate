@@ -28,7 +28,47 @@
   --ion-safe-area-top: env(safe-area-inset-top);
   --ion-safe-area-bottom: env(safe-area-inset-bottom);
   --ion-safe-area-left: env(safe-area-inset-left);
-  --ion-safe-area-right: env(safe-area-inset-right);
+  --ion-safe-area-right: 0 !important; /* Override safe area right to remove border */
+  
+  /* Remove white vertical border */
+  --ion-border-color: transparent !important;
+  --border-width: 0 !important;
+  --border: none !important;
+  --ion-item-border-color: transparent !important;
+  --background-color: transparent !important;
+  --ion-toolbar-border-color: transparent !important;
+  --ion-tab-bar-border-color: transparent !important;
+}
+
+/* Global overrides to remove white vertical border */
+ion-router-outlet,
+ion-nav,
+ion-tabs,
+ion-app,
+ion-page,
+.ion-page,
+ion-content,
+ion-menu,
+ion-split-pane,
+ion-modal,
+ion-popover,
+.menu-content,
+.menu-content-open {
+  border-right: none !important;
+  border-left: none !important;
+  box-shadow: none !important;
+  --border-width: 0 !important;
+  --border: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Fix for right edge border/line */
+html, body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 /* Color class for trackmate color */
@@ -57,6 +97,8 @@
 ion-content {
   --padding-top: var(--ion-safe-area-top);
   --padding-bottom: var(--ion-safe-area-bottom);
+  --padding-end: 0 !important;
+  --padding-right: 0 !important;
 }
 
 /* Input fields */

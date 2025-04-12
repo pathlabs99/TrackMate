@@ -1,0 +1,110 @@
+.weather-widget {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  margin: 0;
+}
+
+.weather-widget.loading .loading-placeholder {
+  height: 200px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.location-icon {
+  font-size: 1.2rem;
+  color: var(--ion-color-primary);
+  margin-top: 1px;
+}
+
+.location span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1;
+}
+
+.main-weather {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.temperature {
+  font-size: 48px;
+  font-weight: bold;
+  color: #000;
+}
+
+.weather-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-icon ion-icon {
+  font-size: 48px;
+  color: rgb(255, 99, 71);
+}
+
+.condition {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.weather-metrics {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric ion-icon {
+  font-size: 24px;
+}
+
+/* Specific colors for each metric icon */
+.wind-icon {
+  transform: rotate(90deg);
+  color: #4B96F3 !important;
+}
+
+.humidity-icon {
+  color: #4B96F3 !important;
+}
+
+.uv-icon {
+  color: #FFB800 !important;
+}
+
+.metric span {
+  color: #666;
+  font-size: 14px;
+}

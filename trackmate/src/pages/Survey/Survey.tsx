@@ -6,7 +6,7 @@ import { SurveyQuestion } from "./components/SurveyQuestion";
 import { SurveyCompletion } from './components/SurveyCompletion';
 import { useSurveyForm } from "./hooks/useSurveyForm";
 import { FormData } from "./models/FormData";
-import { generateCSV, generateReportId } from "./utils/CSV";
+import { generateCSV, generateSurveyId, formatSubmissionDate } from "./utils/CSV";
 import { sendCSVToServer, syncPendingSubmissions, checkNetworkStatus, addNetworkListener, removeNetworkListener } from './utils/Network';
 import { getPendingSubmissions, saveOfflineSubmission } from './utils/Storage';
 import SurveyCard from "./components/SurveyCard";
@@ -121,21 +121,22 @@ export const Survey: React.FC = () => {
     setSubmissionProgress({ status: 'preparing', progress: 0 });
 
     try {
-      // Generate reportId and timestamp
+      // Generate surveyId and timestamp
       const timestamp = new Date().toISOString();
-      const reportId = generateReportId();
+      const surveyId = generateSurveyId();
+      const formattedDate = formatSubmissionDate(timestamp);
 
       // Update form data with submission info
       const submissionData = {
         ...formData,
-        reportId,
-        submissionDate: timestamp,
+        surveyId,
+        submissionDate: formattedDate,
         timestamp // Add timestamp for offline sync
       };
 
       // Generate CSV data
       const csvData = await generateCSV(submissionData);
-      const fileName = `survey_${reportId}`;
+      const fileName = `survey_${surveyId}`;
 
       const networkStatus = await checkNetworkStatus();
       if (networkStatus) {

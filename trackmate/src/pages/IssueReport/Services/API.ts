@@ -2,7 +2,7 @@
 // Extracted from your submitReportToServer function
 
 // Server URL from your original code
-const API_URL = "https://trackmate-server-0uvc.onrender.com";
+const API_URL = "https://trackmateserver.onrender.com";
 
 console.log("API.ts loaded");
 

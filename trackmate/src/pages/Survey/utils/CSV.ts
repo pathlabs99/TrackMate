@@ -1,12 +1,48 @@
 import { FormData } from '../models/FormData';
 
 /**
+ * Format date to show AWST (Australian Western Standard Time)
+ * AWST is UTC+8, covering Western Australia
+ */
+export const formatSubmissionDate = (isoDate: string): string => {
+  try {
+    // Parse the provided ISO date
+    const date = new Date(isoDate);
+    
+    // Manually apply UTC+8 offset for AWST
+    // Get UTC time in milliseconds and add 8 hours (8 * 60 * 60 * 1000 milliseconds)
+    const awstTime = new Date(date.getTime() + (8 * 60 * 60 * 1000));
+    
+    // Extract date components
+    const day = String(awstTime.getUTCDate()).padStart(2, '0');
+    const month = String(awstTime.getUTCMonth() + 1).padStart(2, '0');
+    const year = awstTime.getUTCFullYear();
+    
+    // Extract time components
+    let hours = awstTime.getUTCHours();
+    const minutes = String(awstTime.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(awstTime.getUTCSeconds()).padStart(2, '0');
+    
+    // Convert to 12-hour format
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours === 0 ? 12 : hours; // Convert 0 to 12 for 12 AM
+    
+    // Format the final string
+    return `AWST: ${month}/${day}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return isoDate; // Return original date if there's an error
+  }
+};
+
+/**
  * Generate CSV data from form data
  */
 export const generateCSV = async (formData: FormData): Promise<string> => {
   // Define headers
   const headers = [
-    "reportId",
+    "surveyId",
     "submissionDate",
     "visitedLastFourWeeks",
     "lastVisitDate",
@@ -45,6 +81,15 @@ export const generateCSV = async (formData: FormData): Promise<string> => {
   const rowData = headers.map(header => {
     const value = formData[header as keyof FormData];
     
+    // Special handling for submissionDate to format with multiple time zones
+    if (header === 'submissionDate') {
+      const dateValue = value as string;
+      if (dateValue) {
+        return `"${formatSubmissionDate(dateValue)}"`;
+      }
+      return '""';
+    }
+
     // Special handling for transportUsed with otherTransport
     if (header === 'transportUsed') {
       const transportValue = value as string;
@@ -219,6 +264,7 @@ export const generateCSV = async (formData: FormData): Promise<string> => {
         
         return parts.length > 0 ? `"${parts.join(', ')}"` : '""';
       } catch (e) {
+        console.error('Error parsing walkPoints values:', e);
         return '""';
       }
     }
@@ -251,12 +297,12 @@ export const generateCSV = async (formData: FormData): Promise<string> => {
 };
 
 /**
- * Generate a unique report ID
+ * Generate a unique survey ID
  */
-export const generateReportId = (): string => {
+export const generateSurveyId = (): string => {
   const now = new Date();
   const datePart = now.toISOString().split('T')[0].replace(/-/g, '');
   const timePart = now.toTimeString().split(' ')[0].replace(/:/g, '');
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `BTF-${datePart}-${timePart}-${random}`;
+  return `SURVEY-${datePart}-${timePart}-${random}`;
 };

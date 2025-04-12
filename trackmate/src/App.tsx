@@ -46,6 +46,8 @@ import Denmark from "./pages/QR/Denmark";
 
 // Import SplashScreen component
 import SplashScreen from "./components/SplashScreen/SplashScreen";
+import Menu from "./components/Menu";
+import WeatherWidget from "./components/WeatherWidget";
 
 /* Core CSS */
 import "@ionic/react/css/core.css";
@@ -195,10 +197,14 @@ const App: React.FC = () => {
           >
             <IonApp className={isPlatform('android') ? 'android-platform' : ''}>
               <IonReactRouter>
+                <Menu />
                 <IonTabs>
                   <IonRouterOutlet>
                     <Route exact path="/menu">
-                      <MainMenu />
+                      <>
+                        <WeatherWidget />
+                        <MainMenu />
+                      </>
                     </Route>
                     <Route exact path="/scan">
                       <QRScanner />

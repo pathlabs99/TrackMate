@@ -3,7 +3,7 @@ import { Network as CapacitorNetwork } from '@capacitor/network';
 import { generateCSV } from './CSV';
 import { getPendingSubmissions, updatePendingSubmissions } from './Storage';
 
-const API_URL = 'https://trackmate-server-0uvc.onrender.com';
+const API_URL = 'https://trackmateserver.onrender.com';
 
 /**
  * Check if the device is currently online
@@ -41,7 +41,7 @@ type ProgressCallback = (progress: SubmissionProgress) => void;
  */
 export const sendCSVToServer = async (
   csvData: string, 
-  reportId: string,
+  surveyId: string,
   onProgress?: ProgressCallback
 ): Promise<void> => {
   try {
@@ -54,7 +54,7 @@ export const sendCSVToServer = async (
     onProgress?.({ status: 'preparing', progress: 0 });
     
     // Prepare data for server request
-    const fileName = `survey_${reportId}.csv`; // Ensure .csv extension
+    const fileName = `survey_${surveyId}.csv`; // Ensure .csv extension
     
     onProgress?.({ status: 'preparing', progress: 10 });
 
@@ -69,7 +69,7 @@ export const sendCSVToServer = async (
       body: JSON.stringify({
         csvData,
         fileName,
-        reportId
+        surveyId
       })
     });
 
@@ -119,27 +119,27 @@ export const syncPendingSubmissions = async (onProgress?: ProgressCallback): Pro
     }
 
     let syncedCount = 0;
-    const successfulSubmissions: string[] = []; // Track successfully synced submissions by reportId
+    const successfulSubmissions: string[] = []; // Track successfully synced submissions by surveyId
 
     // Try to sync each submission
     for (const submission of pendingSubmissions) {
       try {
         // Skip if already synced
-        if (successfulSubmissions.includes(submission.reportId)) {
+        if (successfulSubmissions.includes(submission.surveyId)) {
           continue;
         }
 
         // Generate CSV for this submission
         const csvData = await generateCSV(submission);
-        const reportId = submission.reportId;
+        const surveyId = submission.surveyId;
 
         // Send to server
-        await sendCSVToServer(csvData, reportId, onProgress);
+        await sendCSVToServer(csvData, surveyId, onProgress);
         syncedCount++;
-        successfulSubmissions.push(reportId);
+        successfulSubmissions.push(surveyId);
 
         // Remove successful submission from pending list immediately
-        const remaining = pendingSubmissions.filter(s => !successfulSubmissions.includes(s.reportId));
+        const remaining = pendingSubmissions.filter(s => !successfulSubmissions.includes(s.surveyId));
         await updatePendingSubmissions(remaining);
       } catch (error) {
         console.error('Error syncing submission:', error);

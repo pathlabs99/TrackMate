@@ -10,14 +10,14 @@ interface SurveyCardProps {
   onContinueSurvey: () => void;
 }
 
-const SurveyCard: React.FC<SurveyCardProps> = ({ 
+const DemoSurveyCard: React.FC<SurveyCardProps> = ({ 
   onStartSurvey,
   onContinueSurvey
 }) => {
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
 
   useEffect(() => {
-    const savedProgress = localStorage.getItem('surveyProgress');
+    const savedProgress = localStorage.getItem('demoSurveyProgress');
     if (savedProgress) {
       try {
         const { formData } = JSON.parse(savedProgress);
@@ -90,7 +90,7 @@ const SurveyCard: React.FC<SurveyCardProps> = ({
           <button 
             className="start-new-button"
             onClick={() => {
-              localStorage.removeItem('surveyProgress');
+              localStorage.removeItem('demoSurveyProgress');
               onStartSurvey();
             }}
           >
@@ -99,7 +99,7 @@ const SurveyCard: React.FC<SurveyCardProps> = ({
         </div>
       ) : (
         <button 
-          className="continue-button"
+          className="start-button"
           onClick={onStartSurvey}
         >
           Start Survey
@@ -109,4 +109,4 @@ const SurveyCard: React.FC<SurveyCardProps> = ({
   );
 };
 
-export default SurveyCard;
+export default DemoSurveyCard;

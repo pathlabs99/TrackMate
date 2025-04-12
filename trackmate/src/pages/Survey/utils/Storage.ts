@@ -2,7 +2,7 @@ import { FormData } from '../models/FormData';
 
 export interface Submission extends FormData {
   timestamp: string;
-  reportId: string;
+  surveyId: string;
 }
 
 const PENDING_SURVEYS_KEY = 'trackmate_pending_surveys';

@@ -2,7 +2,7 @@
 
 export interface FormData {
   [key: string]: string | string[] | number | boolean | undefined;
-  reportId?: string;
+  surveyId?: string;
   submissionDate?: string;
   visitedLastFourWeeks?: string;
   lastVisitDate?: string;

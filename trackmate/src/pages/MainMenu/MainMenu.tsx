@@ -18,6 +18,7 @@ import {
   IonText,
   IonChip,
   IonButtons,
+  IonButton,
   IonMenuButton,
   IonFooter,
   IonAccordion,
@@ -48,12 +49,15 @@ import {
   cloud,
   rainy,
   thunderstorm,
-  snow
+  snow,
+  gridOutline,
+  warningOutline
 } from 'ionicons/icons';
 import { 
   StatusBar 
 } from '@capacitor/status-bar';
 import { Geolocation } from '@capacitor/geolocation';
+import WeatherWidget from "../../components/WeatherWidget";
 import "./MainMenu.css";
 
 // WeatherAPI configuration
@@ -67,6 +71,9 @@ interface WeatherData {
   icon: string;
   location: string;
   iconType?: string;
+  wind_kph?: number;
+  humidity?: number;
+  uv?: number;
 }
 
 const MainMenu: React.FC = () => {
@@ -115,7 +122,10 @@ const MainMenu: React.FC = () => {
           condition: data.current.condition.text,
           icon: data.current.condition.icon.replace('//cdn.weatherapi.com', 'https://cdn.weatherapi.com'),
           location: data.location.name,
-          iconType: iconType
+          iconType: iconType,
+          wind_kph: data.current.wind_kph,
+          humidity: data.current.humidity,
+          uv: data.current.uv
         };
         setWeather(weatherData);
         cacheWeatherData(weatherData);
@@ -144,7 +154,10 @@ const MainMenu: React.FC = () => {
           condition: data.current.condition.text,
           icon: data.current.condition.icon.replace('//cdn.weatherapi.com', 'https://cdn.weatherapi.com'),
           location: data.location.name,
-          iconType: iconType
+          iconType: iconType,
+          wind_kph: data.current.wind_kph,
+          humidity: data.current.humidity,
+          uv: data.current.uv
         };
         setWeather(weatherData);
         cacheWeatherData(weatherData);
@@ -188,11 +201,10 @@ const MainMenu: React.FC = () => {
       link: "https://www.bibbulmuntrack.org.au/the-track/along-the-track/"
     },
     {
-      title: "Water Sources",
-      time: "Essential",
       icon: waterOutline,
-      description: "Carry 3L per person daily. Treat all water before drinking.",
-      link: "https://www.bibbulmuntrack.org.au/trip-planner/health-hygiene-safety/"
+      title: 'Water Sources',
+      description: 'Water tanks are available at each campsite but must be treated before drinking.​',
+      link: 'https://www.bibbulmuntrack.org.au/trip-planner/track-sections/'
     }
   ];
 
@@ -291,208 +303,70 @@ const MainMenu: React.FC = () => {
     }
   };
 
-  return (
-    <>
-      <IonMenu contentId="main-content" className="app-menu">
-        <div className="menu-header">
-          {/* Empty header for spacing */}
-        </div>
+  const handleQuickInfoClick = (link: string) => {
+    window.open(link, '_blank');
+  };
 
-        <IonContent className="menu-content">
-          <div className="menu-intro">
-            <p className="menu-subtitle">Your hiking companion</p>
-          </div>
-          
-          <IonAccordionGroup mode="md" className="transparent-accordion">
-            <IonAccordion value="about">
-              <IonItem slot="header" className="menu-item" lines="none">
-                <IonIcon slot="start" icon={informationCircleOutline} color="primary" />
-                <IonLabel>About</IonLabel>
-              </IonItem>
-              
-              <div slot="content" className="accordion-content">
-                <div className="foundation-section">
-                  <h3>About the Foundation</h3>
-                  <p className="foundation-text">
-                    The Bibbulmun Track Foundation maintains and preserves one of the world's great long-distance walking trails, 
-                    stretching 1000km from Kalamunda to Albany through Western Australia.
-                  </p>
-                  
-                  <div className="foundation-stats">
-                    <div className="stat-item">
-                      <span className="stat-icon">🗺️</span>
-                      <div className="stat-number">1000</div>
-                      <div className="stat-label">KM</div>
-                    </div>
-                    <div className="stat-item">
-                      <span className="stat-icon">🧩</span>
-                      <div className="stat-number">9</div>
-                      <div className="stat-label">Sections</div>
-                    </div>
-                    <div className="stat-item">
-                      <span className="stat-icon">⛺</span>
-                      <div className="stat-number">49</div>
-                      <div className="stat-label">Camps</div>
+  return (
+    <IonPage id="main-content" className="main-menu-page">
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton className="menu-button" onClick={() => document.querySelector('ion-menu')?.toggle()}>
+              <div className="staggered-menu-icon">
+                <span></span>
+                <span></span>
+              </div>
+            </IonButton>
+          </IonButtons>
+          <IonTitle className="ion-text-center">Bibbulmun Track Overview</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent fullscreen className="ion-padding-horizontal">
+        <div className="safe-area-container">
+          <div className="content-container">
+            {/* Weather Section */}
+            <div className="weather-section">
+              <div className="section-header">
+                <h2>Today's Conditions</h2>
+              </div>
+              <WeatherWidget 
+                temp={weather?.temp}
+                condition={weather?.condition}
+                windSpeed={weather?.wind_kph}
+                humidity={weather?.humidity}
+                uv={weather?.uv}
+                loading={loading}
+              />
+            </div>
+
+            {/* Track Essentials Section */}
+            <div className="track-info-section">
+              <div className="section-header">
+                <h2>Track Essentials</h2>
+                <p className="section-subtext">Tap a card to explore official Bibbulmun Track information</p>
+              </div>
+              <div className="info-cards">
+                {quickInfo.map((info, index) => (
+                  <div 
+                    key={index} 
+                    className="info-card"
+                    onClick={() => handleQuickInfoClick(info.link)}
+                  >
+                    <IonIcon icon={info.icon} className="info-icon" />
+                    <div className="info-content">
+                      <h3>{info.title}</h3>
+                      <p>{info.description}</p>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            </IonAccordion>
-          </IonAccordionGroup>
-
-          <div className="dev-team">
-            <h3>Development Team</h3>
-            <p>Meet the minds behind TrackMate</p>
-            
-            <div className="dev-list">
-              {developers.map((dev, index) => (
-                <div className="dev-item" key={index}>
-                  <div className="dev-avatar">{dev.emoji}</div>
-                  <div className="dev-name">{dev.name}</div>
-                  <div className="dev-tooltip">{dev.role}</div>
-                </div>
-              ))}
-            </div>
-
-            <h3 className="operators-title">Project Operators</h3>
-            <p>The team that makes it happen</p>
-            
-            <div className="dev-list">
-              {operators.map((op, index) => (
-                <div className="dev-item" key={index}>
-                  <div className="dev-avatar">{op.emoji}</div>
-                  <div className="dev-name">{op.name}</div>
-                  <div className="dev-tooltip">{op.role}</div>
-                </div>
-              ))}
             </div>
           </div>
-        </IonContent>
-
-        <div className="menu-footer">
-          <div className="university-name">Murdoch University Dubai</div>
-          <p className="project-info">ICT302 Final Project • 2025</p>
         </div>
-      </IonMenu>
 
-      <IonPage id="main-content" className="main-menu-page">
-        <IonHeader className="ion-no-border header-container">
-          <IonToolbar className="main-toolbar">
-            <IonButtons slot="start">
-              <IonMenuButton></IonMenuButton>
-            </IonButtons>
-            <IonTitle>TrackMate</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        
-        <IonContent fullscreen className="ion-padding-horizontal">
-          <div className="safe-area-container">
-            <div className="content-container">
-              {/* Greeting Section */}
-              <div className="greeting-section">
-                <div className="greeting-content">
-                  <h1 className="greeting-text">Hello, TrackMate!</h1>
-                </div>
-                <div className="greeting-icon">
-                  <span role="img" aria-label="pin">📍</span>
-                </div>
-              </div>
-
-              {/* Weather Widget */}
-              <div className="weather-section">
-                {loading && !weather ? (
-                  <IonCard className="weather-card skeleton">
-                    <IonCardContent>
-                      <IonSkeletonText animated style={{ width: '60%', height: '28px' }} />
-                      <IonSkeletonText animated style={{ width: '40%', height: '20px' }} />
-                    </IonCardContent>
-                  </IonCard>
-                ) : (
-                  <IonCard className="weather-card" onClick={handleWeatherRefresh}>
-                    <IonCardContent>
-                      <div className="weather-content">
-                        <div className="weather-main">
-                          <div className="weather-icon">
-                            {weather?.iconType ? (
-                              <IonIcon 
-                                icon={getWeatherIcon(weather.iconType)} 
-                                style={{ 
-                                  fontSize: '48px', 
-                                  width: '48px', 
-                                  height: '48px',
-                                  color: getWeatherIconColor(weather.iconType),
-                                  filter: weather.iconType === 'partlySunny' ? 'drop-shadow(0 0 2px #FFA500)' : 
-                                         weather.iconType === 'thunderstorm' ? 'drop-shadow(0 0 3px #FFD700)' : 'none'
-                                }}
-                              />
-                            ) : (
-                              <IonIcon 
-                                icon={partlySunny} 
-                                style={{ 
-                                  fontSize: '48px', 
-                                  width: '48px', 
-                                  height: '48px',
-                                  color: '#4B96F3',
-                                  filter: 'drop-shadow(0 0 2px #FFA500)'
-                                }}
-                              />
-                            )}
-                          </div>
-                          <div className="weather-temp">
-                            <span className="temperature">{weather?.temp}°</span>
-                            <span className="unit">C</span>
-                          </div>
-                        </div>
-                        <div className="weather-details">
-                          <div className="condition">{weather?.condition}</div>
-                          <div className="location">
-                            <IonIcon icon={locationOutline} />
-                            {weather?.location}
-                          </div>
-                        </div>
-                        <IonIcon 
-                          icon={refreshOutline} 
-                          className={`weather-refresh ${isRefreshing ? 'spinning' : ''}`} 
-                        />
-                      </div>
-                      <IonRippleEffect />
-                    </IonCardContent>
-                  </IonCard>
-                )}
-              </div>
-
-              {/* Track Info Section */}
-              <div className="track-info-section">
-                <div className="section-header">
-                  <h2>Track Info</h2>
-                </div>
-                <div className="info-cards">
-                  {quickInfo.map((info, index) => (
-                    <IonCard key={index} className="info-card" button onClick={() => window.open(info.link, '_blank')}>
-                      <IonCardContent className="horizontal-card-content">
-                        <div className="card-icon">
-                          <IonIcon icon={info.icon} />
-                        </div>
-                        <div className="card-main-content">
-                          <div className="card-header">
-                            <span className="card-title">{info.title}</span>
-                            <IonChip className="card-tag">
-                              <IonLabel>{info.time}</IonLabel>
-                            </IonChip>
-                          </div>
-                          <span className="card-description">{info.description}</span>
-                        </div>
-                      </IonCardContent>
-                    </IonCard>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </IonContent>
-      </IonPage>
-    </>
+      </IonContent>
+    </IonPage>
   );
 };
 

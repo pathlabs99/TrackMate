@@ -1,0 +1,480 @@
+ion-menu {
+  --ion-background-color: transparent;
+  --ion-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+ion-content {
+  --ion-background-color: transparent;
+}
+
+ion-list {
+  background: transparent;
+  padding: 0 !important;
+  width: 100%;
+}
+
+ion-item {
+  --padding-start: 16px !important;
+  --inner-padding-end: 16px !important;
+  --background: transparent;
+  --min-height: 48px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  color: #666;
+  width: 100%;
+  margin: 4px 0;
+}
+
+ion-item::part(native) {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+ion-accordion-group {
+  background: transparent;
+  margin: 4px 0;
+}
+
+ion-accordion {
+  background: transparent;
+  margin: 4px 0;
+}
+
+ion-accordion ion-item {
+  --padding-start: 16px !important;
+  --inner-padding-end: 16px !important;
+}
+
+.menu-item {
+  --padding-start: 16px !important;
+  --inner-padding-end: 16px !important;
+  --background: transparent;
+  --background-hover: rgba(255, 99, 71, 0.05);
+  --min-height: 48px;
+  --border-style: none;
+  margin: 4px 0;
+  padding: 0;
+  font-weight: 400;
+  width: 100%;
+}
+
+.submenu-content {
+  padding: 12px 0;
+  margin: 0;
+}
+
+.submenu-content ion-item {
+  --padding-start: 16px !important;
+  --inner-padding-end: 16px !important;
+}
+
+.menu-container {
+  padding: 24px 16px;
+  background: transparent;
+  width: 100%;
+}
+
+.menu-list {
+  background: transparent !important;
+  width: 100%;
+}
+
+/* Override any Ionic default styles */
+ion-item.menu-item::part(native),
+ion-accordion ion-item::part(native) {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+ion-menu::part(backdrop) {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+ion-menu::part(container) {
+  border-right: none;
+  box-shadow: none;
+}
+
+/* Hide scrollbar when not hovering */
+@media (hover: hover) {
+  .menu-container:not(:hover)::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+}
+
+.menu-footer {
+  padding: 24px 0;
+  background: transparent;
+  margin-top: 24px;
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 24px 0;
+}
+
+.university-text {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  padding: 0 16px;
+  white-space: normal;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.special-thanks {
+  margin-top: 24px;
+}
+
+.member-popover {
+  --width: 220px;
+  --background: #fff;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --backdrop-opacity: 0.3;
+  --offset-y: -10px;
+}
+
+.member-popover::part(content) {
+  border-radius: 12px;
+  animation: popoverFade 250ms ease-out;
+}
+
+@keyframes popoverFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.member-popover-content {
+  padding: 12px;
+}
+
+.member-popover-role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.member-popover-role ion-icon {
+  color: rgb(255, 99, 71);
+  font-size: 16px;
+}
+
+.info-card {
+  background: transparent;
+  border-radius: 12px;
+  box-shadow: none;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.foundation-info {
+  padding: 16px;
+  background: transparent;
+}
+
+.foundation-description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  border-left: 3px solid #ff6347;
+  padding-left: 16px;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.foundation-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 24px 0 16px;
+  background: transparent;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 33.33%;
+  position: relative;
+}
+
+.stat-icon {
+  font-size: 20px;
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.trail-icon {
+  color: #4CAF50;
+}
+
+.location-icon {
+  color: #2196F3;
+}
+
+.tent-icon {
+  color: #FF9800;
+  transform: translateX(-50%) rotate(-45deg);
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+  margin-top: 16px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-links-label {
+  color: #999;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none;
+  padding: 12px 24px;
+  margin-bottom: 8px;
+}
+
+ion-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #666 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 200px !important;
+}
+
+.menu-item ion-label {
+  margin: 0;
+  padding-right: 16px;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+ion-icon {
+  color: #666;
+  font-size: 18px;
+  min-width: 24px;
+}
+
+.menu-item[routerlink="/home"] {
+  --background: rgba(255, 99, 71, 0.1) !important;
+  background: rgba(255, 99, 71, 0.1) !important;
+}
+
+.menu-item[routerlink="/home"] ion-icon,
+.menu-item[routerlink="/home"] ion-label {
+  color: rgb(255, 99, 71) !important;
+  font-weight: 500 !important;
+}
+
+.menu-item:active,
+.menu-item.active {
+  --background: rgba(255, 99, 71, 0.1) !important;
+  background: rgba(255, 99, 71, 0.1) !important;
+}
+
+.menu-item:active ion-icon,
+.menu-item:active ion-label,
+.menu-item.active ion-icon,
+.menu-item.active ion-label {
+  color: rgb(255, 99, 71) !important;
+  font-weight: 500 !important;
+}
+
+.menu-item:active ion-icon,
+.menu-item:active ion-label,
+ion-accordion.accordion-expanded ion-item[slot="header"] ion-icon,
+ion-accordion.accordion-expanded ion-item[slot="header"] ion-label {
+  color: rgb(255, 99, 71) !important;
+}
+
+.section-label {
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 16px;
+  margin: 24px 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  margin: 16px 0 8px;
+  padding: 0;
+  text-transform: none;
+}
+
+.section-title + .description-container,
+.section-title + .team-members {
+  margin-top: 8px !important;
+}
+
+.team-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.team-group {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+}
+
+.team-group > *:not(:first-child) {
+  margin-top: 20px;
+}
+
+.team-group > .team-members {
+  margin-top: 4px;
+}
+
+.team-members {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.team-member {
+  --background: rgba(255, 99, 71, 0.03);
+  --background-hover: rgba(255, 99, 71, 0.08);
+  --background-activated: rgba(255, 99, 71, 0.12);
+  --border-radius: 8px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  margin: 4px 0;
+  min-height: 40px;
+}
+
+.team-member .member-avatar {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 99, 71, 0.1);
+  border-radius: 50%;
+  margin-right: 12px;
+  font-size: 16px;
+}
+
+.team-member .member-name {
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
+  margin: 0;
+}
+
+.description-container {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  margin: 8px 0;
+  padding: 4px;
+}
+
+.description-content {
+  padding: 16px;
+}
+
+.team-description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #666;
+  margin: 0;
+}
+
+.description-item {
+  --background: transparent;
+  --padding-start: 12px !important;
+  --padding-end: 12px !important;
+  --min-height: auto;
+  margin: 0;
+}
+
+.contact-info {
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.contact-message {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.contact-email {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.contact-email ion-icon {
+  color: rgb(255, 99, 71);
+  font-size: 16px;
+}
+
+.contact-email a {
+  color: rgb(255, 99, 71);
+  text-decoration: none;
+}
+
+.quick-stats {
+  background: transparent;
+  margin: 8px 0;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0;
+  background: transparent;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 2px;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: none;
+  letter-spacing: 0;
+}

@@ -41,20 +41,22 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
       <div className="select-group">
         {/* Render main select if no subquestions */}
         {subQuestions.length === 0 && (
-          <select
-            id={id}
-            value={selectValues.main || ''}
-            onChange={(e) => onChange(id, e.target.value)}
-            className="select-input"
-            required={question.required}
-          >
-            <option value="">Select an option</option>
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <div className="select-wrapper">
+            <select
+              id={id}
+              value={selectValues.main || ''}
+              onChange={(e) => onChange(id, e.target.value)}
+              className="select-input"
+              required={question.required}
+            >
+              <option value="">Select an option</option>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
 
         {/* Render subquestions if any */}
@@ -62,28 +64,30 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
           <div key={subQ.id} className="select-option">
             <label htmlFor={subQ.id}>{subQ.label}</label>
             {subQ.type === 'select' ? (
-              <select
-                id={subQ.id}
-                value={selectValues[subQ.id] || ''}
-                onChange={(e) => {
-                  const newValues = { ...selectValues };
-                  newValues[subQ.id] = e.target.value;
-                  onChange(id, JSON.stringify(newValues));
-                }}
-                className="select-input"
-                required={subQ.required}
-              >
-                <option value="">Select an option</option>
-                {subQ.options ? subQ.options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                )) : options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <div className="select-wrapper">
+                <select
+                  id={subQ.id}
+                  value={selectValues[subQ.id] || ''}
+                  onChange={(e) => {
+                    const newValues = { ...selectValues };
+                    newValues[subQ.id] = e.target.value;
+                    onChange(id, JSON.stringify(newValues));
+                  }}
+                  className="select-input"
+                  required={subQ.required}
+                >
+                  <option value="">Select an option</option>
+                  {subQ.options ? subQ.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  )) : options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             ) : (
               <input
                 type="text"
@@ -104,4 +108,4 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
       </div>
     </div>
   );
-}; 
+};
