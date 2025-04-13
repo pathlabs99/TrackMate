@@ -67,6 +67,7 @@ import "./theme/edge-to-edge.css";
 
 setupIonicReact({
   mode: 'md',
+  animated: true,
 });
 
 const App: React.FC = () => {

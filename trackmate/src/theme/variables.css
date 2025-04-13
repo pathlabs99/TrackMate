@@ -217,3 +217,44 @@ ion-header {
     font-size: 14px;
   }
 }
+
+/* ========== DISABLE DARK MODE ========== */
+/* This explicitly disables Ionic's dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Force light mode colors even when system is in dark mode */
+    --ion-color-primary: #FFA725;
+    --ion-background-color: #ffffff;
+    --ion-background-color-rgb: 255,255,255;
+    --ion-text-color: #000000;
+    --ion-text-color-rgb: 0,0,0;
+    --ion-border-color: #d7d8da;
+    
+    /* Override any other dark mode variables */
+    --ion-item-background: #ffffff;
+    --ion-card-background: #ffffff;
+    --ion-toolbar-background: #ffffff;
+    --ion-tab-bar-background: #ffffff;
+    --ion-item-background-rgb: 255,255,255;
+  }
+
+  /* Force light mode for all Ionic components */
+  .ios body {
+    --ion-background-color: #ffffff;
+    --ion-background-color-rgb: 255,255,255;
+    --ion-text-color: #000000;
+    --ion-text-color-rgb: 0,0,0;
+  }
+
+  .md body {
+    --ion-background-color: #ffffff;
+    --ion-background-color-rgb: 255,255,255;
+    --ion-text-color: #000000;
+    --ion-text-color-rgb: 0,0,0;
+  }
+}
+
+/* Force light mode class on the body element */
+body {
+  color-scheme: light;
+}
