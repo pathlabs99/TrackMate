@@ -1,6 +1,15 @@
-// services/SurveyService.ts
+/**
+ * @fileoverview Service for handling survey submission and storage.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename SurveyService.ts
+ *
+ * This file contains the SurveyService class which manages survey submissions,
+ * including online/offline handling and validation.
+ */
+
 import { FormData } from '../models/FormData';
-import { generateCSV, generateReportId } from '../utils/CSV';
+import { generateCSV, generateSurveyId } from '../utils/CSV';
 import { checkNetworkStatus, sendCSVToServer } from '../utils/Network';
 import { saveOfflineSubmission, Submission } from '../utils/Storage';
 import { retryPendingSubmissions } from '../utils/Sync';
@@ -10,41 +19,38 @@ import { retryPendingSubmissions } from '../utils/Sync';
  */
 class SurveyService {
   /**
-   * Submit survey to the server
+   * Submit survey to the server or save offline if no connection
+   * 
+   * @param formData - The form data to submit
+   * @returns Promise that resolves when the submission is complete
    */
   submitSurvey = async (formData: FormData): Promise<void> => {
     try {
-      // Generate report ID and add submission date
-      const reportId = generateReportId();
+      const surveyId = generateSurveyId();
       const timestamp = new Date().toISOString();
       const enrichedData: Submission = {
         ...formData,
-        reportId,
+        surveyId,
         timestamp
       };
 
-      // Generate CSV
       const csv = await generateCSV(enrichedData);
-      const fileName = `survey_${reportId}_${timestamp.split('T')[0]}`;
+      const fileName = `survey_${surveyId}_${timestamp.split('T')[0]}`;
 
-      // Check if online
       if (await checkNetworkStatus()) {
-        // Submit to server
         await sendCSVToServer(csv, fileName);
-        console.log('Survey submitted successfully');
       } else {
-        // Store offline if no connection
         await saveOfflineSubmission(enrichedData);
-        console.log('Survey saved offline');
       }
     } catch (error) {
-      console.error('Failed to submit survey:', error);
       throw error;
     }
   };
 
   /**
    * Try to submit any pending surveys
+   * 
+   * @returns Promise that resolves to the number of successfully submitted surveys
    */
   submitPendingSurveys = async (): Promise<number> => {
     return retryPendingSubmissions();
@@ -52,6 +58,10 @@ class SurveyService {
 
   /**
    * Validate survey fields
+   * 
+   * @param name - The name of the field to validate
+   * @param value - The value to validate
+   * @returns Promise that resolves to an error message (empty string if valid)
    */
   validateField = async (name: string, value: any): Promise<string> => {
     if (name === 'lastVisitDate') {

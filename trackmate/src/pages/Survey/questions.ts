@@ -1,5 +1,16 @@
-// questions.ts - Survey questions for the Bibbulmun Track survey
+/**
+ * @fileoverview Survey questions for the Bibbulmun Track survey.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename questions.ts
+ *
+ * This file contains the survey structure, question types, and all question content
+ * for the TrackMate Bibbulmun Track survey.
+ */
 
+/**
+ * Represents the different types of questions available in the survey
+ */
 export type QuestionType = 
   | 'radio' 
   | 'checkbox' 
@@ -10,64 +21,149 @@ export type QuestionType =
   | 'numberWithSub'
   | 'select';
 
+/**
+ * Represents a basic option for select, radio, and checkbox questions
+ */
 export interface Option {
+  /**
+   * The value stored when this option is selected
+   */
   value: string;
+  
+  /**
+   * The text displayed to the user for this option
+   */
   label: string;
 }
 
+/**
+ * Extends the basic Option interface with a checked state for checkbox questions
+ */
 export interface CheckboxOption extends Option {
+  /**
+   * Whether the checkbox is checked by default
+   */
   checked?: boolean;
 }
 
+/**
+ * Represents a sub-question that appears within a parent question
+ */
 export interface SubQuestion {
+  /**
+   * Unique identifier for the sub-question
+   */
   id: string;
+  
+  /**
+   * Display text for the sub-question
+   */
   label: string;
+  
+  /**
+   * Minimum value for number inputs
+   */
   min?: number;
+  
+  /**
+   * Maximum value for number inputs
+   */
   max?: number;
+  
+  /**
+   * Condition that determines when this sub-question should be shown
+   */
   condition?: {
     value: string;
   };
+  
+  /**
+   * Type of the sub-question
+   */
   type?: QuestionType;
+  
+  /**
+   * Whether an answer is required for this sub-question
+   */
   required?: boolean;
+  
+  /**
+   * Available options for select, radio, or checkbox sub-questions
+   */
   options?: Option[];
 }
 
+/**
+ * Represents a complete survey question
+ */
 export interface Question {
+  /**
+   * Unique identifier for the question
+   */
   id: string;
+  
+  /**
+   * Type of question (radio, checkbox, text, etc.)
+   */
   type: QuestionType;
+  
+  /**
+   * The main question text
+   */
   question: string;
+  
+  /**
+   * Additional descriptive text for the question
+   */
   description?: string;
+  
+  /**
+   * Smaller text displayed below the main question
+   */
   subtext?: string;
+  
+  /**
+   * Available options for select, radio, or checkbox questions
+   */
   options?: Option[] | CheckboxOption[];
+  
+  /**
+   * Whether an answer is required for this question
+   */
   required?: boolean;
+  
+  /**
+   * Condition that determines when this question should be shown
+   */
   condition?: {
     questionId: string;
     value: string | string[];
   };
+  
+  /**
+   * Placeholder text for text inputs
+   */
   placeholder?: string;
+  
+  /**
+   * Minimum value for number inputs
+   */
   min?: number;
+  
+  /**
+   * Maximum value for number inputs
+   */
   max?: number;
+  
+  /**
+   * Sub-questions that appear within this question
+   */
   subQuestions?: SubQuestion[];
 }
 
-export const welcomeText = `
-# Quick Survey
-
-Dear trail user,
-
-The Bibbulmun Track is a trail managed by the Department of Parks and Wildlife in partnership with the Bibbulmun Track Foundation. This survey aims to obtain your views about your visit within the last four weeks to the Bibbulmun Track.
-
-Your feedback will enable us to gain a better understanding of Bibbulmun Track users and the economics of the Track – what do people spend getting out on the Track. There are also questions in the survey that will offer insights into other values of the Track, including health and social benefits.
-
-The results of the survey will assist us to continually improve the design and management of the Track and support funding negotiations.
-
-<strong>PLEASE ONLY CONTINUE THIS SURVEY IF YOU HAVE VISITED THE BIBBULMUN TRACK IN THE LAST FOUR WEEKS.</strong>
-
-The survey is representative of only the person completing the form, so please answer for yourself only. Your answers are confidential and will be analysed independently.
-
-Your feedback is important to us. Thank you for sharing your thoughts and ideas.
-`;
-
+/**
+ * Complete list of survey questions with all options and configuration
+ */
 export const surveyQuestions: Question[] = [
   {
     id: 'visitedLastFourWeeks',

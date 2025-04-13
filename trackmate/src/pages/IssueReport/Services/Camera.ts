@@ -1,12 +1,27 @@
-// Services/Camera.ts
+/**
+ * @fileoverview Camera service for the TrackMate issue reporting system.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename Camera.ts
+ *
+ * This file contains the Camera service which provides cross-platform
+ * functionality for capturing images from camera or selecting from gallery.
+ */
+
 import { Camera as CapacitorCamera, CameraResultType, CameraSource } from "@capacitor/camera";
 import { isPlatform } from "@ionic/react";
 
+/**
+ * Camera service class that provides methods for capturing
+ * images across different platforms
+ */
 export class Camera {
   /**
    * Take a picture or select from gallery
-   * @param sourceType Camera or Photos library
-   * @returns DataUrl of the image or null
+   * 
+   * @param sourceType - Camera or Photos library source
+   * @returns Promise resolving to a DataUrl of the image or null
+   * @throws Error if the camera operation fails
    */
   static async takePicture(sourceType: CameraSource): Promise<string | null> {
     try {
@@ -17,12 +32,18 @@ export class Camera {
         return await this.handleNativeCamera(sourceType);
       }
     } catch (error) {
-      console.error("Error taking picture:", error);
+      // Silent error handling
       throw error;
     }
   }
 
-  // Handle camera for web browsers
+  /**
+   * Handle camera operations for web browsers
+   * 
+   * @param sourceType - Camera or Photos library source
+   * @returns Promise resolving to a DataUrl of the image or null
+   * @private
+   */
   private static async handleWebCamera(sourceType: CameraSource): Promise<string | null> {
     // If we're in a browser and using the camera
     if (sourceType === CameraSource.Camera) {
@@ -93,7 +114,7 @@ export class Camera {
 
         return imageDataUrl;
       } catch (error) {
-        console.error('Error accessing camera:', error);
+        // Silent error handling
         // Fallback to file input if camera access fails
         return this.handleFileInput();
       }
@@ -103,7 +124,12 @@ export class Camera {
     }
   }
 
-  // Handle file input for both fallback and gallery selection
+  /**
+   * Handle file input for both fallback and gallery selection
+   * 
+   * @returns Promise resolving to a DataUrl of the selected image or null
+   * @private
+   */
   private static async handleFileInput(): Promise<string | null> {
     const input = document.createElement("input");
     input.type = "file";
@@ -157,7 +183,13 @@ export class Camera {
     });
   }
 
-  // Handle camera for native platforms
+  /**
+   * Handle camera operations for native mobile platforms
+   * 
+   * @param sourceType - Camera or Photos library source
+   * @returns Promise resolving to a DataUrl of the image or null
+   * @private
+   */
   private static async handleNativeCamera(sourceType: CameraSource): Promise<string | null> {
     const image = await CapacitorCamera.getPhoto({
       quality: 90,

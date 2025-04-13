@@ -1,12 +1,35 @@
-// Services/GeolocationService.ts
+/**
+ * @fileoverview Geolocation service for the TrackMate issue reporting system.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename Geolocation.ts
+ *
+ * This file contains the Geolocation service which provides functionality
+ * for accessing device location data for issue reports.
+ */
+
 import { Geolocation as CapacitorGeolocation } from "@capacitor/geolocation";
 import { Coordinates } from "../Models/IssueReport";
 
+/**
+ * Extended coordinates interface with accuracy
+ */
+interface ExtendedCoordinates extends Coordinates {
+  accuracy?: number;
+}
+
+/**
+ * Geolocation service class that provides methods for
+ * accessing device location data
+ */
 export class Geolocation {
   /**
-   * Get current device location
+   * Get current device location with permission handling
+   * 
+   * @returns Promise resolving to coordinates object with latitude, longitude and accuracy
+   * @throws Error if location permissions are denied or location cannot be retrieved
    */
-  static async getCurrentLocation(): Promise<Coordinates> {
+  static async getCurrentLocation(): Promise<ExtendedCoordinates> {
     try {
       // Request permissions
       const permissionStatus = await CapacitorGeolocation.checkPermissions();
@@ -30,7 +53,7 @@ export class Geolocation {
         accuracy: position.coords.accuracy,
       };
     } catch (error) {
-      console.error("Error getting location:", error);
+      // Silent error handling
       throw error;
     }
   }

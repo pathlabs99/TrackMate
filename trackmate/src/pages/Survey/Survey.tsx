@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Main survey component for the TrackMate application.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename Survey.tsx
+ *
+ * This file contains the Survey component which handles the survey UI,
+ * navigation, submission, and offline capabilities.
+ */
+
 import React, { useState, useEffect, useCallback } from "react";
 import { IonModal, IonToast } from "@ionic/react";
 import { useHistory } from "react-router-dom";
@@ -5,21 +15,23 @@ import { surveyQuestions } from "./questions";
 import { SurveyQuestion } from "./components/SurveyQuestion";
 import { SurveyCompletion } from './components/SurveyCompletion';
 import { useSurveyForm } from "./hooks/useSurveyForm";
-import { FormData } from "./models/FormData";
 import { generateCSV, generateSurveyId, formatSubmissionDate } from "./utils/CSV";
 import { sendCSVToServer, syncPendingSubmissions, checkNetworkStatus, addNetworkListener, removeNetworkListener } from './utils/Network';
 import { getPendingSubmissions, saveOfflineSubmission } from './utils/Storage';
 import SurveyCard from "./components/SurveyCard";
 import "./Survey.css";
 
+/**
+ * Survey component that manages the entire survey flow
+ */
 export const Survey: React.FC = () => {
   const history = useHistory();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [, setSubmitError] = useState<string | null>(null);
   const [showExitModal, setShowExitModal] = useState(false);
-  const [submissionProgress, setSubmissionProgress] = useState<{ status: string; progress: number } | null>(null);
-  const [isOnline, setIsOnline] = useState(true);
-  const [pendingCount, setPendingCount] = useState(0);
+  const [, setSubmissionProgress] = useState<{ status: string; progress: number } | null>(null);
+  const [, setIsOnline] = useState(true);
+  const [, setPendingCount] = useState(0);
   const [showOfflineToast, setShowOfflineToast] = useState(false);
   const [showResumeToast, setShowResumeToast] = useState(false);
 
@@ -39,29 +51,42 @@ export const Survey: React.FC = () => {
     clearProgress
   } = useSurveyForm(surveyQuestions);
 
+  /**
+   * Show exit confirmation modal
+   */
   const handleExit = () => {
     setShowExitModal(true);
   };
 
+  /**
+   * Save current progress and exit the survey
+   */
   const handleSaveAndExit = () => {
-    // Force save the current progress with exact current question
     const progressData = {
       formData,
       currentQuestion
     };
     localStorage.setItem('surveyProgress', JSON.stringify(progressData));
-    console.log(`Explicitly saved at question ${currentQuestion + 1} before exit`);
     
     setShowExitModal(false);
-    setCurrentQuestion(-1); // Go back to survey card, but keep progress saved
+    setCurrentQuestion(-1);
   };
 
+  /**
+   * Discard current progress and exit the survey
+   */
   const handleDiscardAndExit = () => {
     clearProgress();
     setShowExitModal(false);
-    setCurrentQuestion(-1); // Go back to survey card
+    setCurrentQuestion(-1);
   };
 
+  /**
+   * Handle form input changes
+   * 
+   * @param questionId - ID of the question being answered
+   * @param value - New value for the question
+   */
   const handleCustomInputChange = (questionId: string, value: string | string[]) => {
     setFormData(prev => {
       const newFormData = { ...prev };
@@ -73,7 +98,6 @@ export const Survey: React.FC = () => {
         if (question?.type === "checkbox") {
           newFormData[questionId] = Array.isArray(value) ? value : [value];
         } else if (question?.type === "number") {
-          // Don't convert to number yet - keep as string until submission
           newFormData[questionId] = value;
         } else {
           newFormData[questionId] = value as string;
@@ -95,6 +119,12 @@ export const Survey: React.FC = () => {
     }
   };
 
+  /**
+   * Get the current value for a question
+   * 
+   * @param questionId - ID of the question
+   * @returns The current value for the question
+   */
   const getQuestionValue = (questionId: string): string | string[] => {
     try {
       const value = formData[questionId];
@@ -102,15 +132,16 @@ export const Survey: React.FC = () => {
       if (value === null || value === undefined) return '';
       return String(value);
     } catch (e) {
-      console.error(`Error getting value for question ${questionId}:`, e);
       return '';
     }
   };
 
+  /**
+   * Handle survey submission
+   */
   const handleSubmit = async () => {
     if (!validateCurrentQuestion()) return;
 
-    // If user selected "No" in first question, navigate to main menu
     if (currentQuestion === 0 && formData.visitedLastFourWeeks === 'no') {
       history.push('/menu');
       return;
@@ -121,42 +152,35 @@ export const Survey: React.FC = () => {
     setSubmissionProgress({ status: 'preparing', progress: 0 });
 
     try {
-      // Generate surveyId and timestamp
       const timestamp = new Date().toISOString();
       const surveyId = generateSurveyId();
       const formattedDate = formatSubmissionDate(timestamp);
 
-      // Update form data with submission info
       const submissionData = {
         ...formData,
         surveyId,
         submissionDate: formattedDate,
-        timestamp // Add timestamp for offline sync
+        timestamp
       };
 
-      // Generate CSV data
       const csvData = await generateCSV(submissionData);
       const fileName = `survey_${surveyId}`;
 
       const networkStatus = await checkNetworkStatus();
       if (networkStatus) {
-        // Online submission
         await sendCSVToServer(csvData, fileName, (progress) => {
           setSubmissionProgress(progress);
         });
 
-        // Save final state to local storage
         localStorage.setItem('surveyFormData', JSON.stringify(submissionData));
         setIsSubmitted(true);
       } else {
-        // Offline submission
         await saveOfflineSubmission(submissionData);
         setPendingCount(prev => prev + 1);
         setShowOfflineToast(true);
         setIsSubmitted(true);
       }
     } catch (error) {
-      console.error('Error submitting survey:', error);
       const networkStatus = await checkNetworkStatus();
       if (!networkStatus) {
         setShowOfflineToast(true);
@@ -169,10 +193,12 @@ export const Survey: React.FC = () => {
     }
   };
 
+  /**
+   * Navigate to the next question
+   */
   const handleNext = useCallback(() => {
     if (validateCurrentQuestion()) {
       const currentQ = visibleQuestions[currentQuestion];
-      // If we're on the first question and user hasn't visited, go back to homepage
       if (currentQ.id === 'visitedLastFourWeeks' && formData.visitedLastFourWeeks === 'no') {
         history.push('/menu');
       } else {
@@ -182,49 +208,48 @@ export const Survey: React.FC = () => {
     }
   }, [validateCurrentQuestion, visibleQuestions, currentQuestion, formData.visitedLastFourWeeks, history]);
 
+  /**
+   * Navigate to the previous question
+   */
   const handlePrevious = useCallback(() => {
     setCurrentQuestion(prev => Math.max(prev - 1, 0));
     setErrors({});
   }, []);
 
-  // Check network status and pending submissions on mount
+  /**
+   * Check network status and pending submissions on mount
+   */
   useEffect(() => {
-    let isSubscribed = true; // Track if component is mounted
+    let isSubscribed = true;
     let syncTimeout: NodeJS.Timeout | null = null;
 
     const checkStatus = async () => {
       if (!isSubscribed) return;
 
-      // Check network status
       const networkStatus = await checkNetworkStatus();
       setIsOnline(networkStatus);
 
-      // Check pending submissions
       const pending = await getPendingSubmissions();
       setPendingCount(pending.length);
     };
 
     checkStatus();
 
-    // Add network status listeners with debounce for sync
     const handleNetworkChange = (connected: boolean) => {
       if (!isSubscribed) return;
       
       setIsOnline(connected);
       
-      // Clear any existing sync timeout
       if (syncTimeout) {
         clearTimeout(syncTimeout);
       }
 
       if (connected) {
-        // Delay sync process to avoid multiple rapid attempts
         syncTimeout = setTimeout(() => {
           syncPendingSubmissions()
             .then(count => {
               if (count > 0 && isSubscribed) {
                 setSubmitError(`${count} pending survey(s) synced successfully`);
-                // Update pending count after successful sync
                 getPendingSubmissions().then(pending => {
                   if (isSubscribed) {
                     setPendingCount(pending.length);
@@ -232,14 +257,15 @@ export const Survey: React.FC = () => {
                 });
               }
             })
-            .catch(console.error);
-        }, 2000); // 2 second delay before attempting sync
+            .catch(() => {
+              // Error handling
+            });
+        }, 2000);
       }
     };
 
     addNetworkListener(handleNetworkChange);
 
-    // Cleanup function
     return () => {
       isSubscribed = false;
       if (syncTimeout) {
@@ -249,18 +275,17 @@ export const Survey: React.FC = () => {
     };
   }, []);
 
-  // Modified function to handle continuing a survey and show feedback
+  /**
+   * Continue a saved survey and show feedback toast
+   */
   const handleContinueWithFeedback = () => {
-    // Get saved question from storage to show in toast
     try {
       const saved = localStorage.getItem('surveyProgress');
       if (saved) {
         const { currentQuestion } = JSON.parse(saved);
         if (typeof currentQuestion === 'number' && currentQuestion >= 0) {
-          // Continue the survey
           handleContinueSurvey();
           
-          // Show toast after a small delay to ensure navigation happens first
           setTimeout(() => {
             setShowResumeToast(true);
           }, 300);
@@ -268,29 +293,16 @@ export const Survey: React.FC = () => {
         }
       }
     } catch (e) {
-      console.error('Error reading saved survey progress:', e);
+      // Error handling
     }
     
-    // If we get here, something went wrong with getting the saved question
     handleContinueSurvey();
     setShowResumeToast(true);
   };
 
-  // Add a useEffect to verify loaded data is valid
-  useEffect(() => {
-    if (currentQuestion === -1) {
-      try {
-        const saved = localStorage.getItem('surveyProgress');
-        if (saved) {
-          const { formData: savedFormData, currentQuestion: savedQuestion } = JSON.parse(saved);
-          console.log(`Verified saved data: question=${savedQuestion + 1}, form fields=${Object.keys(savedFormData).length}`);
-        }
-      } catch (e) {
-        console.error('Error verifying saved data:', e);
-      }
-    }
-  }, [currentQuestion]);
-
+  /**
+   * Render the submission progress screen
+   */
   const renderSubmissionScreen = () => {
     return (
       <div className="submission-screen">
@@ -350,7 +362,6 @@ export const Survey: React.FC = () => {
                     }} 
                   />
                 ) : visibleQuestions.length === 0 || currentQuestion >= visibleQuestions.length ? (
-                  // If we don't have valid questions, reset to start
                   <SurveyCard 
                     onStartSurvey={handleStartSurvey}
                     onContinueSurvey={handleContinueWithFeedback}
@@ -389,7 +400,6 @@ export const Survey: React.FC = () => {
             </div>
           );
         } catch (error) {
-          // If anything fails, reset to a clean state
           localStorage.removeItem('surveyProgress');
           
           return (

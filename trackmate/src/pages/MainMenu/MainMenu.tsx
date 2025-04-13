@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Main menu component for the TrackMate mobile app.
+ * @author TrackMate Team
+ * @date 2025-04-13
+ * @filename MainMenu.tsx
+ *
+ * This file contains the main menu component which serves as the landing page
+ * for the TrackMate app. It displays weather information, track essentials,
+ * and provides navigation to other app features.
+ */
+
 import React, { useEffect, useState } from "react";
 import {
   IonContent,
@@ -5,57 +16,21 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonCard,
-  IonCardContent,
   IonIcon,
-  IonLabel,
-  IonMenu,
-  IonList,
-  IonItem,
-  IonMenuToggle,
-  IonRippleEffect,
-  IonSkeletonText,
-  IonText,
-  IonChip,
   IonButtons,
-  IonButton,
-  IonMenuButton,
-  IonFooter,
-  IonAccordion,
-  IonAccordionGroup,
+  IonButton
 } from "@ionic/react";
 import { 
-  timeOutline,
-  locationOutline,
-  compassOutline,
-  informationCircleOutline,
-  settingsOutline,
-  refreshOutline,
   leafOutline,
   trailSignOutline,
-  peopleOutline,
-  mapOutline,
-  informationCircle,
-  homeOutline,
-  alertCircleOutline,
   waterOutline,
-  qrCode,
-  heartOutline,
-  menu,
-  chevronForward,
-  chevronDown,
   sunny,
   partlySunny,
   cloud,
   rainy,
   thunderstorm,
-  snow,
-  gridOutline,
-  warningOutline
+  snow
 } from 'ionicons/icons';
-import { 
-  StatusBar 
-} from '@capacitor/status-bar';
 import { Geolocation } from '@capacitor/geolocation';
 import WeatherWidget from "../../components/WeatherWidget";
 import "./MainMenu.css";
@@ -65,23 +40,45 @@ const API_KEY = '5a77ab9c376246488da51721250903';
 const DEFAULT_CITY = 'Perth';
 const WEATHER_API_BASE_URL = 'https://api.weatherapi.com/v1/current.json';
 
+/**
+ * Interface for weather data structure
+ * @interface WeatherData
+ */
 interface WeatherData {
+  /** Current temperature in Celsius */
   temp: number;
+  /** Weather condition text description */
   condition: string;
+  /** URL to weather condition icon */
   icon: string;
+  /** Location name */
   location: string;
+  /** Icon type for Ionic icons */
   iconType?: string;
+  /** Wind speed in km/h */
   wind_kph?: number;
+  /** Humidity percentage */
   humidity?: number;
+  /** UV index */
   uv?: number;
 }
 
+/**
+ * Main menu component for the TrackMate application
+ * Displays weather information, track essentials, and navigation options
+ * 
+ * @returns {JSX.Element} Rendered component
+ */
 const MainMenu: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Load cached weather data
+  /**
+   * Loads cached weather data from localStorage
+   * 
+   * @returns {boolean} True if valid cached data was loaded, false otherwise
+   */
   const loadCachedWeather = () => {
     const cachedData = localStorage.getItem('weatherData');
     const cachedTimestamp = localStorage.getItem('weatherTimestamp');
@@ -99,13 +96,22 @@ const MainMenu: React.FC = () => {
     return false;
   };
 
-  // Save weather data to cache
+  /**
+   * Saves weather data to localStorage cache
+   * 
+   * @param {WeatherData} data - Weather data to cache
+   */
   const cacheWeatherData = (data: WeatherData) => {
     localStorage.setItem('weatherData', JSON.stringify(data));
     localStorage.setItem('weatherTimestamp', Date.now().toString());
   };
 
-  // Get user's geolocation and weather
+  /**
+   * Gets user's geolocation and fetches weather for that location
+   * Falls back to cached data or default city if geolocation fails
+   * 
+   * @async
+   */
   const getUserLocationAndWeather = async () => {
     setLoading(true);
     try {
@@ -131,8 +137,7 @@ const MainMenu: React.FC = () => {
         cacheWeatherData(weatherData);
       }
     } catch (err) {
-      console.error('Error:', err);
-      // Only fetch default city if we don't have cached data
+      // Fall back to cached data or default city if geolocation fails
       if (!loadCachedWeather()) {
         fetchWeather(DEFAULT_CITY);
       }
@@ -141,6 +146,12 @@ const MainMenu: React.FC = () => {
     }
   };
 
+  /**
+   * Fetches weather data for a specific city
+   * 
+   * @async
+   * @param {string} city - City name to fetch weather for
+   */
   const fetchWeather = async (city: string) => {
     try {
       const url = `${WEATHER_API_BASE_URL}?key=${API_KEY}&q=${city}&aqi=no`;
@@ -163,14 +174,18 @@ const MainMenu: React.FC = () => {
         cacheWeatherData(weatherData);
       }
     } catch (err) {
-      console.error('Weather fetch error:', err);
-      // Load cached data if available
+      // Load cached data if available on error
       loadCachedWeather();
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Handles manual weather refresh button click
+   * 
+   * @async
+   */
   const handleWeatherRefresh = async () => {
     setIsRefreshing(true);
     await getUserLocationAndWeather();

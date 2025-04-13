@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Issue reporting component for the TrackMate mobile app.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename IssueReport.tsx
+ *
+ * This file contains the IssueReport component which allows users to report
+ * issues along the Bibbulmun Track with support for offline submission,
+ * location tracking, and photo capture.
+ */
+
 import React, { useState, useEffect } from "react";
 import {
   IonContent,
@@ -11,8 +22,6 @@ import {
   IonToast,
   IonLoading,
   IonActionSheet,
-  IonText,
-  IonPopover,
   IonDatetime,
   IonModal,
   IonButton,
@@ -45,13 +54,15 @@ import { Geolocation } from "./Services/Geolocation";
 import { Camera } from "./Services/Camera";
 import { Network } from "./Services/Network";
 import { Storage } from "./Services/Storage";
-import { Report } from "./Services/Report";
 import { API } from "./Services/API";
 import { CameraSource } from "@capacitor/camera";
-import localforage from "localforage";
 
+/**
+ * IssueReport component that provides a form for users to report
+ * issues along the Bibbulmun Track with offline support
+ */
 const IssueReport: React.FC = () => {
-  // State management
+  // State management for form data and UI
   const [formData, setFormData] = useState<IssueFormData>({
     ...defaultFormData,
     name: "",
@@ -72,6 +83,9 @@ const IssueReport: React.FC = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  /**
+   * Available issue types for the report form
+   */
   const issueTypes = [
     "Fallen Tree",
     "Damaged Trail/Erosion",
@@ -83,13 +97,18 @@ const IssueReport: React.FC = () => {
     "Other"
   ];
 
+  /**
+   * Urgency level options for the report form
+   */
   const urgencyLevels = [
     { value: "low", label: "Low", className: "urgency-low" },
     { value: "medium", label: "Medium", className: "urgency-medium" },
     { value: "high", label: "High", className: "urgency-high" }
   ];
 
-  // Load initial data and set up listeners
+  /**
+   * Initialize component and set up network listeners
+   */
   useEffect(() => {
     async function initialize() {
       // Check network status
@@ -116,12 +135,16 @@ const IssueReport: React.FC = () => {
     initialize();
   }, []);
 
-  // Save form data to local storage when it changes
+  /**
+   * Save form data to local storage when it changes
+   */
   useEffect(() => {
     Storage.saveFormDraft(formData);
   }, [formData]);
 
-  // Add network status effect
+  /**
+   * Set up event listeners for online/offline status
+   */
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
@@ -146,6 +169,9 @@ const IssueReport: React.FC = () => {
     };
   }, []);
 
+  /**
+   * Synchronize pending reports when device comes online
+   */
   const syncPendingReports = async () => {
     if (!isOnline) return;
 
@@ -167,7 +193,7 @@ const IssueReport: React.FC = () => {
             await Storage.deletePhoto(photoId);
           }
         } catch (error) {
-          console.error('Error syncing report:', error);
+          // Silent error handling
           report.attempts = (report.attempts || 0) + 1;
           if (report.attempts < 3) { // Keep for retry if under max attempts
             remainingReports.push(report);
@@ -184,14 +210,18 @@ const IssueReport: React.FC = () => {
         setShowToast(true);
       }
     } catch (error) {
-      console.error('Error in syncPendingReports:', error);
+      // Silent error handling
       setToastMessage('Error syncing reports. Will retry later.');
       setToastColor('warning');
       setShowToast(true);
     }
   };
 
-  // Sync pending reports when online
+  /**
+   * Handle form submission with online/offline support
+   * 
+   * @param e - Form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -250,7 +280,7 @@ const IssueReport: React.FC = () => {
             await Storage.deletePhoto(photo);
           }
         } catch (error) {
-          console.error('Error submitting report:', error);
+          // Silent error handling
           // If online submission fails, save for later
           const pendingReport = {
             id: reportData.reportId,
@@ -277,7 +307,7 @@ const IssueReport: React.FC = () => {
       await Storage.clearFormDraft();
       
     } catch (error) {
-      console.error('Error handling report:', error);
+      // Silent error handling
       setToastMessage('Error handling report. Please try again.');
       setToastColor('danger');
     } finally {
@@ -286,7 +316,12 @@ const IssueReport: React.FC = () => {
     }
   };
 
-  // Handle form input changes
+  /**
+   * Handle form input changes
+   * 
+   * @param field - The form field to update
+   * @param value - The new value for the field
+   */
   const handleInputChange = (field: keyof IssueFormData, value: string) => {
     // Clear validation error when field is edited
     if (validationErrors[field]) {
@@ -304,27 +339,48 @@ const IssueReport: React.FC = () => {
     }
   };
 
-  // Handle issue type selection
+  /**
+   * Handle issue type selection
+   * 
+   * @param type - The selected issue type
+   */
   const handleIssueTypeSelect = (type: string) => {
     handleInputChange("issueType", type);
   };
 
-  // Handle urgency selection
+  /**
+   * Handle urgency level selection
+   * 
+   * @param level - The selected urgency level
+   */
   const handleUrgencySelect = (level: string) => {
     handleInputChange("urgency", level);
   };
 
+  /**
+   * Format date string for consistent display
+   * 
+   * @param date - Date string or array of date strings
+   * @returns Formatted date string
+   */
   const formatDate = (date: string | string[]): string => {
     return Array.isArray(date) ? date[0] : date;
   };
 
+  /**
+   * Handle date selection from date picker
+   * 
+   * @param date - Selected date string or array
+   */
   const handleDateChange = (date: string | string[]) => {
     const formattedDate = formatDate(date);
     handleInputChange("dateObserved", formattedDate);
     setShowDatePicker(false);
   };
 
-  // Handle location capture
+  /**
+   * Capture current GPS location
+   */
   const captureLocation = async () => {
     try {
       setLoading(true);
@@ -342,7 +398,7 @@ const IssueReport: React.FC = () => {
       setToastMessage("GPS location captured successfully!");
       setShowToast(true);
     } catch (error: unknown) {
-      console.error("Error getting location:", error);
+      // Silent error handling
       setToastColor("danger");
 
       // Handle the unknown error safely
@@ -362,17 +418,16 @@ const IssueReport: React.FC = () => {
     }
   };
 
-  // Handle photo capture
+  /**
+   * Handle photo capture from camera or gallery
+   * 
+   * @param sourceType - Camera source type (camera or photos)
+   */
   const handleTakePhoto = async (sourceType: CameraSource) => {
     try {
       setLoading(true);
-      console.log(`Attempting to take photo with source: ${sourceType}`);
 
       const image = await Camera.takePicture(sourceType);
-      console.log(
-        "Photo captured successfully:",
-        image ? "Image received" : "No image"
-      );
 
       if (image) {
         // Generate a unique ID for the photo
@@ -390,7 +445,7 @@ const IssueReport: React.FC = () => {
         setShowToast(true);
       }
     } catch (error: unknown) {
-      console.error("Error taking photo:", error);
+      // Silent error handling
       setToastColor("danger");
 
       let errorMessage = "Unknown error";
@@ -409,17 +464,24 @@ const IssueReport: React.FC = () => {
     }
   };
 
-  // Load photo for display
+  /**
+   * Load photo data from storage for display
+   * 
+   * @param photoId - ID of the photo to load
+   * @returns Base64 encoded photo data or null
+   */
   const getPhotoForDisplay = async (photoId: string): Promise<string | null> => {
     try {
       return await Storage.getPhoto(photoId);
     } catch (error) {
-      console.error("Error loading photo:", error);
+      // Silent error handling
       return null;
     }
   };
 
-  // Render photo preview
+  /**
+   * Render photo preview with delete button
+   */
   const renderPhotoPreview = () => {
     if (!photo) return null;
 
@@ -448,10 +510,16 @@ const IssueReport: React.FC = () => {
     );
   };
 
+  /**
+   * Handle photo upload button click
+   */
   const handlePhotoUpload = () => {
     setShowActionSheet(true);
   };
 
+  /**
+   * Set status bar style for Android
+   */
   useEffect(() => {
     if (Capacitor.getPlatform() === 'android') {
       StatusBar.setBackgroundColor({ color: '#ffffff' });
@@ -601,7 +669,7 @@ const IssueReport: React.FC = () => {
                 <div className="date-picker-container">
                   <IonDatetime
                     value={formData.dateObserved}
-                    onIonChange={(e) => handleDateChange(e.detail.value!)}
+                    onIonChange={(e: CustomEvent) => handleDateChange(e.detail.value!)}
                     presentation="date"
                     showDefaultButtons={true}
                     doneText="Done"

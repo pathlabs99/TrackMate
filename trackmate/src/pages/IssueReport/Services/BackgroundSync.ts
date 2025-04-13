@@ -1,28 +1,50 @@
+/**
+ * @fileoverview Background synchronization service for the TrackMate issue reporting system.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename BackgroundSync.ts
+ *
+ * This file contains the BackgroundSync service which provides functionality
+ * for synchronizing offline issue reports when network connectivity is restored.
+ * It implements a singleton pattern and uses aggressive sync strategies to
+ * maximize chances of syncing when the app is briefly opened.
+ */
+
 import { Storage } from '@ionic/storage';
 import { App } from '@capacitor/app';
 import { Network } from '@capacitor/network';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { API } from './API';
 
+/** Key for storing pending reports in local storage */
 const PENDING_REPORTS_KEY = 'pendingReports';
+/** Key for storing the timestamp of the last sync attempt */
 const LAST_SYNC_ATTEMPT_KEY = 'lastSyncAttempt';
-const MIN_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes between sync attempts
+/** Minimum time interval between sync attempts (5 minutes) */
+const MIN_SYNC_INTERVAL = 5 * 60 * 1000;
 
 /**
- * This service handles background synchronization of reports.
- * It uses a more aggressive sync strategy to maximize chances of syncing
- * when the app is briefly opened.
+ * BackgroundSync service that handles synchronization of offline reports
+ * when network connectivity is restored
  */
 class BackgroundSyncService {
+  /** Storage instance for persisting reports */
   private storage: Storage | null = null;
+  /** Flag indicating if the service has been initialized */
   private initialized: boolean = false;
+  /** Flag indicating if a sync operation is currently in progress */
   private isSyncing: boolean = false;
+  /** Network status change listener */
   private networkListener: any = null;
   
-  // Store the single instance
+  /** Singleton instance of the service */
   private static instance: BackgroundSyncService;
   
-  // Get the singleton instance
+  /**
+   * Get the singleton instance of the BackgroundSync service
+   * 
+   * @returns The singleton instance
+   */
   public static getInstance(): BackgroundSyncService {
     if (!BackgroundSyncService.instance) {
       BackgroundSyncService.instance = new BackgroundSyncService();
@@ -30,18 +52,22 @@ class BackgroundSyncService {
     return BackgroundSyncService.instance;
   }
 
-  // Private constructor to enforce singleton
+  /**
+   * Private constructor to enforce singleton pattern
+   */
   private constructor() {}
 
   /**
-   * Initialize the background sync service with improved sync strategy
+   * Initialize the background sync service
+   * Sets up storage, network listeners, and app state change listeners
+   * 
+   * @returns Promise that resolves when initialization is complete
+   * @throws Error if initialization fails
    */
   async initialize(): Promise<void> {
     if (this.initialized) return;
     
     try {
-      console.log('[BackgroundSync] Initializing service...');
-      
       // Initialize storage
       this.storage = new Storage();
       await this.storage.create();
@@ -49,7 +75,6 @@ class BackgroundSyncService {
       // Set up network change listener with immediate sync on connection
       this.networkListener = Network.addListener('networkStatusChange', async ({ connected }) => {
         if (connected) {
-          console.log('[BackgroundSync] Network connected - attempting immediate sync');
           await this.attemptSync();
         }
       });
@@ -57,7 +82,6 @@ class BackgroundSyncService {
       // Set up app state change listener
       App.addListener('appStateChange', async ({ isActive }) => {
         if (isActive) {
-          console.log('[BackgroundSync] App became active - checking for pending reports');
           await this.attemptSync();
         }
       });
@@ -69,27 +93,27 @@ class BackgroundSyncService {
       }
       
       this.initialized = true;
-      console.log('[BackgroundSync] Service initialized');
     } catch (error) {
-      console.error('[BackgroundSync] Initialization error:', error);
+      // Silent error handling
       throw error;
     }
   }
   
   /**
-   * Attempt to sync if conditions are met
+   * Attempt to sync pending reports if conditions are met
+   * Checks network status, time since last sync, and existence of pending reports
+   * 
+   * @returns Promise that resolves when sync attempt is complete
    */
   private async attemptSync(): Promise<void> {
     try {
       // Check if we can sync
       if (this.isSyncing) {
-        console.log('[BackgroundSync] Sync already in progress');
         return;
       }
 
       const networkStatus = await Network.getStatus();
       if (!networkStatus.connected) {
-        console.log('[BackgroundSync] No network connection');
         return;
       }
 
@@ -98,7 +122,6 @@ class BackgroundSyncService {
       const now = Date.now();
       
       if (now - lastSyncAttempt < MIN_SYNC_INTERVAL) {
-        console.log('[BackgroundSync] Too soon since last sync attempt');
         return;
       }
 
@@ -108,19 +131,23 @@ class BackgroundSyncService {
       // Check for pending reports
       const pendingReports = await this.getPendingReports();
       if (pendingReports.length === 0) {
-        console.log('[BackgroundSync] No pending reports');
         return;
       }
 
       // Attempt sync
       await this.syncPendingReports();
     } catch (error) {
-      console.error('[BackgroundSync] Sync attempt error:', error);
+      // Silent error handling
     }
   }
 
   /**
-   * Save a report for later sync with improved notification
+   * Save a report for later synchronization
+   * Adds metadata to the report and schedules a notification
+   * 
+   * @param reportData - The report data to save
+   * @returns Promise that resolves when the report is saved
+   * @throws Error if storage is not initialized or saving fails
    */
   async savePendingReport(reportData: any): Promise<void> {
     if (!this.initialized) {
@@ -146,7 +173,6 @@ class BackgroundSyncService {
       
       // Save updated list
       await this.storage.set(PENDING_REPORTS_KEY, updatedReports);
-      console.log('[BackgroundSync] Report saved for later sync');
       
       // Schedule notification
       try {
@@ -158,7 +184,7 @@ class BackgroundSyncService {
           }]
         });
       } catch (err) {
-        console.log('[BackgroundSync] Notification error:', err);
+        // Silent error handling
       }
       
       // Try to sync immediately if we're online
@@ -167,13 +193,15 @@ class BackgroundSyncService {
         await this.attemptSync();
       }
     } catch (error) {
-      console.error('[BackgroundSync] Error saving report:', error);
+      // Silent error handling
       throw error;
     }
   }
 
   /**
-   * Get all pending reports
+   * Get all pending reports from storage
+   * 
+   * @returns Promise resolving to array of pending reports
    */
   async getPendingReports(): Promise<any[]> {
     if (!this.initialized) {
@@ -188,13 +216,16 @@ class BackgroundSyncService {
       const reports = await this.storage.get(PENDING_REPORTS_KEY);
       return Array.isArray(reports) ? reports : [];
     } catch (error) {
-      console.error('[BackgroundSync] Error getting pending reports:', error);
+      // Silent error handling
       return [];
     }
   }
 
   /**
-   * Clear all pending reports
+   * Clear all pending reports from storage
+   * 
+   * @returns Promise that resolves when reports are cleared
+   * @throws Error if storage is not initialized or clearing fails
    */
   async clearAllPendingReports(): Promise<void> {
     if (!this.initialized) {
@@ -207,20 +238,21 @@ class BackgroundSyncService {
     
     try {
       await this.storage.remove(PENDING_REPORTS_KEY);
-      console.log('[BackgroundSync] All pending reports cleared');
     } catch (error) {
-      console.error('[BackgroundSync] Error clearing reports:', error);
+      // Silent error handling
       throw new Error('Failed to clear pending reports');
     }
   }
 
   /**
    * Synchronize all pending reports with the server
+   * Attempts to submit each report and tracks failures for retry
+   * 
+   * @returns Promise resolving to the number of successfully synced reports
    */
   async syncPendingReports(): Promise<number> {
     // Don't run multiple syncs at once
     if (this.isSyncing) {
-      console.log('[BackgroundSync] Sync already in progress');
       return 0;
     }
     
@@ -229,13 +261,11 @@ class BackgroundSyncService {
     }
     
     this.isSyncing = true;
-    console.log('[BackgroundSync] Starting sync of pending reports');
     
     try {
       // Check network connectivity
       const networkStatus = await Network.getStatus();
       if (!networkStatus.connected) {
-        console.log('[BackgroundSync] No network connection, sync aborted');
         this.isSyncing = false;
         return 0;
       }
@@ -243,12 +273,9 @@ class BackgroundSyncService {
       // Get pending reports
       const pendingReports = await this.getPendingReports();
       if (pendingReports.length === 0) {
-        console.log('[BackgroundSync] No pending reports to sync');
         this.isSyncing = false;
         return 0;
       }
-      
-      console.log(`[BackgroundSync] Found ${pendingReports.length} reports to sync`);
       
       let successCount = 0;
       const failedReports = [];
@@ -256,14 +283,11 @@ class BackgroundSyncService {
       // Process each report
       for (const report of pendingReports) {
         try {
-          console.log(`[BackgroundSync] Syncing report ID: ${report.id}`);
-          
           // Submit report to API
           await API.submitReport(report);
           
           // Report submitted successfully
           successCount++;
-          console.log(`[BackgroundSync] Successfully synced report ID: ${report.id}`);
           
           // Notify user of successful sync
           try {
@@ -278,16 +302,12 @@ class BackgroundSyncService {
             // Continue even if notification fails
           }
         } catch (error) {
-          console.error(`[BackgroundSync] Failed to sync report ID: ${report.id}`, error);
-          
           // Track sync attempts
           report.attempts = (report.attempts || 0) + 1;
           
           // Keep for retry if under max attempts (5)
           if (report.attempts < 5) {
             failedReports.push(report);
-          } else {
-            console.log(`[BackgroundSync] Max attempts reached for report ID: ${report.id}, giving up`);
           }
         }
       }
@@ -296,18 +316,15 @@ class BackgroundSyncService {
       if (this.storage) {
         if (failedReports.length > 0) {
           await this.storage.set(PENDING_REPORTS_KEY, failedReports);
-          console.log(`[BackgroundSync] ${failedReports.length} reports failed to sync and will be retried later`);
         } else {
           // All reports synced, clear storage
           await this.storage.remove(PENDING_REPORTS_KEY);
-          console.log('[BackgroundSync] All reports synced successfully, storage cleared');
         }
       }
       
-      console.log(`[BackgroundSync] Sync complete. Success: ${successCount}, Failed: ${failedReports.length}`);
       return successCount;
     } catch (error) {
-      console.error('[BackgroundSync] Error during sync:', error);
+      // Silent error handling
       return 0;
     } finally {
       this.isSyncing = false;
@@ -316,6 +333,9 @@ class BackgroundSyncService {
 
   /**
    * Clean up resources when the app is closing
+   * Removes event listeners and resets initialization state
+   * 
+   * @returns Promise that resolves when cleanup is complete
    */
   async cleanup(): Promise<void> {
     if (this.networkListener) {
@@ -323,7 +343,6 @@ class BackgroundSyncService {
     }
     
     this.initialized = false;
-    console.log('[BackgroundSync] Service cleaned up');
   }
 }
 

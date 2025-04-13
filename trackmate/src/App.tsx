@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Main application component for the TrackMate mobile app.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename App.tsx
+ *
+ * This file contains the main App component which sets up the application's
+ * routing, navigation, and handles platform-specific configurations.
+ */
+
 import React, { useEffect, useState } from "react";
 import { Redirect, Route } from "react-router-dom";
 import {
@@ -65,18 +75,31 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 import "./theme/edge-to-edge.css";
 
+// Initialize Ionic React with configuration
 setupIonicReact({
   mode: 'md',
   animated: true,
 });
 
+/**
+ * Main App component that sets up the application structure,
+ * handles splash screen, onboarding, and main navigation
+ */
 const App: React.FC = () => {
+  // State for managing application flow and transitions
   const [showSplash, setShowSplash] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  /**
+   * Effect for setting up platform-specific configurations
+   * and handling device events
+   */
   useEffect(() => {
+    /**
+     * Set up platform-specific configurations for Android
+     */
     const setupApp = async () => {
       if (Capacitor.getPlatform() === 'android') {
         try {
@@ -101,7 +124,6 @@ const App: React.FC = () => {
             );
           }
         } catch (err) {
-          console.error('Error setting up status bar:', err);
           // Fallback values if we can't get actual heights
           document.documentElement.style.setProperty('--actual-status-bar-height', '24px');
           document.documentElement.style.setProperty('--safe-area-inset-top', '32px');
@@ -111,7 +133,9 @@ const App: React.FC = () => {
 
     setupApp();
 
-    // Handle orientation changes and resizes
+    /**
+     * Handle orientation changes and resizes
+     */
     const handleResize = async () => {
       if (Capacitor.getPlatform() === 'android') {
         try {
@@ -127,24 +151,32 @@ const App: React.FC = () => {
             `${Math.max(topInset, statusBarHeight.height)}px`
           );
         } catch (error) {
-          console.error('Error updating status bar height:', error);
+          // Silent error handling
         }
       }
     };
 
+    /**
+     * Handle app resume events
+     */
     const handleResume = () => {
       setupApp();
     };
 
+    // Set up event listeners
     window.addEventListener('resize', handleResize);
     CapacitorApp.addListener('resume', handleResume);
 
+    // Clean up event listeners
     return () => {
       window.removeEventListener('resize', handleResize);
       CapacitorApp.removeAllListeners();
     };
   }, []);
 
+  /**
+   * Handle splash screen completion and transition to onboarding
+   */
   const handleSplashComplete = () => {
     setIsTransitioning(true);
     setShowOnboarding(true);
@@ -157,12 +189,14 @@ const App: React.FC = () => {
 
   return (
     <>
+      {/* Splash screen with animation */}
       <AnimatePresence mode="wait">
         {showSplash && (
           <SplashScreen onComplete={handleSplashComplete} isVisible={!isTransitioning} />
         )}
       </AnimatePresence>
 
+      {/* Onboarding screen with animation */}
       <AnimatePresence mode="wait">
         {showOnboarding && !hasCompletedOnboarding && (
           <motion.div
@@ -188,6 +222,7 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* Main application with animation */}
       <AnimatePresence>
         {!showSplash && hasCompletedOnboarding && (
           <motion.div
@@ -254,6 +289,7 @@ const App: React.FC = () => {
                     </Route>
                   </IonRouterOutlet>
 
+                  {/* Bottom tab navigation */}
                   <IonTabBar slot="bottom" className="custom-tab-bar">
                     <IonTabButton tab="menu" href="/menu">
                       <IonIcon icon={home} />

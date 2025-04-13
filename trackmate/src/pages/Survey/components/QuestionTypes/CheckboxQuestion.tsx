@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Checkbox question component for the TrackMate survey application.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename CheckboxQuestion.tsx
+ *
+ * This file contains the CheckboxQuestion component which renders a group of checkbox
+ * inputs for multiple-selection questions, with support for special handling of
+ * accommodation nights and expenditure data.
+ */
+
 import React from 'react';
 import { QuestionComponentProps } from './BaseQuestion';
 import './RadioQuestion.css';  // We can reuse the RadioQuestion styles
@@ -6,6 +17,16 @@ interface FormData {
   [key: string]: string | string[] | undefined;
 }
 
+/**
+ * CheckboxQuestion component that renders a group of checkbox inputs
+ * for multiple-selection questions in the survey
+ * 
+ * @param question - The question configuration object
+ * @param value - Current value of the question response
+ * @param onChange - Callback function when the question value changes
+ * @param error - Validation error message if any
+ * @param formData - Current form data state
+ */
 export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
   question,
   value,
@@ -16,7 +37,12 @@ export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
   const { id, options = [] } = question;
   const selectedValues = Array.isArray(value) ? value : [value];
 
-  // Safely parse JSON data for numberOfNights and trackExpenditure
+  /**
+   * Safely parse JSON data for numberOfNights and trackExpenditure
+   * 
+   * @param data - JSON string to parse
+   * @returns Parsed object or empty object if parsing fails
+   */
   const parseJsonData = (data: string | undefined): Record<string, string> => {
     if (!data) return {};
     try {
@@ -26,6 +52,12 @@ export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
     }
   };
 
+  /**
+   * Handle checkbox change events
+   * 
+   * @param optionValue - Value of the selected option
+   * @param checked - Whether the checkbox is checked
+   */
   const handleChange = (optionValue: string, checked: boolean) => {
     // Special handling for accommodation nights and expenditure
     if (id === 'numberOfNights' || id === 'trackExpenditure') {
@@ -51,6 +83,12 @@ export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
     onChange(id, newValues);
   };
 
+  /**
+   * Handle changes for sub-questions
+   * 
+   * @param e - Change event from the input element
+   * @param subQuestion - Sub-question configuration
+   */
   const handleSubQuestionChange = (e: React.ChangeEvent<HTMLInputElement>, subQuestion: any) => {
     let inputValue = e.target.value;
     
@@ -62,11 +100,22 @@ export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
     onChange(subQuestion.id, inputValue);
   };
 
+  /**
+   * Get the current value for a sub-question
+   * 
+   * @param subQuestionId - ID of the sub-question
+   * @returns Current value of the sub-question
+   */
   const getSubQuestionValue = (subQuestionId: string): string => {
     return (formData?.[subQuestionId] as string) || '';
   };
 
-  // Get value for numberOfNights or trackExpenditure
+  /**
+   * Get value for numberOfNights or trackExpenditure
+   * 
+   * @param optionValue - Value of the selected option
+   * @returns Current value for the option
+   */
   const getJsonValue = (optionValue: string): string => {
     if ((id === 'numberOfNights' || id === 'trackExpenditure') && selectedValues.length > 0) {
       const jsonData = parseJsonData(selectedValues[0]);
@@ -75,7 +124,12 @@ export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
     return '';
   };
 
-  // Handle changes for numberOfNights or trackExpenditure
+  /**
+   * Handle changes for numberOfNights or trackExpenditure
+   * 
+   * @param optionValue - Value of the selected option
+   * @param value - New value for the option
+   */
   const handleJsonChange = (optionValue: string, value: string) => {
     if (id === 'numberOfNights' || id === 'trackExpenditure') {
       const jsonData = selectedValues.length > 0 ? parseJsonData(selectedValues[0]) : {};
@@ -93,7 +147,12 @@ export const CheckboxQuestion: React.FC<QuestionComponentProps> = ({
     }
   };
 
-  // Check if an option is checked
+  /**
+   * Check if an option is checked
+   * 
+   * @param optionValue - Value of the option to check
+   * @returns Whether the option is checked
+   */
   const isOptionChecked = (optionValue: string): boolean => {
     if (id === 'numberOfNights' || id === 'trackExpenditure') {
       if (selectedValues.length === 0) return false;

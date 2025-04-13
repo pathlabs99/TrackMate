@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Survey tab component for the TrackMate application.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename SurveyTab.tsx
+ *
+ * This file contains the SurveyTab component which serves as a container
+ * for the Survey component and handles survey progress validation.
+ */
+
 import React, { useEffect } from 'react';
 import { 
   IonContent,
@@ -6,8 +16,14 @@ import {
 import { Survey } from './Survey';
 import "./SurveyTab.css";
 
+/**
+ * SurveyTab component that wraps the Survey component in an Ionic page
+ * and handles validation of saved survey progress data
+ */
 export const SurveyTab: React.FC = () => {
-  // Reset any corrupted state on component mount
+  /**
+   * Effect to validate and clean up corrupted survey progress data on component mount
+   */
   useEffect(() => {
     try {
       const saved = localStorage.getItem('surveyProgress');

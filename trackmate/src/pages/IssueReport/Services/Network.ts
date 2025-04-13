@@ -1,13 +1,26 @@
-// Services/NetworkService.ts
-// Extracted from your network handling code
+/**
+ * @fileoverview Network service for the TrackMate issue reporting system.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename Network.ts
+ *
+ * This file contains the Network service which provides functionality
+ * for monitoring network status and syncing offline reports when online.
+ */
 
 import { Network as CapacitorNetwork } from "@capacitor/network";
 import { API as API } from "./API";
 import { Storage } from "./Storage";
 
+/**
+ * Network service class that provides methods for
+ * monitoring network status and syncing offline reports
+ */
 export class Network {
   /**
-   * Get current network status
+   * Get current network connection status
+   * 
+   * @returns Promise resolving to boolean indicating if device is connected
    */
   static async getNetworkStatus(): Promise<boolean> {
     const status = await CapacitorNetwork.getStatus();
@@ -16,7 +29,9 @@ export class Network {
 
   /**
    * Add network status change listener
-   * @param callback Function to call when network status changes
+   * 
+   * @param callback - Function to call when network status changes
+   * @returns Promise that resolves when listener is added
    */
   static addNetworkListener(callback: (isConnected: boolean) => void): Promise<void> {
     const networkListener = CapacitorNetwork.addListener(
@@ -31,7 +46,9 @@ export class Network {
   }
 
   /**
-   * Sync pending reports when back online
+   * Sync pending reports when device is back online
+   * 
+   * @returns Promise resolving to number of successfully synced reports
    */
   static async syncPendingReports(): Promise<number> {
     try {
@@ -52,13 +69,13 @@ export class Network {
           );
           await Storage.updatePendingReports(updatedPendingReports);
         } catch (error) {
-          console.error("Error syncing report:", error);
+          // Silent error handling
         }
       }
 
       return syncedCount;
     } catch (error) {
-      console.error("Error during sync:", error);
+      // Silent error handling
       return 0;
     }
   }

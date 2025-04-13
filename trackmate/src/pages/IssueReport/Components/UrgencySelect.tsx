@@ -1,5 +1,13 @@
-// src/pages/IssueReport/Components/UrgencySelector.tsx
-// Component for selecting urgency level
+/**
+ * @fileoverview Urgency selection component for the TrackMate issue reporting system.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename UrgencySelect.tsx
+ *
+ * This component provides a user interface for selecting the urgency level
+ * of an issue report. It offers three levels (low, medium, high) with
+ * appropriate color coding and visual feedback for the selected option.
+ */
 
 import React from "react";
 import {
@@ -11,11 +19,25 @@ import {
   IonButton,
 } from "@ionic/react";
 
+/**
+ * Props for the UrgencySelect component
+ * 
+ * @interface UrgencySelectProps
+ * @property {string} urgency - Currently selected urgency level ('low', 'medium', or 'high')
+ * @property {(value: string) => void} onUrgencyChange - Handler for urgency selection changes
+ */
 interface UrgencySelectProps {
   urgency: string;
   onUrgencyChange: (value: string) => void;
 }
 
+/**
+ * Component for selecting the urgency level of an issue report
+ * Provides three options with appropriate color coding
+ * 
+ * @param {UrgencySelectProps} props - Component props
+ * @returns {JSX.Element} Rendered component
+ */
 const UrgencySelect: React.FC<UrgencySelectProps> = ({
   urgency,
   onUrgencyChange,

@@ -1,18 +1,43 @@
+/**
+ * @fileoverview Welcome page component for the TrackMate survey application.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename WelcomePage.tsx
+ *
+ * This file contains the WelcomePage component which displays the survey welcome screen
+ * with information about the survey and options to start or continue a survey.
+ */
+
 import React, { useState, useEffect } from "react";
 import { IonContent } from "@ionic/react";
 import "./WelcomePage.css";
 
+/**
+ * Props interface for the WelcomePage component
+ */
 interface WelcomePageProps {
+  /** Callback function to start a new survey */
   onStartSurvey: () => void;
+  /** Callback function to continue a previously saved survey */
   onContinueSurvey: () => void;
 }
 
+/**
+ * WelcomePage component that displays the welcome screen for the survey
+ * with information about the survey purpose and buttons to start or continue
+ * 
+ * @param onStartSurvey - Callback function to start a new survey
+ * @param onContinueSurvey - Callback function to continue a previously saved survey
+ */
 const WelcomePage: React.FC<WelcomePageProps> = ({ 
   onStartSurvey,
   onContinueSurvey
 }) => {
   const [hasSavedProgress, setHasSavedProgress] = useState(false);
 
+  /**
+   * Check if there is saved survey progress on component mount
+   */
   useEffect(() => {
     const savedProgress = localStorage.getItem('surveyProgress');
     if (savedProgress) {
@@ -20,7 +45,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
         const { formData } = JSON.parse(savedProgress);
         setHasSavedProgress(Object.keys(formData).length > 0);
       } catch (e) {
-        console.error('Error checking saved progress:', e);
+        // Error handling for invalid saved progress
+        localStorage.removeItem('surveyProgress');
       }
     }
   }, []);
@@ -86,4 +112,4 @@ const WelcomePage: React.FC<WelcomePageProps> = ({
   );
 };
 
-export default WelcomePage; 
+export default WelcomePage;

@@ -1,3 +1,13 @@
+/**
+ * @fileoverview QR code scanner component for the TrackMate mobile app.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename QR.tsx
+ *
+ * This file contains the QR scanner component which allows users to scan
+ * QR codes along the Bibbulmun Track to access location-specific information.
+ */
+
 import {
   IonContent,
   IonPage,
@@ -14,7 +24,9 @@ import React, { useState, useEffect } from 'react';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import './QR.css';
 
-// List of valid QR codes
+/**
+ * List of valid QR codes that correspond to locations along the Bibbulmun Track
+ */
 const VALID_QR_CODES = [
   "DarlingRange",
   "Dwellingup",
@@ -27,6 +39,10 @@ const VALID_QR_CODES = [
   "Denmark",
 ];
 
+/**
+ * QR scanner component that allows users to scan QR codes
+ * to access location-specific information along the Bibbulmun Track
+ */
 const QR: React.FC = () => {
   const router = useIonRouter();
   const [isScanning, setIsScanning] = useState(false);
@@ -34,7 +50,9 @@ const QR: React.FC = () => {
   const [showPermissionError, setShowPermissionError] = useState(false);
   const [showInvalidQRError, setShowInvalidQRError] = useState(false);
 
-  // Cleanup function
+  /**
+   * Cleanup function to reset scanner state and UI
+   */
   const cleanupScanner = async () => {
     try {
       setIsScanning(false);
@@ -48,11 +66,13 @@ const QR: React.FC = () => {
       setFlashlightOn(false);
       await BarcodeScanner.disableTorch();
     } catch (error) {
-      console.error('Cleanup error:', error);
+      // Silent error handling
     }
   };
 
-  // Handle back button
+  /**
+   * Effect to handle hardware back button press
+   */
   useEffect(() => {
     const handleBackButton = (ev: any) => {
       ev.detail.register(10, async () => {
@@ -67,21 +87,34 @@ const QR: React.FC = () => {
     };
   }, [router]);
 
-  // View lifecycle hooks
+  /**
+   * Ionic lifecycle hook that fires when the view enters
+   */
   useIonViewDidEnter(() => {
     if (isScanning) {
       startScan();
     }
   });
 
+  /**
+   * Ionic lifecycle hook that fires when the view is about to leave
+   */
   useIonViewWillLeave(() => {
     cleanupScanner();
   });
 
+  /**
+   * Ionic lifecycle hook that fires when the view has left
+   */
   useIonViewDidLeave(() => {
     cleanupScanner();
   });
 
+  /**
+   * Handle QR code content and navigate to the appropriate page
+   * 
+   * @param qrContent - The content of the scanned QR code
+   */
   const handleQRNavigation = async (qrContent: string) => {
     const qrCode = qrContent.toLowerCase().trim();
     const validCode = VALID_QR_CODES.find(code => code.toLowerCase() === qrCode);
@@ -96,6 +129,9 @@ const QR: React.FC = () => {
     }
   };
 
+  /**
+   * Start the QR code scanning process
+   */
   const startScan = async () => {
     if (isScanning) return;
 
@@ -137,11 +173,14 @@ const QR: React.FC = () => {
         await cleanupScanner();
       }
     } catch (error) {
-      console.error('Scanner error:', error);
+      // Silent error handling
       await cleanupScanner();
     }
   };
 
+  /**
+   * Toggle the device flashlight on/off
+   */
   const toggleFlashlight = async () => {
     try {
       if (flashlightOn) {
@@ -151,20 +190,29 @@ const QR: React.FC = () => {
       }
       setFlashlightOn(!flashlightOn);
     } catch (error) {
-      console.error('Flashlight error:', error);
+      // Silent error handling
     }
   };
 
+  /**
+   * Handle retry action after invalid QR code error
+   */
   const handleRetry = async () => {
     setShowInvalidQRError(false);
     await startScan();
   };
 
+  /**
+   * Handle cancel action to stop scanning
+   */
   const handleCancel = async () => {
     await cleanupScanner();
     router.push("/menu", "back");
   };
 
+  /**
+   * Open device settings to enable camera permissions
+   */
   const openDeviceSettings = () => {
     if ((window as any).cordova?.plugins?.diagnostic) {
       (window as any).cordova.plugins.diagnostic.switchToSettings();
@@ -209,6 +257,7 @@ const QR: React.FC = () => {
           </div>
         )}
 
+        {/* Camera permission error alert */}
         <IonAlert
           isOpen={showPermissionError}
           onDidDismiss={handleCancel}
@@ -220,6 +269,7 @@ const QR: React.FC = () => {
           ]}
         />
 
+        {/* Invalid QR code error alert */}
         <IonAlert
           isOpen={showInvalidQRError}
           onDidDismiss={handleCancel}

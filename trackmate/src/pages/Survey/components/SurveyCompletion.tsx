@@ -1,13 +1,37 @@
+/**
+ * @fileoverview Survey completion component for the TrackMate application.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename SurveyCompletion.tsx
+ *
+ * This file contains the SurveyCompletion component which displays a success message
+ * after a survey has been submitted or a processing indicator while submission is in progress.
+ */
+
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import './SurveyCompletion.css';
 
+/**
+ * Props interface for the SurveyCompletion component
+ */
 interface SurveyCompletionProps {
+  /** Flag indicating if the user exited the survey early */
   isEarlyExit?: boolean;
+  /** Callback function to reset the survey state */
   onReset: () => void;
+  /** Flag indicating if the survey is currently being submitted */
   isSubmitting?: boolean;
 }
 
+/**
+ * SurveyCompletion component that displays a success message after survey submission
+ * or a processing indicator while submission is in progress
+ * 
+ * @param isEarlyExit - Flag indicating if the user exited the survey early, defaults to false
+ * @param onReset - Callback function to reset the survey state
+ * @param isSubmitting - Flag indicating if the survey is currently being submitted, defaults to false
+ */
 export const SurveyCompletion: React.FC<SurveyCompletionProps> = ({ 
   isEarlyExit = false, 
   onReset,
@@ -15,11 +39,15 @@ export const SurveyCompletion: React.FC<SurveyCompletionProps> = ({
 }) => {
   const history = useHistory();
 
+  /**
+   * Handle returning to the home screen and resetting the survey
+   */
   const handleReturn = () => {
     onReset();
     history.push('/');
   };
 
+  // Show processing indicator while submitting
   if (isSubmitting) {
     return (
       <div className="processing-overlay">
@@ -34,6 +62,7 @@ export const SurveyCompletion: React.FC<SurveyCompletionProps> = ({
     );
   }
 
+  // Show completion message after successful submission
   return (
     <div className="completion-overlay">
       <div className="completion-card">

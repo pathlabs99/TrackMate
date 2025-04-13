@@ -1,27 +1,56 @@
+/**
+ * @fileoverview Custom hook for managing survey form state and validation.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename useSurveyForm.ts
+ *
+ * This file contains the useSurveyForm hook which handles form state management,
+ * validation, navigation, and progress persistence for the TrackMate survey.
+ */
+
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Question } from '../questions';
 import { FormData } from '../models/FormData';
 
+/**
+ * Interface for tracking validation errors
+ */
 interface Errors {
   [key: string]: string;
 }
 
+/**
+ * Interface for storing survey progress in local storage
+ */
 interface SavedProgress {
+  /**
+   * The current form data
+   */
   formData: FormData;
+  
+  /**
+   * The current question index
+   */
   currentQuestion: number;
 }
 
+/**
+ * Custom hook for managing survey form state and navigation
+ * 
+ * @param questions - Array of survey questions
+ * @returns Object containing form state and methods for manipulating it
+ */
 export const useSurveyForm = (questions: Question[]) => {
-  // Initialize an empty form data object
   const initialData: FormData = {};
   
-  // Set default values for fields
   const [currentQuestion, setCurrentQuestion] = useState<number>(-1);
   const [formData, setFormData] = useState<FormData>(initialData);
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Load saved progress once on component mount
+  /**
+   * Load saved progress from local storage on component mount
+   */
   useEffect(() => {
     try {
       const saved = localStorage.getItem('surveyProgress');
@@ -29,40 +58,37 @@ export const useSurveyForm = (questions: Question[]) => {
         const savedData = JSON.parse(saved);
         if (savedData && savedData.formData) {
           setFormData(savedData.formData);
-          // Only set current question to welcome screen (-1)
           setCurrentQuestion(-1);
-          console.log('Loaded saved progress, form data restored');
         }
       }
     } catch (e) {
-      // If there's an error, just start fresh
-      console.error('Error loading saved progress:', e);
       localStorage.removeItem('surveyProgress');
     }
   }, []);
 
-  // Save progress whenever formData or currentQuestion changes
+  /**
+   * Save progress to local storage when form data or current question changes
+   */
   useEffect(() => {
     if (!isSubmitted) {
-      // Never save a welcome screen state (-1) as the current question
-      // This ensures we always save the actual question number
       const questionToSave = currentQuestion >= 0 ? currentQuestion : 
-        // If we're at welcome screen, try to get the previously saved question
         getSavedQuestionFromStorage();
       
-      // Only save if we have a valid question number (>= 0)
       if (questionToSave >= 0) {
         const progress: SavedProgress = {
           formData,
           currentQuestion: questionToSave
         };
         localStorage.setItem('surveyProgress', JSON.stringify(progress));
-        console.log(`Saved progress at question ${questionToSave + 1}`);
       }
     }
   }, [formData, currentQuestion, isSubmitted]);
 
-  // Helper to read saved question directly from localStorage
+  /**
+   * Helper to read saved question directly from localStorage
+   * 
+   * @returns The saved question index or 0 if none found
+   */
   const getSavedQuestionFromStorage = (): number => {
     try {
       const saved = localStorage.getItem('surveyProgress');
@@ -72,13 +98,17 @@ export const useSurveyForm = (questions: Question[]) => {
           currentQuestion : 0;
       }
     } catch (e) {
-      console.error('Error getting saved question:', e);
+      // Error handling
     }
-    return 0; // Default to first question if nothing saved
+    return 0;
   };
 
+  /**
+   * Filter questions based on conditional logic and previous answers
+   * 
+   * @returns Array of questions that should be visible
+   */
   const getVisibleQuestions = useCallback(() => {
-    // If they answered "no" to first question, only show that question
     if (formData.visitedLastFourWeeks === 'no') {
       return questions.slice(0, 1);
     }
@@ -89,24 +119,19 @@ export const useSurveyForm = (questions: Question[]) => {
       const { questionId, value } = question.condition;
       const currentValue = formData[questionId];
 
-      // Handle checkbox conditions
       if (Array.isArray(value)) {
         if (!Array.isArray(currentValue)) return false;
         return value.some(v => currentValue.includes(v));
       }
 
-      // Handle 'other' transport special case
       if (questionId === 'transportUsed' && value === 'other') {
         return currentValue === 'other';
       }
 
-      // Handle residence questions
       if (questionId === 'residence') {
-        // For state/territory question, show only if user selected Australia
         if (question.id === 'stateTerritory') {
           return currentValue === 'australia';
         }
-        // For overseas country question, show only if user selected overseas
         if (question.id === 'overseasCountry') {
           return currentValue === 'overseas';
         }
@@ -118,13 +143,17 @@ export const useSurveyForm = (questions: Question[]) => {
 
   const visibleQuestions = useMemo(() => getVisibleQuestions(), [getVisibleQuestions]);
 
+  /**
+   * Validate the current question
+   * 
+   * @returns True if validation passes, false otherwise
+   */
   const validateCurrentQuestion = useCallback(() => {
     const currentQ = visibleQuestions[currentQuestion];
     if (!currentQ) return true;
 
     const answer = formData[currentQ.id];
 
-    // For required questions
     if (currentQ.required) {
       if (!answer) {
         setErrors(prev => ({
@@ -134,7 +163,6 @@ export const useSurveyForm = (questions: Question[]) => {
         return false;
       }
 
-      // For checkbox questions, ensure at least one option is selected
       if (currentQ.type === 'checkbox') {
         const selectedValues = Array.isArray(answer) ? answer : [];
         if (selectedValues.length === 0) {
@@ -147,7 +175,6 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
-    // Date validation - must be within last 4 weeks
     if (currentQ.type === 'date' && answer) {
       if (typeof answer !== 'string') {
         setErrors(prev => ({
@@ -158,10 +185,10 @@ export const useSurveyForm = (questions: Question[]) => {
       }
       const selectedDate = new Date(answer);
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Reset time to start of day
+      today.setHours(0, 0, 0, 0);
       
       const fourWeeksAgo = new Date(today);
-      fourWeeksAgo.setDate(today.getDate() - 28); // 4 weeks = 28 days
+      fourWeeksAgo.setDate(today.getDate() - 28);
 
       if (selectedDate > today) {
         setErrors(prev => ({
@@ -178,7 +205,6 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
-    // Special validation for "Other" transport
     if (currentQ.id === 'transportUsed' && answer === 'other') {
       if (!formData.otherTransport) {
         setErrors(prev => ({
@@ -189,7 +215,6 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
-    // Special validation for "Overnight" duration
     if (currentQ.id === 'tripDuration' && answer === 'overnight') {
       if (!formData.tripDurationOvernight) {
         setErrors(prev => ({
@@ -200,7 +225,6 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
-    // Special validation for overseas country "Other" option
     if (currentQ.id === 'overseasCountry' && answer === 'other') {
       if (!formData.overseasCountryOther) {
         setErrors(prev => ({
@@ -211,7 +235,6 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
-    // Special validation for totalKilometers to ensure it's a valid number
     if (currentQ.id === 'totalKilometers') {
       const kilometers = Number(answer);
       if (isNaN(kilometers) || kilometers <= 0) {
@@ -223,14 +246,12 @@ export const useSurveyForm = (questions: Question[]) => {
       }
     }
 
-    // Check if 'other' is selected but no specification provided
     if (formData.transportUsed?.includes('other')) {
       if (!formData.otherTransport) {
         errors.transportUsed = 'Please specify other transport method';
       }
     }
 
-    // Clear any existing errors for this question
     setErrors(prev => {
       const newErrors = { ...prev };
       delete newErrors[currentQ.id];
@@ -240,45 +261,45 @@ export const useSurveyForm = (questions: Question[]) => {
     return true;
   }, [currentQuestion, formData, visibleQuestions]);
 
+  /**
+   * Start a new survey from the beginning
+   */
   const handleStartSurvey = useCallback(() => {
-    setCurrentQuestion(0); // Always start from the beginning for new surveys
+    setCurrentQuestion(0);
   }, []);
 
+  /**
+   * Continue a previously saved survey
+   */
   const handleContinueSurvey = useCallback(() => {
-    // Simple direct implementation - read from localStorage and set current question
     try {
       const saved = localStorage.getItem('surveyProgress');
       if (saved) {
         const { currentQuestion: savedQuestion } = JSON.parse(saved);
         
         if (typeof savedQuestion === 'number' && savedQuestion >= 0) {
-          // Calculate visible questions based on form data
           const visible = getVisibleQuestions();
           
           if (visible.length === 0) {
-            console.error('No visible questions available');
             setCurrentQuestion(0);
             return;
           }
           
-          // Ensure the question is within bounds
           const validQuestion = Math.min(savedQuestion, visible.length - 1);
-          console.log(`Resuming survey directly at question ${validQuestion + 1}`);
-          
-          // IMPORTANT: Directly set the question number
           setCurrentQuestion(validQuestion);
           return;
         }
       }
     } catch (e) {
-      console.error('Error in handleContinueSurvey:', e);
+      // Error handling
     }
     
-    // If anything fails, start from the beginning
-    console.log('Fallback to first question');
     setCurrentQuestion(0);
   }, [getVisibleQuestions]);
 
+  /**
+   * Move to the next question
+   */
   const handleNext = useCallback(() => {
     if (validateCurrentQuestion()) {
       setCurrentQuestion(prev => Math.min(prev + 1, visibleQuestions.length - 1));
@@ -286,11 +307,17 @@ export const useSurveyForm = (questions: Question[]) => {
     }
   }, [validateCurrentQuestion, visibleQuestions.length]);
 
+  /**
+   * Move to the previous question
+   */
   const handlePrevious = useCallback(() => {
     setCurrentQuestion(prev => Math.max(prev - 1, 0));
     setErrors({});
   }, []);
 
+  /**
+   * Clear all saved progress and reset the form
+   */
   const clearProgress = useCallback(() => {
     localStorage.removeItem('surveyProgress');
     setFormData({});
@@ -317,4 +344,3 @@ export const useSurveyForm = (questions: Question[]) => {
     clearProgress
   };
 };
-

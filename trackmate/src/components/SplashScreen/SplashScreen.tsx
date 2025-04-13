@@ -1,24 +1,54 @@
+/**
+ * @fileoverview Splash screen component for the TrackMate mobile app.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename SplashScreen.tsx
+ *
+ * This file contains the SplashScreen component which displays a branded
+ * loading screen with animation when the application first launches.
+ */
+
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../../assets/onboarding/Logo.svg';
 import './SplashScreen.css';
 
+/**
+ * Interface for SplashScreen component props
+ */
 interface SplashScreenProps {
+  /** Callback function to execute when splash screen animation completes */
   onComplete: () => void;
+  /** Boolean flag to control visibility of the splash screen */
   isVisible: boolean;
 }
 
+/**
+ * SplashScreen component that displays an animated splash screen
+ * when the application first launches
+ * 
+ * @param onComplete - Callback function to execute when animation completes
+ * @param isVisible - Boolean flag to control visibility of the splash screen
+ */
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, isVisible }) => {
+  /**
+   * Effect hook to handle the splash screen timing and cleanup
+   */
   useEffect(() => {
+    // Set a timer to trigger the onComplete callback after 2 seconds
     const timer = setTimeout(() => {
       if (isVisible) {
         onComplete();
       }
     }, 2000);
 
+    // Cleanup function to clear the timeout when component unmounts
     return () => clearTimeout(timer);
   }, [onComplete, isVisible]);
 
+  /**
+   * Animation variants for the container background
+   */
   const containerVariants = {
     initial: { 
       opacity: 1,
@@ -34,6 +64,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, isVisible }) =>
     }
   };
 
+  /**
+   * Animation variants for the logo element
+   */
   const logoVariants = {
     initial: { 
       scale: 0.8,

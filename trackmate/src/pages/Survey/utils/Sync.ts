@@ -1,21 +1,31 @@
+/**
+ * @fileoverview Synchronization utilities for TrackMate offline survey data.
+ * @author TrackMate Team
+ * @date 2025-04-13
+ * @filename Sync.ts
+ *
+ * This file contains functions for synchronizing offline survey data
+ * with the server when network connectivity is restored.
+ */
+
 import { checkNetworkStatus as isOnline, sendCSVToServer } from './Network';
 import { getPendingSubmissions, updatePendingSubmissions, clearPendingSubmissions, Submission } from './Storage';
 import { generateCSV } from './CSV';
 
 /**
  * Try to submit all pending surveys
+ * 
+ * @returns Promise that resolves to the number of successfully submitted surveys
  */
 export const retryPendingSubmissions = async (): Promise<number> => {
   try {
     const isConnected = await isOnline();
     if (!isConnected) {
-      console.log('Device is offline. Skipping retry of pending submissions.');
       return 0;
     }
 
     const pendingSubmissions = await getPendingSubmissions();
     if (pendingSubmissions.length === 0) {
-      console.log('No pending submissions to retry.');
       return 0;
     }
 
@@ -29,7 +39,6 @@ export const retryPendingSubmissions = async (): Promise<number> => {
         await sendCSVToServer(csv, fileName);
         successCount++;
       } catch (error) {
-        console.error('Failed to submit survey:', error);
         remainingSubmissions.push(submission);
       }
     }
@@ -40,19 +49,20 @@ export const retryPendingSubmissions = async (): Promise<number> => {
       await clearPendingSubmissions();
     }
 
-    console.log(`Successfully submitted ${successCount} out of ${pendingSubmissions.length} surveys`);
     return successCount;
   } catch (error) {
-    console.error('Error during retry of pending submissions:', error);
     throw error;
   }
 };
 
+/**
+ * Start the background synchronization process
+ * Attempts to sync pending submissions every 5 minutes when online
+ */
 export const startSyncProcess = async () => {
   setInterval(async () => {
     const isConnected = await isOnline();
     if (isConnected) {
-      console.log('Device is online. Attempting to sync pending submissions...');
       await retryPendingSubmissions();
     }
   }, 5 * 60 * 1000); // Sync every 5 minutes

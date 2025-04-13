@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Onboarding screen component for the TrackMate mobile app.
+ * @author TrackMate Team
+ * @date 2025-04-13
+ * @filename OnboardingScreen.tsx
+ *
+ * This file contains the onboarding screen component which introduces new users
+ * to the key features of the TrackMate app through an animated slideshow.
+ */
+
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IonIcon } from "@ionic/react";
@@ -17,15 +27,29 @@ import feedbackIllustration from '../../assets/onboarding/onboarding-feedback.pn
 // Import styles
 import "./onboarding.css";
 
+/**
+ * Interface for onboarding slide data
+ * @interface OnboardingData
+ */
 interface OnboardingData {
+  /** Unique identifier for the slide */
   id: string;
+  /** Main title of the slide */
   title: string;
+  /** Subtitle or tagline */
   subtitle: string;
+  /** Detailed description of the feature */
   description: string;
+  /** Icon to display with the slide */
   icon: string;
+  /** Path to the illustration image */
   illustration: string;
 }
 
+/**
+ * Onboarding data for all slides
+ * @type {OnboardingData[]}
+ */
 const onboardingData: OnboardingData[] = [
   {
     id: "welcome",
@@ -61,13 +85,28 @@ const onboardingData: OnboardingData[] = [
   },
 ];
 
+/**
+ * Props for the OnboardingScreen component
+ * @interface OnboardingScreenProps
+ */
 interface OnboardingScreenProps {
+  /** Callback function to execute when onboarding is completed */
   onComplete: () => void;
 }
 
+/**
+ * Onboarding screen component that displays a series of slides
+ * introducing the app's features to new users
+ * 
+ * @param {OnboardingScreenProps} props - Component props
+ * @returns {JSX.Element} Rendered component
+ */
 const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
+  /**
+   * Handles navigation to the next slide or completes onboarding
+   */
   const handleNext = () => {
     if (currentIndex < onboardingData.length - 1) {
       setCurrentIndex(currentIndex + 1);

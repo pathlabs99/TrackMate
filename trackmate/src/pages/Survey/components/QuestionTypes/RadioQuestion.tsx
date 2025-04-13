@@ -1,12 +1,35 @@
+/**
+ * @fileoverview Radio question component for the TrackMate survey.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename RadioQuestion.tsx
+ *
+ * This file contains the RadioQuestion component which renders a group of radio
+ * buttons for single-selection questions, with support for conditional sub-questions.
+ */
+
 import React from 'react';
 import { Question } from '../../questions';
 import { QuestionComponentProps } from './BaseQuestion';
 import './RadioQuestion.css';
 
+/**
+ * Form data interface for accessing form values
+ */
 interface FormData {
   [key: string]: string | string[] | undefined;
 }
 
+/**
+ * RadioQuestion component that renders a group of radio buttons
+ * for single-selection questions in the survey
+ * 
+ * @param question - The question configuration object
+ * @param value - Current value of the question response
+ * @param onChange - Callback function when the question value changes
+ * @param error - Validation error message if any
+ * @param formData - Current form data state
+ */
 export const RadioQuestion: React.FC<QuestionComponentProps> = ({ 
   question, 
   value, 
@@ -14,6 +37,12 @@ export const RadioQuestion: React.FC<QuestionComponentProps> = ({
   error,
   formData 
 }) => {
+  /**
+   * Handle sub-question input change events
+   * 
+   * @param e - Change event from the input element
+   * @param subQuestion - Sub-question configuration
+   */
   const handleSubQuestionChange = (e: React.ChangeEvent<HTMLInputElement>, subQuestion: any) => {
     let inputValue = e.target.value;
     
@@ -25,6 +54,12 @@ export const RadioQuestion: React.FC<QuestionComponentProps> = ({
     onChange(subQuestion.id, inputValue);
   };
 
+  /**
+   * Get the current value for a sub-question
+   * 
+   * @param subQuestionId - ID of the sub-question
+   * @returns Current value of the sub-question
+   */
   const getSubQuestionValue = (subQuestionId: string): string => {
     return (formData?.[subQuestionId] as string) || '';
   };

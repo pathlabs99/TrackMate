@@ -1,5 +1,13 @@
-// src/pages/IssueReport/Components/LocationView.tsx
-// Component for handling location input and GPS functionality
+/**
+ * @fileoverview Location input component for the TrackMate issue reporting system.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename LocationView.tsx
+ *
+ * This component handles the location input and GPS functionality for issue reports.
+ * It displays the current GPS coordinates and allows users to add a text description
+ * of the location. It supports both online and offline operation.
+ */
 
 import React from "react";
 import {
@@ -16,6 +24,16 @@ import {
 import { locationOutline, location } from "ionicons/icons";
 import { Coordinates } from "../Models/IssueReport";
 
+/**
+ * Props for the LocationView component
+ * 
+ * @interface LocationViewProps
+ * @property {string} location - Text description of the location
+ * @property {Coordinates | null} coordinates - GPS coordinates if available
+ * @property {string} [validationError] - Error message to display if validation fails
+ * @property {(value: string) => void} onLocationChange - Handler for location text changes
+ * @property {() => Promise<void>} onGetLocation - Handler for GPS capture button
+ */
 interface LocationViewProps {
   location: string;
   coordinates: Coordinates | null;
@@ -24,6 +42,13 @@ interface LocationViewProps {
   onGetLocation: () => Promise<void>;
 }
 
+/**
+ * Component for capturing and displaying location information
+ * Provides GPS coordinate capture and text description input
+ * 
+ * @param {LocationViewProps} props - Component props
+ * @returns {JSX.Element} Rendered component
+ */
 const LocationView: React.FC<LocationViewProps> = ({
   location,
   coordinates,
@@ -67,7 +92,9 @@ const LocationView: React.FC<LocationViewProps> = ({
           <strong>Lat:</strong> {coordinates.latitude.toFixed(6)},
           <strong> Long:</strong> {coordinates.longitude.toFixed(6)}
           <br />
-          <small>Accuracy: ±{Math.round(coordinates.accuracy)}m</small>
+          {coordinates.accuracy !== undefined && (
+            <small>Accuracy: ±{Math.round(coordinates.accuracy)}m</small>
+          )}
         </div>
       )}
 

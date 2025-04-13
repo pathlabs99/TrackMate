@@ -1,11 +1,33 @@
+/**
+ * @fileoverview Select question component for the TrackMate survey.
+ * @author Abdullah
+ * @date 2025-04-13
+ * @filename SelectQuestion.tsx
+ *
+ * This file contains the SelectQuestion component which renders dropdown select
+ * inputs for single-selection questions, with support for nested sub-questions.
+ */
+
 import React from 'react';
 import { QuestionComponentProps } from './BaseQuestion';
 import './SelectQuestion.css';
 
+/**
+ * Interface for storing select values in a key-value format
+ */
 interface SelectValues {
   [key: string]: string;
 }
 
+/**
+ * SelectQuestion component that renders dropdown select inputs
+ * for single-selection questions in the survey
+ * 
+ * @param question - The question configuration object
+ * @param value - Current value of the question response
+ * @param onChange - Callback function when the question value changes
+ * @param error - Validation error message if any
+ */
 export const SelectQuestion: React.FC<QuestionComponentProps> = ({
   question,
   value,
@@ -14,7 +36,9 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
 }) => {
   const { id, options = [], subQuestions = [] } = question;
   
-  // Handle both string values and object values
+  /**
+   * Parse and handle both string values and object values
+   */
   let selectValues: SelectValues = {};
   try {
     if (typeof value === 'string' && value) {
@@ -29,7 +53,8 @@ export const SelectQuestion: React.FC<QuestionComponentProps> = ({
       selectValues = value as SelectValues;
     }
   } catch (e) {
-    console.error('Error parsing select values:', e);
+    // Handle parsing errors silently
+    selectValues = {};
   }
 
   return (

@@ -1,5 +1,15 @@
-// src/pages/IssueReport/Components/PhotoView.tsx
-// Component for handling photo capture and display
+/**
+ * @fileoverview Photo capture component for the TrackMate issue reporting system.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename PhotoView.tsx
+ *
+ * This component handles photo capture and display for issue reports.
+ * It provides options to take a new photo using the device camera or
+ * select an existing photo from the gallery. It also supports removing
+ * photos and works with the Capacitor Camera API for cross-platform
+ * compatibility.
+ */
 
 import React from "react";
 import {
@@ -12,6 +22,16 @@ import {
 import { camera, image, trash } from "ionicons/icons";
 import { CameraSource } from "@capacitor/camera";
 
+/**
+ * Props for the PhotoView component
+ * 
+ * @interface PhotoViewProps
+ * @property {string | null} photo - Base64 encoded photo data or file path
+ * @property {boolean} showActionSheet - Whether to show the camera options action sheet
+ * @property {(source: CameraSource) => Promise<void>} onTakePhoto - Handler for photo capture
+ * @property {() => void} onRemovePhoto - Handler for photo removal
+ * @property {(show: boolean) => void} onShowActionSheet - Handler for toggling action sheet
+ */
 interface PhotoViewProps {
   photo: string | null;
   showActionSheet: boolean;
@@ -20,6 +40,13 @@ interface PhotoViewProps {
   onShowActionSheet: (show: boolean) => void;
 }
 
+/**
+ * Component for capturing and displaying photos in issue reports
+ * Provides camera access, gallery selection, and photo removal
+ * 
+ * @param {PhotoViewProps} props - Component props
+ * @returns {JSX.Element} Rendered component
+ */
 const PhotoView: React.FC<PhotoViewProps> = ({
   photo,
   showActionSheet,

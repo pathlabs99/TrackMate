@@ -1,12 +1,26 @@
-// utils/Network.ts
+/**
+ * @fileoverview Network utility functions for TrackMate application.
+ * @author TrackMate Team
+ * @date 2025-04-13
+ * @filename Network.ts
+ *
+ * This file contains functions for network status monitoring, API communication,
+ * and offline data synchronization.
+ */
+
 import { Network as CapacitorNetwork } from '@capacitor/network';
 import { generateCSV } from './CSV';
 import { getPendingSubmissions, updatePendingSubmissions } from './Storage';
 
+/**
+ * The base URL for API requests
+ */
 const API_URL = 'https://trackmateserver.onrender.com';
 
 /**
  * Check if the device is currently online
+ * 
+ * @returns Promise that resolves to a boolean indicating if the device is connected
  */
 export const checkNetworkStatus = async (): Promise<boolean> => {
   const status = await CapacitorNetwork.getStatus();
@@ -15,6 +29,8 @@ export const checkNetworkStatus = async (): Promise<boolean> => {
 
 /**
  * Add network status change listener
+ * 
+ * @param callback - Function to call when network status changes
  */
 export const addNetworkListener = (callback: (isConnected: boolean) => void): void => {
   CapacitorNetwork.addListener('networkStatusChange', (status) => {
@@ -24,20 +40,38 @@ export const addNetworkListener = (callback: (isConnected: boolean) => void): vo
 
 /**
  * Remove network status change listener
+ * 
+ * @param callback - Function to remove from network status change listeners
  */
 export const removeNetworkListener = (callback: (isConnected: boolean) => void): void => {
   CapacitorNetwork.removeAllListeners();
 };
 
+/**
+ * Interface representing the progress of a submission
+ */
 interface SubmissionProgress {
+  /**
+   * The current status of the submission
+   */
   status: 'preparing' | 'uploading' | 'processing' | 'complete';
+  /**
+   * The current progress of the submission (0-100)
+   */
   progress: number;
 }
 
+/**
+ * Type representing a callback function for submission progress updates
+ */
 type ProgressCallback = (progress: SubmissionProgress) => void;
 
 /**
  * Send CSV data to server with progress tracking
+ * 
+ * @param csvData - The CSV data to send to the server
+ * @param surveyId - The ID of the survey
+ * @param onProgress - Optional callback function for progress updates
  */
 export const sendCSVToServer = async (
   csvData: string, 
@@ -45,20 +79,16 @@ export const sendCSVToServer = async (
   onProgress?: ProgressCallback
 ): Promise<void> => {
   try {
-    // Check network status
     if (!await checkNetworkStatus()) {
       throw new Error('No internet connection');
     }
 
-    // Update progress: Preparing data (0-10%)
     onProgress?.({ status: 'preparing', progress: 0 });
     
-    // Prepare data for server request
-    const fileName = `survey_${surveyId}.csv`; // Ensure .csv extension
+    const fileName = `survey_${surveyId}.csv`;
     
     onProgress?.({ status: 'preparing', progress: 10 });
 
-    // Start actual server request (70-90%)
     onProgress?.({ status: 'processing', progress: 70 });
     
     const response = await fetch(`${API_URL}/send-survey`, {
@@ -73,7 +103,6 @@ export const sendCSVToServer = async (
       })
     });
 
-    // Update progress during processing
     onProgress?.({ status: 'processing', progress: 80 });
     await new Promise(resolve => setTimeout(resolve, 300));
     onProgress?.({ status: 'processing', progress: 90 });
@@ -82,74 +111,62 @@ export const sendCSVToServer = async (
       throw new Error(`Server returned ${response.status}: ${response.statusText}`);
     }
 
-    // Complete
     onProgress?.({ status: 'complete', progress: 100 });
-    console.log('Survey submitted successfully');
   } catch (error) {
-    console.error('Error sending CSV to server:', error);
     throw error;
   }
 };
 
-// Add a sync lock to prevent multiple simultaneous syncs
 let isSyncing = false;
 
 /**
  * Sync pending surveys with the server
+ * 
+ * @param onProgress - Optional callback function for progress updates
+ * @returns The number of surveys synced
  */
 export const syncPendingSubmissions = async (onProgress?: ProgressCallback): Promise<number> => {
-  // Prevent multiple simultaneous sync operations
   if (isSyncing) {
-    console.log('Sync already in progress, skipping...');
     return 0;
   }
 
   try {
     isSyncing = true;
 
-    // Check if we're online
     if (!await checkNetworkStatus()) {
       throw new Error('No internet connection');
     }
 
-    // Get pending submissions
     const pendingSubmissions = await getPendingSubmissions();
     if (pendingSubmissions.length === 0) {
       return 0;
     }
 
     let syncedCount = 0;
-    const successfulSubmissions: string[] = []; // Track successfully synced submissions by surveyId
+    const successfulSubmissions: string[] = [];
 
-    // Try to sync each submission
     for (const submission of pendingSubmissions) {
       try {
-        // Skip if already synced
         if (successfulSubmissions.includes(submission.surveyId)) {
           continue;
         }
 
-        // Generate CSV for this submission
         const csvData = await generateCSV(submission);
         const surveyId = submission.surveyId;
 
-        // Send to server
         await sendCSVToServer(csvData, surveyId, onProgress);
         syncedCount++;
         successfulSubmissions.push(surveyId);
 
-        // Remove successful submission from pending list immediately
         const remaining = pendingSubmissions.filter(s => !successfulSubmissions.includes(s.surveyId));
         await updatePendingSubmissions(remaining);
       } catch (error) {
-        console.error('Error syncing submission:', error);
-        // Continue with next submission
+        throw error;
       }
     }
 
     return syncedCount;
   } catch (error) {
-    console.error('Error syncing pending submissions:', error);
     throw error;
   } finally {
     isSyncing = false;

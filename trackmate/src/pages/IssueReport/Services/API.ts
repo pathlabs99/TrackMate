@@ -1,14 +1,27 @@
-// Services/APIService.ts
-// Extracted from your submitReportToServer function
+/**
+ * @fileoverview API service for the TrackMate issue reporting system.
+ * @author Marwa
+ * @date 2025-04-13
+ * @filename API.ts
+ *
+ * This file contains the API service which handles communication with the
+ * TrackMate server for submitting issue reports.
+ */
 
-// Server URL from your original code
+// Server URL for the TrackMate backend
 const API_URL = "https://trackmateserver.onrender.com";
 
-console.log("API.ts loaded");
-
+/**
+ * API service class that provides methods for communicating
+ * with the TrackMate server
+ */
 export class API {
   /**
-   * Submit report data to the server
+   * Submit issue report data to the server
+   * 
+   * @param reportData - The issue report data to submit
+   * @returns Promise resolving to the server response
+   * @throws Error if the submission fails
    */
   static async submitReport(reportData: any): Promise<any> {
     try {
@@ -37,19 +50,19 @@ export class API {
 
       return await response.json();
     } catch (error) {
-      console.error('Submit error:', error);
+      // Silent error handling
       throw error;
     }
   }
 
   /**
    * Test connection to the server
-   * This would be used if you implement a connection test feature
+   * 
+   * @returns Promise resolving to the connection test result
+   * @throws Error if the connection test fails
    */
   static async testConnection(): Promise<any> {
     try {
-      console.log("Testing connection to:", `${API_URL}/test`);
-      
       const response = await fetch(`${API_URL}/test`, {
         headers: {
           Accept: "application/json",
@@ -61,7 +74,7 @@ export class API {
         data: await response.text()
       };
     } catch (error) {
-      console.error("Connection test error:", error);
+      // Silent error handling
       throw error;
     }
   }
