@@ -290,10 +290,10 @@ const Balingup: React.FC = () => {
           <IonImg 
             src={balingupImage}
             className="hero-image" 
-            alt="Ballingup landscape" 
+            alt="Balingup landscape" 
           />
           <div className="hero-overlay">
-            <h1 className="location-name">BALLINGUP</h1>
+            <h1 className="location-name">BALINGUP</h1>
             <p className="location-subtitle">Western Australia</p>
           </div>
         </div>
