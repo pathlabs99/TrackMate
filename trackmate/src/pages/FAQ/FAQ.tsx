@@ -1,3 +1,22 @@
+/**
+ * @fileoverview FAQ page component for the TrackMate mobile app.
+ * @author Marwa
+ * @module pages/FAQ
+ * @description A comprehensive FAQ page that provides searchable answers to common
+ * questions about TrackMate and the Bibbulmun Track.
+ * 
+ * @note Developer Handover
+ * The following can be customized:
+ * 1. Content Management
+ *    - FAQ entries are stored in faqData array
+ *    - Update questions and answers as needed
+ * 2. Contact Information
+ *    - Update support email in subtitle text
+ * 3. Search Functionality
+ *    - Currently searches both questions and answers
+ *    - Search behavior can be modified if needed
+ */
+
 import React, { useState } from "react";
 import {
   IonContent,
@@ -22,11 +41,47 @@ import {
   chevronDownCircleOutline 
 } from "ionicons/icons";
 import "./FAQ.css";
+import { motion, AnimatePresence } from "framer-motion";
 
+/**
+ * @interface FAQItem
+ * @description Represents a single FAQ entry with question and answer
+ */
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+/**
+ * @component FAQ
+ * @description FAQ page with searchable questions and answers
+ * Features include:
+ * - Searchable FAQ entries
+ * - Expandable/collapsible answers
+ * - Expand/collapse all functionality
+ * - Smooth animations and transitions
+ * - Responsive card layout
+ * 
+ * @returns {JSX.Element} FAQ page component
+ */
 const FAQ: React.FC = () => {
+  /**
+   * @state searchText
+   * @description Current search query for filtering FAQs
+   */
   const [searchText, setSearchText] = useState("");
+
+  /**
+   * @state expandedItems
+   * @description Tracks which FAQ items are expanded
+   */
   const [expandedItems, setExpandedItems] = useState<{ [key: string]: boolean }>({});
 
+  /**
+   * @constant faqData
+   * @description Array of FAQ items with questions and answers
+   * @type {FAQItem[]}
+   */
   const faqData = [
     {
       question: "What is TrackMate?",
@@ -90,6 +145,11 @@ const FAQ: React.FC = () => {
     }
   ];
 
+  /**
+   * @function toggleItem
+   * @description Toggles the expanded state of a specific FAQ item
+   * @param {number} index - Index of the FAQ item to toggle
+   */
   const toggleItem = (index: number) => {
     setExpandedItems(prev => ({
       ...prev,
@@ -97,6 +157,10 @@ const FAQ: React.FC = () => {
     }));
   };
 
+  /**
+   * @function expandAll
+   * @description Expands all currently filtered FAQ items
+   */
   const expandAll = () => {
     const expanded: { [key: string]: boolean } = {};
     faqData.forEach((_, index) => {
@@ -105,17 +169,58 @@ const FAQ: React.FC = () => {
     setExpandedItems(expanded);
   };
 
+  /**
+   * @function collapseAll
+   * @description Collapses all FAQ items
+   */
   const collapseAll = () => {
     setExpandedItems({});
   };
 
+  /**
+   * @constant filteredFAQs
+   * @description FAQs filtered based on search text
+   */
   const filteredFAQs = faqData.filter(item =>
     item.question.toLowerCase().includes(searchText.toLowerCase()) ||
     item.answer.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  /**
+   * @constant isAllExpanded
+   * @description Checks if all filtered FAQs are currently expanded
+   */
   const isAllExpanded = filteredFAQs.length > 0 && 
     filteredFAQs.every((_, index) => expandedItems[index]);
+
+  // Animation variants for smoother transitions
+  const iconVariants = {
+    collapsed: { rotate: 0, scale: 1 },
+    expanded: { rotate: 90, scale: 1.1 }
+  };
+
+  const contentVariants = {
+    collapsed: { 
+      height: 0,
+      opacity: 0,
+      y: -10,
+      transition: { 
+        height: { duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] },
+        opacity: { duration: 0.15 },
+        y: { duration: 0.15 }
+      }
+    },
+    expanded: { 
+      height: "auto",
+      opacity: 1,
+      y: 0,
+      transition: { 
+        height: { duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] },
+        opacity: { duration: 0.25, delay: 0.1 },
+        y: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+      }
+    }
+  };
 
   return (
     <IonPage className="gradient-background">
@@ -168,20 +273,45 @@ const FAQ: React.FC = () => {
                   onClick={() => toggleItem(index)}
                   className="faq-item"
                 >
-                  <IonLabel className="ion-text-wrap">
-                    <h2>{item.question}</h2>
-                  </IonLabel>
-                  <IonIcon
-                    icon={expandedItems[index] ? chevronDown : chevronForward}
-                    slot="end"
-                    className={`transition-icon ${expandedItems[index] ? 'rotated' : ''}`}
-                  />
-                </IonItem>
-                {expandedItems[index] && (
-                  <div className="faq-answer">
-                    <p>{item.answer}</p>
+                  <div className="faq-question-container">
+                    <IonLabel className="ion-text-wrap faq-question">
+                      <h2>{item.question}</h2>
+                    </IonLabel>
                   </div>
-                )}
+                  <motion.div
+                    className="icon-container"
+                    variants={iconVariants}
+                    initial="collapsed"
+                    animate={expandedItems[index] ? "expanded" : "collapsed"}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 300, 
+                      damping: 20,
+                      duration: 0.3
+                    }}
+                    slot="end"
+                  >
+                    <IonIcon
+                      icon={chevronForward}
+                      className="transition-icon"
+                    />
+                  </motion.div>
+                </IonItem>
+                <AnimatePresence initial={false}>
+                  {expandedItems[index] && (
+                    <motion.div 
+                      className="faq-answer"
+                      key={`answer-${index}`}
+                      variants={contentVariants}
+                      initial="collapsed"
+                      animate="expanded"
+                      exit="collapsed"
+                      layout
+                    >
+                      <p>{item.answer}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 <IonRippleEffect />
               </IonCardContent>
             </IonCard>

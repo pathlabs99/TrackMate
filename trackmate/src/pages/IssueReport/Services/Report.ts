@@ -1,7 +1,6 @@
 /**
  * @fileoverview Report service for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename Report.ts
  *
  * This file contains the Report service which provides centralized functionality

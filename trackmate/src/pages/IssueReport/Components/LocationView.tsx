@@ -1,7 +1,6 @@
 /**
  * @fileoverview Location input component for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename LocationView.tsx
  *
  * This component handles the location input and GPS functionality for issue reports.

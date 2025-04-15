@@ -1,7 +1,6 @@
 /**
  * @fileoverview Network service for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename Network.ts
  *
  * This file contains the Network service which provides functionality

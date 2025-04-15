@@ -1,3 +1,20 @@
+/**
+ * @fileoverview Weather widget component for the TrackMate mobile app.
+ * @author Marwa
+ * @module components/WeatherWidget
+ * @description A responsive weather widget that displays current weather conditions
+ * and location information using geolocation services.
+ * 
+ * @note Developer Handover
+ * The following can be customized:
+ * 1. Location Services
+ *    - Uses OpenStreetMap for reverse geocoding
+ *    - Falls back to 'Perth' if location services fail
+ * 2. Weather Metrics
+ *    - Default values are provided for offline/testing use
+ *    - Integration with a weather API can be added
+ */
+
 import React, { useEffect, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { 
@@ -11,15 +28,44 @@ import {
 import { Geolocation } from '@capacitor/geolocation';
 import './WeatherWidget.css';
 
+/**
+ * @interface WeatherWidgetProps
+ * @description Props for configuring the weather widget display
+ */
 interface WeatherWidgetProps {
+  /** Current temperature in Celsius */
   temp?: number;
+  /** Weather condition description (e.g., "Partly Cloudy") */
   condition?: string;
+  /** Wind speed in kilometers per hour */
   windSpeed?: number;
+  /** Humidity percentage */
   humidity?: number;
+  /** UV index value */
   uv?: number;
+  /** Loading state flag */
   loading?: boolean;
 }
 
+/**
+ * @component WeatherWidget
+ * @description Displays current weather information and location
+ * Features include:
+ * - Real-time location detection
+ * - Temperature display
+ * - Weather condition
+ * - Wind speed, humidity, and UV index
+ * - Loading state handling
+ * 
+ * @param {WeatherWidgetProps} props - Component props
+ * @param {number} [props.temp=24] - Temperature in Celsius
+ * @param {string} [props.condition="Partly Cloudy"] - Weather condition
+ * @param {number} [props.windSpeed=12] - Wind speed in km/h
+ * @param {number} [props.humidity=65] - Humidity percentage
+ * @param {number} [props.uv=6] - UV index
+ * @param {boolean} [props.loading=false] - Loading state
+ * @returns {JSX.Element} Weather widget component
+ */
 const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   temp = 24,
   condition = "Partly Cloudy",
@@ -28,9 +74,26 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   uv = 6,
   loading = false
 }) => {
+  /**
+   * @state locationName
+   * @description Current location name from reverse geocoding
+   * @type {string | null}
+   */
   const [locationName, setLocationName] = useState<string | null>(null);
+
+  /**
+   * @state isLoadingLocation
+   * @description Loading state for location detection
+   * @type {boolean}
+   */
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
+  /**
+   * @effect
+   * @description Fetches and sets the current location on component mount
+   * Uses Capacitor's Geolocation API and OpenStreetMap's reverse geocoding
+   * Falls back to 'Perth' if location services are unavailable
+   */
   useEffect(() => {
     const getCurrentLocation = async () => {
       try {

@@ -1,11 +1,26 @@
 /**
  * @fileoverview Main application component for the TrackMate mobile app.
- * @author Abdullah
- * @date 2025-04-13
- * @filename App.tsx
- *
- * This file contains the main App component which sets up the application's
- * routing, navigation, and handles platform-specific configurations.
+ * @author TrackMate Team
+ * @module App
+ * @description Root component that sets up the application structure, including
+ * routing, navigation, and platform-specific configurations.
+ * 
+ * @note Developer Handover
+ * The following can be customized:
+ * 1. Navigation
+ *    - Tab bar configuration in IonTabs
+ *    - Route definitions in IonRouterOutlet
+ *    - Path mappings and redirects
+ * 2. Platform Features
+ *    - Platform detection via isPlatform
+ *    - Native integrations setup
+ * 3. App State
+ *    - First launch detection
+ *    - Onboarding flow control
+ *    - Global state management
+ * 4. Theme
+ *    - Dark/light mode preferences
+ *    - Platform-specific styling
  */
 
 import React, { useEffect, useState } from "react";
@@ -56,8 +71,8 @@ import Denmark from "./pages/QR/Denmark";
 
 // Import SplashScreen component
 import SplashScreen from "./components/SplashScreen/SplashScreen";
-import Menu from "./components/Menu";
-import WeatherWidget from "./components/WeatherWidget";
+import Menu from "./components/Menu/Menu";
+import WeatherWidget from "./components/WeatherWidget/WeatherWidget";
 
 /* Core CSS */
 import "@ionic/react/css/core.css";
@@ -78,25 +93,69 @@ import "./theme/edge-to-edge.css";
 // Initialize Ionic React with configuration
 setupIonicReact({
   mode: 'md',
-  animated: true,
+  animated: true
 });
 
+// Force light mode for the entire app
+document.body.classList.remove('dark');
+
 /**
- * Main App component that sets up the application structure,
- * handles splash screen, onboarding, and main navigation
+ * @component App
+ * @description Root application component that orchestrates the entire app structure
+ * Features include:
+ * - Ionic framework integration
+ * - Tab-based navigation
+ * - Platform-specific adaptations
+ * - First launch detection
+ * - Splash screen management
+ * - Onboarding flow
+ * - Dark/light theme support
+ * 
+ * @returns {JSX.Element} Root application component
  */
 const App: React.FC = () => {
-  // State for managing application flow and transitions
-  const [showSplash, setShowSplash] = useState(true);
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
+  /**
+   * @state showSplash
+   * @description Controls splash screen visibility based on first launch
+   */
+  const [showSplash, setShowSplash] = useState<boolean>(() => {
+    // Show splash screen in both native and browser environments for testing
+    const hasLaunched = localStorage.getItem('hasLaunchedBefore');
+    return !hasLaunched;
+  });
+
+  /**
+   * @state hasCompletedOnboarding
+   * @description Tracks whether user has completed onboarding flow
+   */
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(() => {
+    const hasCompleted = localStorage.getItem('hasCompletedOnboarding');
+    // If hasCompleted is null (first time), default to false to show onboarding
+    // If hasLaunched is also null, we'll show splash first, then onboarding
+    return hasCompleted === 'true';
+  });
+
+  /**
+   * @state isTransitioning
+   * @description Controls animation states between screens
+   */
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  /**
+   * @state showOnboarding
+   * @description Controls onboarding screen visibility
+   */
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   /**
-   * Effect for setting up platform-specific configurations
-   * and handling device events
+   * @effect platformSetup
+   * @description Sets up platform-specific configurations and event handlers
    */
   useEffect(() => {
+    // For development testing - uncomment to reset app state
+    localStorage.removeItem('hasLaunchedBefore');
+    localStorage.removeItem('hasCompletedOnboarding');
+    
     /**
      * Set up platform-specific configurations for Android
      */
@@ -108,11 +167,13 @@ const App: React.FC = () => {
           await StatusBar.setBackgroundColor({ color: '#ffffff' });
           await StatusBar.setStyle({ style: Style.Light });
           
-          // Get actual status bar height and set it as CSS variable
-          const statusBarHeight = await StatusBar.getHeight();
+          // Calculate status bar height using safe area insets
+          const safeAreaTop = window.getComputedStyle(document.documentElement).getPropertyValue('--ion-safe-area-top');
+          const statusBarHeight = parseInt(safeAreaTop, 10) || 24; // Default to 24px if not available
+          
           document.documentElement.style.setProperty(
             '--actual-status-bar-height',
-            `${statusBarHeight.height}px`
+            `${statusBarHeight}px`
           );
           
           // Add additional padding for devices with notches
@@ -120,7 +181,7 @@ const App: React.FC = () => {
           if (topInset > 0) {
             document.documentElement.style.setProperty(
               '--safe-area-inset-top',
-              `${Math.max(topInset, statusBarHeight.height)}px`
+              `${Math.max(topInset, statusBarHeight)}px`
             );
           }
         } catch (err) {
@@ -139,16 +200,18 @@ const App: React.FC = () => {
     const handleResize = async () => {
       if (Capacitor.getPlatform() === 'android') {
         try {
-          const statusBarHeight = await StatusBar.getHeight();
+          const safeAreaTop = window.getComputedStyle(document.documentElement).getPropertyValue('--ion-safe-area-top');
+          const statusBarHeight = parseInt(safeAreaTop, 10) || 24; // Default to 24px if not available
+          
           document.documentElement.style.setProperty(
             '--actual-status-bar-height',
-            `${statusBarHeight.height}px`
+            `${statusBarHeight}px`
           );
           
           const topInset = window.innerHeight - document.documentElement.clientHeight;
           document.documentElement.style.setProperty(
             '--safe-area-inset-top',
-            `${Math.max(topInset, statusBarHeight.height)}px`
+            `${Math.max(topInset, statusBarHeight)}px`
           );
         } catch (error) {
           // Silent error handling
@@ -180,11 +243,21 @@ const App: React.FC = () => {
   const handleSplashComplete = () => {
     setIsTransitioning(true);
     setShowOnboarding(true);
+    // Mark that the app has been launched before
+    localStorage.setItem('hasLaunchedBefore', 'true');
     // Add a small delay before hiding splash to ensure exit animation plays
     setTimeout(() => {
       setShowSplash(false);
       setIsTransitioning(false);
     }, 600);
+  };
+
+  /**
+   * Handle onboarding completion
+   */
+  const handleOnboardingComplete = () => {
+    setHasCompletedOnboarding(true);
+    localStorage.setItem('hasCompletedOnboarding', 'true');
   };
 
   return (
@@ -216,7 +289,7 @@ const App: React.FC = () => {
             }}
           >
             <IonApp className={isPlatform('android') ? 'android-platform' : ''}>
-              <OnboardingScreen onComplete={() => setHasCompletedOnboarding(true)} />
+              <OnboardingScreen onComplete={handleOnboardingComplete} />
             </IonApp>
           </motion.div>
         )}
@@ -224,7 +297,11 @@ const App: React.FC = () => {
 
       {/* Main application with animation */}
       <AnimatePresence>
-        {!showSplash && hasCompletedOnboarding && (
+        {/* Show main app if splash is done AND onboarding is complete, OR if neither has been shown yet but we're in browser */}
+        {(!showSplash && hasCompletedOnboarding) || 
+         (localStorage.getItem('hasLaunchedBefore') === null && 
+          localStorage.getItem('hasCompletedOnboarding') === null && 
+          !Capacitor.isNativePlatform()) ? (
           <motion.div
             key="main-app"
             initial={{ opacity: 0 }}
@@ -320,7 +397,7 @@ const App: React.FC = () => {
               </IonReactRouter>
             </IonApp>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

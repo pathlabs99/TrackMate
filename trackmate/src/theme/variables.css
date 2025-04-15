@@ -29,15 +29,61 @@
   --ion-safe-area-bottom: env(safe-area-inset-bottom);
   --ion-safe-area-left: env(safe-area-inset-left);
   --ion-safe-area-right: 0 !important; /* Override safe area right to remove border */
-  
-  /* Remove white vertical border */
-  --ion-border-color: transparent !important;
-  --border-width: 0 !important;
-  --border: none !important;
-  --ion-item-border-color: transparent !important;
-  --background-color: transparent !important;
-  --ion-toolbar-border-color: transparent !important;
-  --ion-tab-bar-border-color: transparent !important;
+
+  /* Light Mode Only - Primary Colors */
+  --ion-color-primary: #3880ff;
+  --ion-color-primary-rgb: 56, 128, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3171e0;
+  --ion-color-primary-tint: #4c8dff;
+
+  /* Light Mode Only - Success Colors */
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  /* Light Mode Only - Warning Colors */
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
+
+  /* Light Mode Only - Danger Colors */
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+
+  /* Light Mode Only - Medium Colors */
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+
+  /* Light Mode Only - Light Colors */
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+
+  /* Light Mode Only - Background Colors */
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #000000;
+  --ion-text-color-rgb: 0, 0, 0;
+  --ion-border-color: #d7d8da;
 }
 
 /* Global overrides to remove white vertical border */
@@ -215,42 +261,6 @@ ion-header {
     --padding-start: 8px;
     --padding-end: 8px;
     font-size: 14px;
-  }
-}
-
-/* ========== DISABLE DARK MODE ========== */
-/* This explicitly disables Ionic's dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Force light mode colors even when system is in dark mode */
-    --ion-color-primary: #FFA725;
-    --ion-background-color: #ffffff;
-    --ion-background-color-rgb: 255,255,255;
-    --ion-text-color: #000000;
-    --ion-text-color-rgb: 0,0,0;
-    --ion-border-color: #d7d8da;
-    
-    /* Override any other dark mode variables */
-    --ion-item-background: #ffffff;
-    --ion-card-background: #ffffff;
-    --ion-toolbar-background: #ffffff;
-    --ion-tab-bar-background: #ffffff;
-    --ion-item-background-rgb: 255,255,255;
-  }
-
-  /* Force light mode for all Ionic components */
-  .ios body {
-    --ion-background-color: #ffffff;
-    --ion-background-color-rgb: 255,255,255;
-    --ion-text-color: #000000;
-    --ion-text-color-rgb: 0,0,0;
-  }
-
-  .md body {
-    --ion-background-color: #ffffff;
-    --ion-background-color-rgb: 255,255,255;
-    --ion-text-color: #000000;
-    --ion-text-color-rgb: 0,0,0;
   }
 }
 

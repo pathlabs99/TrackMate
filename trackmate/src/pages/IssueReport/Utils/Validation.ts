@@ -1,5 +1,10 @@
-// Utils/ValidationUtils.ts
-// Extracted from your validateForm function
+/**
+ * @fileoverview Form validation utilities for TrackMate's issue reporting system
+ * @author Marwa
+ * @module pages/IssueReport/Utils
+ * @description Provides validation functions and error handling for issue report forms.
+ * Validates required fields, email format, coordinates, and issue descriptions.
+ */
 
 import { IssueFormData, Coordinates } from "../Models/IssueReport";
 

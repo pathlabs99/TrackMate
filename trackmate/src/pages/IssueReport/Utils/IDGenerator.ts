@@ -1,5 +1,10 @@
-// Utils/IDGenerator.ts
-// Extracted from your generateReportId function
+/**
+ * @fileoverview ID generation utilities for TrackMate's issue reporting system
+ * @author Marwa
+ * @module pages/IssueReport/Utils
+ * @description Provides functions to generate unique identifiers for issue reports.
+ * Uses timestamp-based IDs with random suffixes to ensure uniqueness.
+ */
 
 /**
  * Generates a unique report ID based on current date and time

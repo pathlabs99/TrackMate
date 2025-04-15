@@ -1,7 +1,6 @@
 /**
  * @fileoverview Network status display component for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename NetworkStatusView.tsx
  *
  * This component displays the current network status (online/offline) in the issue

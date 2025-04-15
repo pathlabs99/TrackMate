@@ -1,13 +1,10 @@
 /**
  * @fileoverview Background synchronization service for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename BackgroundSync.ts
  *
  * This file contains the BackgroundSync service which provides functionality
  * for synchronizing offline issue reports when network connectivity is restored.
- * It implements a singleton pattern and uses aggressive sync strategies to
- * maximize chances of syncing when the app is briefly opened.
  */
 
 import { Storage } from '@ionic/storage';

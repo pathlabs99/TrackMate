@@ -1,7 +1,6 @@
 /**
  * @fileoverview QR code scanner component for the TrackMate mobile app.
- * @author Abdullah
- * @date 2025-04-13
+ * @author Wael
  * @filename QR.tsx
  *
  * This file contains the QR scanner component which allows users to scan

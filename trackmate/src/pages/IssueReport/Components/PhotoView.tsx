@@ -1,7 +1,6 @@
 /**
  * @fileoverview Photo capture component for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename PhotoView.tsx
  *
  * This component handles photo capture and display for issue reports.

@@ -1,7 +1,6 @@
 /**
  * @fileoverview Geolocation service for the TrackMate issue reporting system.
  * @author Abdullah
- * @date 2025-04-13
  * @filename Geolocation.ts
  *
  * This file contains the Geolocation service which provides functionality

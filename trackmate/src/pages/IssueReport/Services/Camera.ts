@@ -1,7 +1,6 @@
 /**
  * @fileoverview Camera service for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename Camera.ts
  *
  * This file contains the Camera service which provides cross-platform

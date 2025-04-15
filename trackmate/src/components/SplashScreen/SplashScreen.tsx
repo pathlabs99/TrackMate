@@ -1,11 +1,15 @@
 /**
  * @fileoverview Splash screen component for the TrackMate mobile app.
  * @author Marwa
- * @date 2025-04-13
- * @filename SplashScreen.tsx
- *
- * This file contains the SplashScreen component which displays a branded
- * loading screen with animation when the application first launches.
+ * @module components/SplashScreen
+ * @description This component displays a branded loading screen when the application
+ * first launches, featuring the TrackMate logo and a smooth fade-out animation.
+ * 
+ * @note Developer Handover
+ * The following can be customized:
+ * 1. Visual Elements
+ *    - Logo can be updated in assets/onboarding/Logo.svg
+ *    - Animation styles can be modified in SplashScreen.css
  */
 
 import React, { useEffect } from 'react';
@@ -14,21 +18,28 @@ import Logo from '../../assets/onboarding/Logo.svg';
 import './SplashScreen.css';
 
 /**
- * Interface for SplashScreen component props
+ * @interface SplashScreenProps
+ * @description Props for configuring the splash screen behavior
  */
 interface SplashScreenProps {
-  /** Callback function to execute when splash screen animation completes */
+  /** Function called when splash screen animation completes */
   onComplete: () => void;
-  /** Boolean flag to control visibility of the splash screen */
+  /** Controls visibility of the splash screen */
   isVisible: boolean;
 }
 
 /**
- * SplashScreen component that displays an animated splash screen
- * when the application first launches
+ * @component SplashScreen
+ * @description Displays an animated splash screen on app launch
+ * Features include:
+ * - Centered logo display
+ * - Timed auto-dismiss
+ * - Fade-out animation
  * 
- * @param onComplete - Callback function to execute when animation completes
- * @param isVisible - Boolean flag to control visibility of the splash screen
+ * @param {object} props - Component props
+ * @param {Function} props.onComplete - Called when animation finishes
+ * @param {boolean} props.isVisible - Controls component visibility
+ * @returns {JSX.Element} Animated splash screen component
  */
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete, isVisible }) => {
   /**

@@ -1,7 +1,6 @@
 /**
  * @fileoverview Urgency selection component for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename UrgencySelect.tsx
  *
  * This component provides a user interface for selecting the urgency level

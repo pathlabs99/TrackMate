@@ -1,12 +1,24 @@
 /**
  * @fileoverview Issue reporting component for the TrackMate mobile app.
- * @author Abdullah
- * @date 2025-04-13
- * @filename IssueReport.tsx
- *
- * This file contains the IssueReport component which allows users to report
- * issues along the Bibbulmun Track with support for offline submission,
- * location tracking, and photo capture.
+ * @author Marwa
+ * @module pages/IssueReport
+ * @description A comprehensive form component that enables users to report and track
+ * maintenance issues along the Bibbulmun Track, with offline support.
+ * 
+ * @note Developer Handover
+ * The following can be customized:
+ * 1. Issue Categories
+ *    - Modify issueTypes array for different issue categories
+ *    - Update validation rules if needed
+ * 2. Photo Management
+ *    - Configure photo size limits and compression
+ *    - Adjust allowed file types
+ * 3. Offline Storage
+ *    - Uses localforage for offline data persistence
+ *    - Data retention policies
+ * 4. Email Integration
+ *    - Update recipient email addresses
+ *    - Modify email templates and formatting
  */
 
 import React, { useState, useEffect } from "react";
@@ -58,8 +70,41 @@ import { API } from "./Services/API";
 import { CameraSource } from "@capacitor/camera";
 
 /**
- * IssueReport component that provides a form for users to report
- * issues along the Bibbulmun Track with offline support
+ * @interface IssueData
+ * @description Represents the data structure for a maintenance issue report
+ */
+interface IssueData {
+  /** Unique identifier for the issue */
+  id: string;
+  /** Type/category of the issue */
+  issueType: string;
+  /** Detailed description of the issue */
+  description: string;
+  /** GPS coordinates of the issue location */
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  /** Timestamp when the issue was reported */
+  timestamp: string;
+  /** Array of photo URLs or base64 strings */
+  photos: string[];
+  /** Whether the issue has been synced to the server */
+  synced: boolean;
+}
+
+/**
+ * @component IssueReport
+ * @description Form component for reporting track maintenance issues
+ * Features include:
+ * - Offline-first functionality
+ * - Photo capture and management
+ * - GPS location tracking
+ * - Form validation
+ * - Auto-save draft reports
+ * - Background sync when online
+ * 
+ * @returns {JSX.Element} Issue report form component
  */
 const IssueReport: React.FC = () => {
   // State management for form data and UI

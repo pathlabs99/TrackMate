@@ -1,11 +1,21 @@
 /**
  * @fileoverview Onboarding screen component for the TrackMate mobile app.
- * @author TrackMate Team
- * @date 2025-04-13
- * @filename OnboardingScreen.tsx
- *
- * This file contains the onboarding screen component which introduces new users
- * to the key features of the TrackMate app through an animated slideshow.
+ * @author Marwa
+ * @module pages/Onboarding
+ * @description A slideshow component that introduces new users to TrackMate's
+ * key features through interactive, animated slides.
+ * 
+ * @note Developer Handover
+ * The following can be customized:
+ * 1. Slide Content
+ *    - Modify onboardingData array to update content
+ *    - Add/remove slides as needed
+ * 2. Animations
+ *    - Uses Framer Motion for transitions
+ *    - Customize animation variants in code
+ * 3. Styling
+ *    - Styles defined in onboarding.css
+ *    - Supports dark/light mode
  */
 
 import React from "react";
@@ -28,26 +38,28 @@ import feedbackIllustration from '../../assets/onboarding/onboarding-feedback.pn
 import "./onboarding.css";
 
 /**
- * Interface for onboarding slide data
  * @interface OnboardingData
+ * @description Data structure for each onboarding slide
  */
 interface OnboardingData {
   /** Unique identifier for the slide */
   id: string;
-  /** Main title of the slide */
+  /** Main heading text */
   title: string;
-  /** Subtitle or tagline */
+  /** Secondary heading text */
   subtitle: string;
-  /** Detailed description of the feature */
+  /** Detailed slide description */
   description: string;
-  /** Icon to display with the slide */
+  /** Icon name from Ionicons */
   icon: string;
   /** Path to the illustration image */
   illustration: string;
 }
 
 /**
- * Onboarding data for all slides
+ * @constant onboardingData
+ * @description Configuration for all onboarding slides
+ * Each slide introduces a key feature of TrackMate
  * @type {OnboardingData[]}
  */
 const onboardingData: OnboardingData[] = [
@@ -86,20 +98,26 @@ const onboardingData: OnboardingData[] = [
 ];
 
 /**
- * Props for the OnboardingScreen component
  * @interface OnboardingScreenProps
+ * @description Props for the OnboardingScreen component
  */
 interface OnboardingScreenProps {
-  /** Callback function to execute when onboarding is completed */
+  /** Callback function triggered when onboarding is completed */
   onComplete: () => void;
 }
 
 /**
- * Onboarding screen component that displays a series of slides
- * introducing the app's features to new users
+ * @component OnboardingScreen
+ * @description Interactive slideshow that introduces new users to TrackMate's features
+ * Features include:
+ * - Animated slide transitions
+ * - Progress indicators
+ * - Skip/Continue navigation
+ * - Responsive layout
+ * - Accessible controls
  * 
  * @param {OnboardingScreenProps} props - Component props
- * @returns {JSX.Element} Rendered component
+ * @returns {JSX.Element} Onboarding screen component
  */
 const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [currentIndex, setCurrentIndex] = React.useState(0);

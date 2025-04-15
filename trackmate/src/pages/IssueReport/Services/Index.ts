@@ -1,7 +1,6 @@
 /**
  * @fileoverview Service exports index for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename Index.ts
  *
  * This file serves as a barrel file that exports all services from a single location,

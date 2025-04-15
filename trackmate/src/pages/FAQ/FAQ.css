@@ -60,19 +60,46 @@ ion-header::after {
 }
 
 .faq-card {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   background: white;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  will-change: transform;
+}
+
+.faq-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.faq-card ion-card-content {
+  padding: 0;
 }
 
 .faq-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
   --background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.faq-question-container {
+  flex: 1;
+  padding: 24px 20px 24px 24px;
+  margin: 0;
+}
+
+.faq-question {
+  margin: 0;
+  padding: 0;
 }
 
 .faq-item h2 {
@@ -80,27 +107,61 @@ ion-header::after {
   font-weight: 500;
   color: var(--ion-color-dark);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  padding: 0;
+}
+
+/* Fix for IonLabel internal padding */
+ion-label.faq-question {
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Override Ionic's default IonItem label padding */
+.faq-item ion-label {
+  margin: 0;
+  padding: 0;
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  margin-right: 0;
+  padding: 24px;
+  will-change: transform;
 }
 
 .transition-icon {
-  font-size: 20px;
-  transition: transform 0.3s ease;
-  color: var(--ion-color-medium);
-}
-
-.transition-icon.rotated {
-  transform: rotate(90deg);
+  font-size: 22px;
+  color: #FFA725;
+  will-change: transform;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .faq-answer {
-  padding: 0 16px 16px;
+  padding: 0 24px 24px;
   color: var(--ion-color-medium);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  margin-top: 8px;
+  margin-top: 0;
   padding-top: 16px;
+  overflow: hidden;
+  will-change: height, opacity, transform;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.faq-answer p {
+  margin: 0;
+  white-space: pre-line;
+  padding: 0;
+  text-align: left;
+  letter-spacing: 0.01em;
 }
 
 /* System font */
@@ -110,10 +171,17 @@ ion-header::after {
 
 /* Fix ion-item styling */
 ion-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-    --background: transparent;
-    --border-color: rgba(0, 0, 0, 0.08);
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --min-height: auto;
+}
+
+/* Specific overrides for FAQ items */
+.faq-item.item {
+  --inner-padding-start: 0;
+  --inner-padding-end: 0;
 }
 
 /* Ensure IonContent is also using the correct background */
@@ -147,6 +215,7 @@ ion-content::part(scroll) {
   --padding-bottom: 8px;
   --padding-start: 16px;
   --padding-end: 16px;
+  transition: all 0.2s ease;
 }
 
 .expand-collapse-button ion-icon {
@@ -157,6 +226,7 @@ ion-content::part(scroll) {
 
 .expand-collapse-button:hover {
   --opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* Add safe area padding to IonContent */

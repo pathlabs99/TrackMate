@@ -1,7 +1,6 @@
 /**
  * @fileoverview API service for the TrackMate issue reporting system.
  * @author Marwa
- * @date 2025-04-13
  * @filename API.ts
  *
  * This file contains the API service which handles communication with the

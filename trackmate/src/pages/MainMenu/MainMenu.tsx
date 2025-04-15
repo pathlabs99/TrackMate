@@ -32,7 +32,7 @@ import {
   snow
 } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
-import WeatherWidget from "../../components/WeatherWidget";
+import WeatherWidget from "../../components/WeatherWidget/WeatherWidget";
 import "./MainMenu.css";
 
 // WeatherAPI configuration
