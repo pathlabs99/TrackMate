@@ -1,7 +1,13 @@
-import { Dimensions } from 'react-native';
+// Use browser window dimensions instead of react-native
+const windowWidth = window.innerWidth;
+const windowHeight = window.innerHeight;
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+// Add event listener to update dimensions on resize
+window.addEventListener('resize', () => {
+  // This is a simple approach - in a real app you might want to use
+  // a more sophisticated approach with React state/context
+  console.log('Window resized');
+});
 
 export const width = {
   sm: windowWidth * 0.4,    // 40% of screen width

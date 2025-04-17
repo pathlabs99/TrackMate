@@ -119,7 +119,6 @@ const App: React.FC = () => {
    * @description Controls splash screen visibility based on first launch
    */
   const [showSplash, setShowSplash] = useState<boolean>(() => {
-    // Show splash screen in both native and browser environments for testing
     const hasLaunched = localStorage.getItem('hasLaunchedBefore');
     return !hasLaunched;
   });
@@ -128,12 +127,7 @@ const App: React.FC = () => {
    * @state hasCompletedOnboarding
    * @description Tracks whether user has completed onboarding flow
    */
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(() => {
-    const hasCompleted = localStorage.getItem('hasCompletedOnboarding');
-    // If hasCompleted is null (first time), default to false to show onboarding
-    // If hasLaunched is also null, we'll show splash first, then onboarding
-    return hasCompleted === 'true';
-  });
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(false);
 
   /**
    * @state isTransitioning
@@ -145,50 +139,56 @@ const App: React.FC = () => {
    * @state showOnboarding
    * @description Controls onboarding screen visibility
    */
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    const hasLaunched = localStorage.getItem('hasLaunchedBefore');
+    return !hasLaunched; // Show onboarding if this is the first launch
+  });
+
+  /**
+   * @state isInitialized
+   * @description Tracks whether the app has been properly initialized
+   */
+  const [isInitialized, setIsInitialized] = useState(false);
 
   /**
    * @effect platformSetup
    * @description Sets up platform-specific configurations and event handlers
    */
   useEffect(() => {
-    // For development testing - uncomment to reset app state
-    localStorage.removeItem('hasLaunchedBefore');
-    localStorage.removeItem('hasCompletedOnboarding');
-    
     /**
      * Set up platform-specific configurations for Android
      */
     const setupApp = async () => {
       if (Capacitor.getPlatform() === 'android') {
         try {
-          // Handle status bar appearance
+          // Handle status bar appearance - simplified approach
           await StatusBar.setOverlaysWebView({ overlay: false });
           await StatusBar.setBackgroundColor({ color: '#ffffff' });
           await StatusBar.setStyle({ style: Style.Light });
           
-          // Calculate status bar height using safe area insets
-          const safeAreaTop = window.getComputedStyle(document.documentElement).getPropertyValue('--ion-safe-area-top');
-          const statusBarHeight = parseInt(safeAreaTop, 10) || 24; // Default to 24px if not available
-          
-          document.documentElement.style.setProperty(
-            '--actual-status-bar-height',
-            `${statusBarHeight}px`
-          );
-          
-          // Add additional padding for devices with notches
-          const topInset = window.innerHeight - document.documentElement.clientHeight;
-          if (topInset > 0) {
-            document.documentElement.style.setProperty(
-              '--safe-area-inset-top',
-              `${Math.max(topInset, statusBarHeight)}px`
-            );
-          }
+          // Set fixed values for status bar height
+          document.documentElement.style.setProperty('--actual-status-bar-height', '24px');
+          document.documentElement.style.setProperty('--safe-area-inset-top', '32px');
         } catch (err) {
-          // Fallback values if we can't get actual heights
+          console.error('Status bar error:', err);
+          // Fallback values
           document.documentElement.style.setProperty('--actual-status-bar-height', '24px');
           document.documentElement.style.setProperty('--safe-area-inset-top', '32px');
         }
+      } else {
+        // For web and iOS, set default values
+        document.documentElement.style.setProperty('--actual-status-bar-height', '0px');
+        document.documentElement.style.setProperty('--safe-area-inset-top', '0px');
+      }
+      
+      // If this is not the first launch, mark as initialized
+      const hasLaunched = localStorage.getItem('hasLaunchedBefore');
+      if (hasLaunched) {
+        setHasCompletedOnboarding(true);
+        setIsInitialized(true);
+      } else {
+        // For first launch, show onboarding after splash screen
+        setShowOnboarding(true);
       }
     };
 
@@ -197,25 +197,11 @@ const App: React.FC = () => {
     /**
      * Handle orientation changes and resizes
      */
-    const handleResize = async () => {
+    const handleResize = () => {
+      // Use fixed values instead of trying to calculate dynamically
       if (Capacitor.getPlatform() === 'android') {
-        try {
-          const safeAreaTop = window.getComputedStyle(document.documentElement).getPropertyValue('--ion-safe-area-top');
-          const statusBarHeight = parseInt(safeAreaTop, 10) || 24; // Default to 24px if not available
-          
-          document.documentElement.style.setProperty(
-            '--actual-status-bar-height',
-            `${statusBarHeight}px`
-          );
-          
-          const topInset = window.innerHeight - document.documentElement.clientHeight;
-          document.documentElement.style.setProperty(
-            '--safe-area-inset-top',
-            `${Math.max(topInset, statusBarHeight)}px`
-          );
-        } catch (error) {
-          // Silent error handling
-        }
+        document.documentElement.style.setProperty('--actual-status-bar-height', '24px');
+        document.documentElement.style.setProperty('--safe-area-inset-top', '32px');
       }
     };
 
@@ -249,15 +235,8 @@ const App: React.FC = () => {
     setTimeout(() => {
       setShowSplash(false);
       setIsTransitioning(false);
+      setIsInitialized(true);
     }, 600);
-  };
-
-  /**
-   * Handle onboarding completion
-   */
-  const handleOnboardingComplete = () => {
-    setHasCompletedOnboarding(true);
-    localStorage.setItem('hasCompletedOnboarding', 'true');
   };
 
   return (
@@ -271,7 +250,7 @@ const App: React.FC = () => {
 
       {/* Onboarding screen with animation */}
       <AnimatePresence mode="wait">
-        {showOnboarding && !hasCompletedOnboarding && (
+        {!showSplash && showOnboarding && !hasCompletedOnboarding && (
           <motion.div
             key="onboarding"
             initial={{ opacity: 0 }}
@@ -289,7 +268,7 @@ const App: React.FC = () => {
             }}
           >
             <IonApp className={isPlatform('android') ? 'android-platform' : ''}>
-              <OnboardingScreen onComplete={handleOnboardingComplete} />
+              <OnboardingScreen onComplete={() => setHasCompletedOnboarding(true)} />
             </IonApp>
           </motion.div>
         )}
@@ -297,11 +276,7 @@ const App: React.FC = () => {
 
       {/* Main application with animation */}
       <AnimatePresence>
-        {/* Show main app if splash is done AND onboarding is complete, OR if neither has been shown yet but we're in browser */}
-        {(!showSplash && hasCompletedOnboarding) || 
-         (localStorage.getItem('hasLaunchedBefore') === null && 
-          localStorage.getItem('hasCompletedOnboarding') === null && 
-          !Capacitor.isNativePlatform()) ? (
+        {isInitialized && !showSplash && hasCompletedOnboarding && (
           <motion.div
             key="main-app"
             initial={{ opacity: 0 }}
@@ -314,10 +289,7 @@ const App: React.FC = () => {
                 <IonTabs>
                   <IonRouterOutlet>
                     <Route exact path="/menu">
-                      <>
-                        <WeatherWidget />
-                        <MainMenu />
-                      </>
+                      <MainMenu />
                     </Route>
                     <Route exact path="/scan">
                       <QRScanner />
@@ -397,7 +369,7 @@ const App: React.FC = () => {
               </IonReactRouter>
             </IonApp>
           </motion.div>
-        ) : null}
+        )}
       </AnimatePresence>
     </>
   );

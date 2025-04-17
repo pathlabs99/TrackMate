@@ -23,8 +23,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  IonContent,
-  IonPage,
   IonItem,
   IonLabel,
   IonInput,
@@ -573,286 +571,284 @@ const IssueReport: React.FC = () => {
   }, []);
 
   return (
-    <IonPage className="issue-report-page">
-      <IonContent className="ion-padding">
-        <div className="issue-card-container">
-          <form className="form-container" onSubmit={handleSubmit}>
-            {/* Network status indicator */}
-            <IonChip 
-              color={isOnline ? "success" : "warning"} 
-              className="network-status"
-            >
-              <IonIcon icon={isOnline ? cloudUpload : cloudOfflineOutline} />
-              <IonLabel>{isOnline ? "Online" : "Offline"}</IonLabel>
-            </IonChip>
+    <div className="issue-report-page">
+      <div className="issue-card-container">
+        <form className="form-container" onSubmit={handleSubmit}>
+          {/* Network status indicator */}
+          <IonChip 
+            color={isOnline ? "success" : "warning"} 
+            className="network-status"
+          >
+            <IonIcon icon={isOnline ? cloudUpload : cloudOfflineOutline} />
+            <IonLabel>{isOnline ? "Online" : "Offline"}</IonLabel>
+          </IonChip>
 
-            {!isOnline && (
-              <div className="offline-banner">
-                <IonIcon icon={cloudOfflineOutline} />
-                <span>You're offline. Report will be saved locally and sent when online.</span>
+          {!isOnline && (
+            <div className="offline-banner">
+              <IonIcon icon={cloudOfflineOutline} />
+              <span>You're offline. Report will be saved locally and sent when online.</span>
+            </div>
+          )}
+
+          <div className="form-section">
+            <h2 className="form-title">Report an Issue</h2>
+            <p className="form-subtitle">
+              Your reports help us keep the Bibbulmun Track in great condition.
+              Please note: in case of an emergency, always contact local authorities.
+            </p>
+
+            <IonLabel>Issue Type <span className="required">*</span></IonLabel>
+            <div className="issue-types">
+              {issueTypes.map((type) => (
+                <IonChip
+                  key={type}
+                  className={formData.issueType === type ? "selected" : ""}
+                  onClick={() => handleIssueTypeSelect(type)}
+                >
+                  {type}
+                </IonChip>
+              ))}
+            </div>
+
+            <IonLabel>Urgency Level <span className="required">*</span></IonLabel>
+            <div className="urgency-options">
+              {urgencyLevels.map((level) => (
+                <div
+                  key={level.value}
+                  className={`urgency-option ${level.className} ${
+                    formData.urgency === level.value ? "selected" : ""
+                  }`}
+                  onClick={() => handleUrgencySelect(level.value)}
+                >
+                  {level.label}
+                </div>
+              ))}
+            </div>
+
+            <label className="field-label" htmlFor="name">Name <span className="required">*</span></label>
+            <IonInput
+              id="name"
+              className="input-field"
+              value={formData.name}
+              onIonChange={(e) => handleInputChange("name", e.detail.value!)}
+              placeholder="Your full name"
+              required
+              aria-required="true"
+              aria-invalid={!!validationErrors.name}
+              aria-describedby={validationErrors.name ? "name-error" : undefined}
+            />
+            {validationErrors.name && (
+              <div className="error-message" id="name-error" role="alert">
+                <IonIcon icon={alertCircleOutline} />
+                {validationErrors.name}
               </div>
             )}
 
-            <div className="form-section">
-              <h2 className="form-title">Report an Issue</h2>
-              <p className="form-subtitle">
-                Your reports help us keep the Bibbulmun Track in great condition.
-                Please note: in case of an emergency, always contact local authorities.
-              </p>
-
-              <IonLabel>Issue Type <span className="required">*</span></IonLabel>
-              <div className="issue-types">
-                {issueTypes.map((type) => (
-                  <IonChip
-                    key={type}
-                    className={formData.issueType === type ? "selected" : ""}
-                    onClick={() => handleIssueTypeSelect(type)}
-                  >
-                    {type}
-                  </IonChip>
-                ))}
+            <label className="field-label" htmlFor="email">Email <span className="required">*</span></label>
+            <IonInput
+              id="email"
+              type="email"
+              className="input-field"
+              value={formData.email}
+              onIonChange={(e) => handleInputChange("email", e.detail.value!)}
+              placeholder="your@email.com"
+              required
+              aria-required="true"
+              aria-invalid={!!validationErrors.email}
+              aria-describedby={validationErrors.email ? "email-error" : undefined}
+            />
+            {validationErrors.email && (
+              <div className="error-message" id="email-error" role="alert">
+                <IonIcon icon={alertCircleOutline} />
+                {validationErrors.email}
               </div>
+            )}
 
-              <IonLabel>Urgency Level <span className="required">*</span></IonLabel>
-              <div className="urgency-options">
-                {urgencyLevels.map((level) => (
-                  <div
-                    key={level.value}
-                    className={`urgency-option ${level.className} ${
-                      formData.urgency === level.value ? "selected" : ""
-                    }`}
-                    onClick={() => handleUrgencySelect(level.value)}
-                  >
-                    {level.label}
-                  </div>
-                ))}
+            <label className="field-label" htmlFor="telephone">Telephone <span className="optional">(optional)</span></label>
+            <IonInput
+              id="telephone"
+              type="tel"
+              className="input-field"
+              value={formData.telephone}
+              onIonChange={(e) => handleInputChange("telephone", e.detail.value!)}
+              placeholder="Your phone number"
+              aria-invalid={!!validationErrors.telephone}
+              aria-describedby={validationErrors.telephone ? "telephone-error" : undefined}
+            />
+            {validationErrors.telephone && (
+              <div className="error-message" id="telephone-error" role="alert">
+                <IonIcon icon={alertCircleOutline} />
+                {validationErrors.telephone}
               </div>
-
-              <label className="field-label" htmlFor="name">Name <span className="required">*</span></label>
-              <IonInput
-                id="name"
-                className="input-field"
-                value={formData.name}
-                onIonChange={(e) => handleInputChange("name", e.detail.value!)}
-                placeholder="Your full name"
-                required
-                aria-required="true"
-                aria-invalid={!!validationErrors.name}
-                aria-describedby={validationErrors.name ? "name-error" : undefined}
-              />
-              {validationErrors.name && (
-                <div className="error-message" id="name-error" role="alert">
-                  <IonIcon icon={alertCircleOutline} />
-                  {validationErrors.name}
-                </div>
-              )}
-
-              <label className="field-label" htmlFor="email">Email <span className="required">*</span></label>
-              <IonInput
-                id="email"
-                type="email"
-                className="input-field"
-                value={formData.email}
-                onIonChange={(e) => handleInputChange("email", e.detail.value!)}
-                placeholder="your@email.com"
-                required
-                aria-required="true"
-                aria-invalid={!!validationErrors.email}
-                aria-describedby={validationErrors.email ? "email-error" : undefined}
-              />
-              {validationErrors.email && (
-                <div className="error-message" id="email-error" role="alert">
-                  <IonIcon icon={alertCircleOutline} />
-                  {validationErrors.email}
-                </div>
-              )}
-
-              <label className="field-label" htmlFor="telephone">Telephone <span className="optional">(optional)</span></label>
-              <IonInput
-                id="telephone"
-                type="tel"
-                className="input-field"
-                value={formData.telephone}
-                onIonChange={(e) => handleInputChange("telephone", e.detail.value!)}
-                placeholder="Your phone number"
-                aria-invalid={!!validationErrors.telephone}
-                aria-describedby={validationErrors.telephone ? "telephone-error" : undefined}
-              />
-              {validationErrors.telephone && (
-                <div className="error-message" id="telephone-error" role="alert">
-                  <IonIcon icon={alertCircleOutline} />
-                  {validationErrors.telephone}
-                </div>
-              )}
-            </div>
-
-            <div className="form-section">
-              <label className="field-label">Date Observed <span className="required">*</span></label>
-              <button
-                type="button"
-                className="date-button"
-                onClick={() => setShowDatePicker(true)}
-              >
-                <IonIcon icon={calendar} />
-                {formData.dateObserved
-                  ? new Date(formData.dateObserved).toLocaleDateString()
-                  : "Select Date"}
-              </button>
-              {validationErrors.dateObserved && (
-                <div className="error-message" id="date-error" role="alert">
-                  <IonIcon icon={alertCircleOutline} />
-                  {validationErrors.dateObserved}
-                </div>
-              )}
-              <div className="helper-text">Note: Date must be within the last 4 weeks</div>
-
-              <IonModal
-                isOpen={showDatePicker}
-                onDidDismiss={() => setShowDatePicker(false)}
-                className="date-picker-modal"
-              >
-                <div className="date-picker-container">
-                  <IonDatetime
-                    value={formData.dateObserved}
-                    onIonChange={(e: CustomEvent) => handleDateChange(e.detail.value!)}
-                    presentation="date"
-                    showDefaultButtons={true}
-                    doneText="Done"
-                    cancelText="Cancel"
-                    firstDayOfWeek={0}
-                    max={new Date().toISOString()}
-                    className="date-picker"
-                  />
-                </div>
-              </IonModal>
-            </div>
-
-            <div className="form-section">
-              <IonLabel>Location <span className="required">*</span></IonLabel>
-              <button
-                type="button"
-                className="location-button"
-                onClick={captureLocation}
-              >
-                <IonIcon icon={location} />
-                Capture GPS Location
-              </button>
-
-              <div className="location-details">
-                <div className="location-details-header">
-                  Location Details <span className="optional">(optional)</span>
-                </div>
-                <textarea
-                  className="location-input"
-                  value={formData.locationDetails}
-                  onChange={(e) => handleInputChange("locationDetails", e.target.value)}
-                  placeholder="Additional location details (e.g., 2km north of Helena shelter)"
-                />
-              </div>
-
-              <div className="photo-evidence">
-                <div className="photo-evidence-header">
-                  Photo Evidence <span className="optional">(optional)</span>
-                </div>
-                <div 
-                  className="photo-upload-area"
-                  onClick={handlePhotoUpload}
-                >
-                  <IonIcon icon={cloudUpload} />
-                  <span className="photo-upload-text">Add Photo</span>
-                </div>
-              </div>
-
-              <div className="issue-description">
-                <div className="issue-description-header">
-                  Issue Description <span className="required">*</span>
-                </div>
-                <textarea
-                  className="description-input"
-                  value={formData.comments}
-                  onChange={(e) => handleInputChange("comments", e.target.value)}
-                  placeholder="Please describe the issue in detail"
-                  required
-                />
-              </div>
-
-              {renderPhotoPreview()}
-
-              <div className="submit-button-container">
-                <button
-                  type="submit"
-                  className="submit-button"
-                  disabled={loading}
-                >
-                  {isOnline ? (
-                    <>
-                      Submit Report
-                      <IonIcon icon={arrowForward} />
-                    </>
-                  ) : (
-                    <>
-                      Save Offline
-                      <IonIcon icon={cloudOfflineOutline} />
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <IonLoading isOpen={loading} message="Please wait..." />
-        
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message={toastMessage}
-          duration={3000}
-          position="bottom"
-          cssClass="custom-toast"
-          icon={checkmarkOutline}
-        />
-
-        <IonActionSheet
-          isOpen={showActionSheet}
-          onDidDismiss={() => setShowActionSheet(false)}
-          buttons={[
-            {
-              text: "Take Photo",
-              icon: camera,
-              handler: () => handleTakePhoto(CameraSource.Camera),
-            },
-            {
-              text: "Choose from Gallery",
-              icon: image,
-              handler: () => handleTakePhoto(CameraSource.Photos),
-            },
-            {
-              text: "Cancel",
-              role: "cancel",
-            },
-          ]}
-        />
-
-        <IonModal
-          isOpen={showSuccessModal}
-          onDidDismiss={() => setShowSuccessModal(false)}
-          className="simple-success-modal"
-        >
-          <div className="simple-modal-content">
-            <IonIcon icon={checkmarkOutline} className="success-check-icon" />
-            <h2>Report Submitted Successfully!</h2>
-            <IonButton 
-              expand="block" 
-              onClick={() => setShowSuccessModal(false)}
-              className="success-done-button"
-            >
-              Done
-            </IonButton>
+            )}
           </div>
-        </IonModal>
-      </IonContent>
-    </IonPage>
+
+          <div className="form-section">
+            <label className="field-label">Date Observed <span className="required">*</span></label>
+            <button
+              type="button"
+              className="date-button"
+              onClick={() => setShowDatePicker(true)}
+            >
+              <IonIcon icon={calendar} />
+              {formData.dateObserved
+                ? new Date(formData.dateObserved).toLocaleDateString()
+                : "Select Date"}
+            </button>
+            {validationErrors.dateObserved && (
+              <div className="error-message" id="date-error" role="alert">
+                <IonIcon icon={alertCircleOutline} />
+                {validationErrors.dateObserved}
+              </div>
+            )}
+            <div className="helper-text">Note: Date must be within the last 4 weeks</div>
+
+            <IonModal
+              isOpen={showDatePicker}
+              onDidDismiss={() => setShowDatePicker(false)}
+              className="date-picker-modal"
+            >
+              <div className="date-picker-container">
+                <IonDatetime
+                  value={formData.dateObserved}
+                  onIonChange={(e: CustomEvent) => handleDateChange(e.detail.value!)}
+                  presentation="date"
+                  showDefaultButtons={true}
+                  doneText="Done"
+                  cancelText="Cancel"
+                  firstDayOfWeek={0}
+                  max={new Date().toISOString()}
+                  className="date-picker"
+                />
+              </div>
+            </IonModal>
+          </div>
+
+          <div className="form-section">
+            <IonLabel>Location <span className="required">*</span></IonLabel>
+            <button
+              type="button"
+              className="location-button"
+              onClick={captureLocation}
+            >
+              <IonIcon icon={location} />
+              Capture GPS Location
+            </button>
+
+            <div className="location-details">
+              <div className="location-details-header">
+                Location Details <span className="optional">(optional)</span>
+              </div>
+              <textarea
+                className="location-input"
+                value={formData.locationDetails}
+                onChange={(e) => handleInputChange("locationDetails", e.target.value)}
+                placeholder="Additional location details (e.g., 2km north of Helena shelter)"
+              />
+            </div>
+
+            <div className="photo-evidence">
+              <div className="photo-evidence-header">
+                Photo Evidence <span className="optional">(optional)</span>
+              </div>
+              <div 
+                className="photo-upload-area"
+                onClick={handlePhotoUpload}
+              >
+                <IonIcon icon={cloudUpload} />
+                <span className="photo-upload-text">Add Photo</span>
+              </div>
+            </div>
+
+            <div className="issue-description">
+              <div className="issue-description-header">
+                Issue Description <span className="required">*</span>
+              </div>
+              <textarea
+                className="description-input"
+                value={formData.comments}
+                onChange={(e) => handleInputChange("comments", e.target.value)}
+                placeholder="Please describe the issue in detail"
+                required
+              />
+            </div>
+
+            {renderPhotoPreview()}
+
+            <div className="submit-button-container">
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={loading}
+              >
+                {isOnline ? (
+                  <>
+                    Submit Report
+                    <IonIcon icon={arrowForward} />
+                  </>
+                ) : (
+                  <>
+                    Save Offline
+                    <IonIcon icon={cloudOfflineOutline} />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <IonLoading isOpen={loading} message="Please wait..." />
+        
+      <IonToast
+        isOpen={showToast}
+        onDidDismiss={() => setShowToast(false)}
+        message={toastMessage}
+        duration={3000}
+        position="bottom"
+        cssClass="custom-toast"
+        icon={checkmarkOutline}
+      />
+
+      <IonActionSheet
+        isOpen={showActionSheet}
+        onDidDismiss={() => setShowActionSheet(false)}
+        buttons={[
+          {
+            text: "Take Photo",
+            icon: camera,
+            handler: () => handleTakePhoto(CameraSource.Camera),
+          },
+          {
+            text: "Choose from Gallery",
+            icon: image,
+            handler: () => handleTakePhoto(CameraSource.Photos),
+          },
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+        ]}
+      />
+
+      <IonModal
+        isOpen={showSuccessModal}
+        onDidDismiss={() => setShowSuccessModal(false)}
+        className="simple-success-modal"
+      >
+        <div className="simple-modal-content">
+          <IonIcon icon={checkmarkOutline} className="success-check-icon" />
+          <h2>Report Submitted Successfully!</h2>
+          <IonButton 
+            expand="block" 
+            onClick={() => setShowSuccessModal(false)}
+            className="success-done-button"
+          >
+            Done
+          </IonButton>
+        </div>
+      </IonModal>
+    </div>
   );
 };
 

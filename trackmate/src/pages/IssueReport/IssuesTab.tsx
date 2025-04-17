@@ -14,7 +14,7 @@
 
 import React from "react";
 import IssueReportForm from "./IssueReport";
-import { IonPage } from "@ionic/react";
+import { IonPage, IonContent } from "@ionic/react";
 
 /**
  * @component IssuesTab
@@ -27,7 +27,9 @@ import { IonPage } from "@ionic/react";
 const IssuesTab: React.FC = () => {
   return (
     <IonPage>
-      <IssueReportForm />
+      <IonContent>
+        <IssueReportForm />
+      </IonContent>
     </IonPage>
   );
 };
